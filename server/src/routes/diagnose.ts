@@ -37,7 +37,7 @@ diagnoseRouter.post('/', rateLimiter, async (req: Request, res: Response): Promi
     // 3. 執行網頁爬取與抽樣探索
     const crawlResult = await crawlTarget(targetUrl, {
       isSiteWide: Boolean(isSiteWide),
-      sampleLimit: 5
+      sampleLimit: 10
     })
 
     // 4. 執行演算法規則與結構化語意診斷

@@ -2,16 +2,18 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Sparkles, SearchCheck } from 'lucide-react'
+import { AlertCircle, SearchCheck } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
-import { SearchControlBar } from '@/components/SearchControlBar'
+import { StepperBar } from '@/components/StepperBar'
 import { ScoreOverview } from '@/components/ScoreOverview'
 import { ChartsSection } from '@/components/ChartsSection'
 import { SampleArticlesTable } from '@/components/SampleArticlesTable'
+import { PriorityCodeSnippet } from '@/components/PriorityCodeSnippet'
+import { DiagnosticTabs } from '@/components/DiagnosticTabs'
+import { SettingsModal } from '@/components/SettingsModal'
 import type { DiagnosticReport } from '@/types/seo'
 
-export default function DashboardPage() {
-  // 網址輸入框預設為空
+const DashboardPage = () => {
   const [url, setUrl] = useState('')
   const [isSiteWide, setIsSiteWide] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
@@ -19,6 +21,11 @@ export default function DashboardPage() {
   const [report, setReport] = useState<DiagnosticReport | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isExportingWord, setIsExportingWord] = useState(false)
+
+  // 設定彈窗與自訂 API 金鑰狀態 (BYOK 純記憶體隔離)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [geminiKey, setGeminiKey] = useState('')
+  const [openaiKey, setOpenaiKey] = useState('')
 
   // 執行健檢診斷
   const handleStartDiagnose = async () => {
@@ -28,16 +35,20 @@ export default function DashboardPage() {
     setError(null)
     setCurrentStep(1)
 
-    // 模擬 4 步驟進度推移
+    // 平滑模擬 4 步驟進度推移
     const stepTimer1 = setTimeout(() => setCurrentStep(2), 600)
     const stepTimer2 = setTimeout(() => setCurrentStep(3), 1600)
 
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      }
+      if (geminiKey) headers['x-gemini-key'] = geminiKey
+      if (openaiKey) headers['x-openai-key'] = openaiKey
+
       const res = await fetch('/api/diagnose', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({
           url: url.trim(),
           isSiteWide,
@@ -104,34 +115,34 @@ export default function DashboardPage() {
 
     try {
       const { scores, sections, targetUrl, pageTitle, isSiteWide: siteWide, analyzedPageCount, allPages } = report
-      let md = `# 🔍 SEO · GEO · AIO 網頁健檢診斷報告\n\n`
+      let md = `# SEO · GEO · AIO 網頁健檢診斷報告\n\n`
       md += `> **評估時間**：${new Date(report.timestamp).toLocaleString('zh-TW')}  \n`
       md += `> **受測網址**：${targetUrl}  \n`
       md += `> **網頁標題**：${pageTitle}  \n`
       md += `> **分析範疇**：${siteWide ? `全站抽樣深度健檢 (主頁 + ${analyzedPageCount - 1} 篇抽樣頁面)` : '單頁專項深度診斷'}  \n\n`
 
-      md += `## 📊 綜合健康度評分矩陣\n\n`
+      md += `## 綜合健康度評分矩陣\n\n`
       md += `| 評估維度 | 評估分數 | 狀態等級 |\n`
       md += `| :--- | :---: | :--- |\n`
-      md += `| **傳統 SEO (搜尋引擎優化)** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '🟢 良好' : '🔴 需深度優化'} |\n`
-      md += `| **GEO (在地化地理搜尋)** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '🟢 良好' : '🔴 嚴重脫節'} |\n`
-      md += `| **AIO (生成式 AI 答案引擎)** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '🟢 良好' : '🔴 容易被忽略'} |\n`
+      md += `| **傳統 SEO (搜尋引擎優化)** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '良好' : '需深度優化'} |\n`
+      md += `| **GEO (在地化地理搜尋)** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '良好' : '嚴重脫節'} |\n`
+      md += `| **AIO (生成式 AI 答案引擎)** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '良好' : '容易被忽略'} |\n`
       md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **綜合評級** |\n\n`
       md += `---\n\n`
 
       if (allPages && allPages.length > 0) {
-        md += `## 📑 抽查檢驗之頁面清單\n\n`
+        md += `## 抽查檢驗之頁面清單\n\n`
         md += `| 序號 | 頁面類別 | 網頁標題 | 完整檢驗網址 |\n`
         md += `| :---: | :--- | :--- | :--- |\n`
-        allPages.forEach(p => {
+        allPages.forEach((p) => {
           md += `| ${p.no} | ${p.type} | ${(p.title || '').replace(/\|/g, '-')} | [${p.url}](${p.url}) |\n`
         })
         md += `\n---\n\n`
       }
 
-      md += `## 📋 1. 傳統 SEO 診斷\n\n${sections.seoSection.titleMetaAnalysis}\n\n${sections.seoSection.eeatAnalysis}\n\n`
-      md += `## 📍 2. GEO 診斷\n\n${sections.geoSection.schemaAnalysis}\n\n${sections.geoSection.geoEntityAnalysis}\n\n`
-      md += `## 🤖 3. AIO 診斷\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
+      md += `## 1. 傳統 SEO 診斷\n\n${sections.seoSection.titleMetaAnalysis}\n\n${sections.seoSection.eeatAnalysis}\n\n`
+      md += `## 2. GEO 診斷\n\n${sections.geoSection.schemaAnalysis}\n\n${sections.geoSection.geoEntityAnalysis}\n\n`
+      md += `## 3. AIO 診斷\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
 
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
       const downloadUrl = window.URL.createObjectURL(blob)
@@ -147,28 +158,31 @@ export default function DashboardPage() {
     }
   }
 
+  // 取得推薦的 Schema 代碼
+  const recommendedCodeSnippet = report?.sections.improvementSection.items.find(
+    (item) => item.codeSnippet
+  )?.codeSnippet
+
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans text-slate-900">
-      {/* 頂部導覽列 */}
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-slate-900">
+      {/* 頂部導航條 (包含系統名稱、網址輸入、藍色開始按鈕與匯出按鈕) */}
       <Navbar
+        url={url}
+        setUrl={setUrl}
+        isSiteWide={isSiteWide}
+        setIsSiteWide={setIsSiteWide}
+        onStartDiagnose={handleStartDiagnose}
+        isLoading={isLoading}
         hasReport={Boolean(report)}
         onExportWord={handleExportWord}
         onExportMarkdown={handleExportMarkdown}
-        onOpenSettings={() => alert('設定彈窗功能將於階段 5 完整串接')}
+        onOpenSettings={() => setIsSettingsOpen(true)}
         isExportingWord={isExportingWord}
       />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-        {/* 頂部搜尋與範疇控制列 */}
-        <SearchControlBar
-          url={url}
-          setUrl={setUrl}
-          isSiteWide={isSiteWide}
-          setIsSiteWide={setIsSiteWide}
-          onStartDiagnose={handleStartDiagnose}
-          isLoading={isLoading}
-          currentStep={currentStep}
-        />
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+        {/* 四步驟線性進度軌道 */}
+        <StepperBar currentStep={currentStep} isLoading={isLoading} />
 
         {/* 錯誤提示框 */}
         <AnimatePresence>
@@ -177,7 +191,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50/80 p-4 text-sm text-rose-800 shadow-xs"
+              className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50/80 p-4 text-sm text-rose-800 shadow-2xs"
             >
               <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
               <div>
@@ -188,7 +202,7 @@ export default function DashboardPage() {
           )}
         </AnimatePresence>
 
-        {/* 診斷報表內容 */}
+        {/* 健檢報告成果區域 */}
         {report ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -196,45 +210,70 @@ export default function DashboardPage() {
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
-            {/* 1. 核心 KPI 分數總覽 (Count-up 動畫) */}
+            {/* 1. KPI 卡片 (四環進度儀表) */}
             <ScoreOverview scores={report.scores} />
 
-            {/* 2. 動態圖表區塊 (長條圖 1000ms 緩動升起 + 圓環圖事實密度) */}
+            {/* 2. 雙欄圖表區：左側圓環圖事實密度 + 右側關鍵指標直方圖 */}
             <ChartsSection
               complianceMetrics={report.complianceMetrics}
               factDensity={report.factDensity}
             />
 
-            {/* 3. 抽查 5 篇代表文章表格 */}
-            <SampleArticlesTable
-              allPages={report.allPages}
-              isSiteWide={report.isSiteWide}
-            />
+            {/* 3. 雙欄資訊區：左側抽查檢驗清單表格 + 右側優先改善建議代碼框 */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
+              <div className="lg:col-span-6">
+                <SampleArticlesTable
+                  allPages={report.allPages}
+                  isSiteWide={report.isSiteWide}
+                />
+              </div>
+              <div className="lg:col-span-6">
+                <PriorityCodeSnippet codeSnippet={recommendedCodeSnippet} />
+              </div>
+            </div>
+
+            {/* 4. 詳細健檢分類頁籤與詳細方案 */}
+            <div className="pt-2">
+              <div className="mb-3">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  深度分析與維度診斷細項
+                </h3>
+              </div>
+              <DiagnosticTabs sections={report.sections} />
+            </div>
           </motion.div>
         ) : (
-          /* 未進行健檢時的 Notion 極簡空白提示 */
+          /* 未進行健檢時的極簡面板狀態 */
           !isLoading && (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-white/60 p-12 text-center shadow-xs">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 mb-4 shadow-inner">
-                <SearchCheck className="h-6 w-6" />
+            <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-2xs">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 mb-3">
+                <SearchCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-800">尚未開始網頁健檢診斷</h3>
-              <p className="mx-auto mt-1.5 max-w-md text-xs text-slate-500 leading-relaxed">
-                請在上方輸入您欲檢驗的公開網址（例如 <span className="font-mono text-slate-700 bg-slate-100 px-1 py-0.5 rounded">https://example.com</span>），系統將自動啟動 2026 演算法深度檢核，即時呈現達標率與事實密度動態圖表。
+              <h3 className="text-sm font-semibold text-slate-800">尚未開始網頁健檢診斷</h3>
+              <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 leading-relaxed">
+                請在上方導覽列輸入您欲檢驗的公開網址，點擊「開始健檢」按鈕啟動檢核。
               </p>
-              <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                <span>支援單頁專項診斷與全站代表性文章自動抽樣</span>
-              </div>
             </div>
           )
         )}
       </main>
 
-      {/* 底部頁尾 */}
-      <footer className="border-t border-slate-200/60 bg-white py-4 text-center text-xs text-slate-400">
-        SEO · GEO · AIO 現代化智能健檢系統 · Powered by Next.js 15 & Express
+      {/* 系統設定彈窗 (BYOK API Key) */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        geminiKey={geminiKey}
+        setGeminiKey={setGeminiKey}
+        openaiKey={openaiKey}
+        setOpenaiKey={setOpenaiKey}
+      />
+
+      {/* 頁尾 */}
+      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+        SEO · GEO · AIO 網頁健檢診斷系統
       </footer>
     </div>
   )
 }
+
+export default DashboardPage

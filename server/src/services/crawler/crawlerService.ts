@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 import type { CrawlResult, SampledPage } from '../../types/seo.js'
 import { fetchHtml } from './httpFetcher.js'
 import { extractInternalArticleLinks } from './linkExtractor.js'
-import { fetchIypSampleArticles } from './iypAdapter.js'
+import { fetchContentFeedArticles } from './contentFeedAdapter.js'
 
 export interface CrawlOptions {
   isSiteWide?: boolean
@@ -10,13 +10,13 @@ export interface CrawlOptions {
 }
 
 /**
- * 核心網頁爬蟲控制器 (支援單頁分析與全站 5 篇抽樣)
+ * 核心網頁爬蟲控制器 (支援單頁分析與全站 10 篇抽樣)
  */
 export const crawlTarget = async (
   targetUrl: string,
   options: CrawlOptions = {}
 ): Promise<CrawlResult> => {
-  const { isSiteWide = false, sampleLimit = 5 } = options
+  const { isSiteWide = false, sampleLimit = 10 } = options
 
   // 1. 抓取主頁面
   const primaryResult = await fetchHtml(targetUrl)
@@ -43,10 +43,14 @@ export const crawlTarget = async (
   // 2. 全站模式：搜集候選子頁面
   const candidateLinks: string[] = []
 
-  // 若為 life.iyp.com.tw，優先整合 GraphQL API
+  // 若為具備專屬內容 API 饋送之平台站點，優先整合結構化饋送
   if (targetUrl.includes('life.iyp.com.tw')) {
     try {
-      const apiLinks = await fetchIypSampleArticles(sampleLimit + 2)
+      const apiLinks = await fetchContentFeedArticles(
+        'https://www.iyp.com.tw/graphql',
+        'https://life.iyp.com.tw',
+        sampleLimit + 2
+      )
       candidateLinks.push(...apiLinks)
     } catch {
       // 降級改由 HTML 萃取
@@ -60,7 +64,7 @@ export const crawlTarget = async (
   // 去重並過濾主頁自身
   const primaryUrlObj = new URL(primaryResult.url)
   const uniqueCandidates = Array.from(new Set(candidateLinks))
-    .filter(link => {
+    .filter((link) => {
       try {
         const u = new URL(link)
         return u.pathname !== primaryUrlObj.pathname && u.href !== primaryUrlObj.href
@@ -76,7 +80,7 @@ export const crawlTarget = async (
 
   // 3. 平行抓取抽樣頁面
   const sampledPages: SampledPage[] = []
-  const fetchPromises = uniqueCandidates.map(async pageUrl => {
+  const fetchPromises = uniqueCandidates.map(async (pageUrl) => {
     const pageRes = await fetchHtml(pageUrl, 15000)
     if (pageRes.ok && pageRes.html) {
       const page$ = cheerio.load(pageRes.html)

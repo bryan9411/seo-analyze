@@ -101,7 +101,7 @@ export const SearchControlBar: React.FC<SearchControlBarProps> = ({
             />
             <span className="flex items-center gap-1 font-medium text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
               <Globe className="h-3.5 w-3.5 text-blue-600" />
-              全站抽樣深度健檢 (自動抽樣 5 篇代表文章)
+              全站抽樣深度健檢 (自動抽樣 10 篇代表文章)
             </span>
           </label>
         </div>

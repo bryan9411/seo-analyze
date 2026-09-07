@@ -255,13 +255,30 @@ const calculateFactDensity = (allAnalyses: SinglePageAnalysis[]): FactDensityMet
   const factualCount = allAnalyses.reduce((acc, a) => acc + a.factualNumberCount, 0)
   const fluffCount = allAnalyses.reduce((acc, a) => acc + a.fluffCount, 0)
 
+  // 聚合客觀事實樣本
+  const allFacts = allAnalyses.flatMap(a => a.sampleFacts || [])
+  const sampleFacts = Array.from(new Set(allFacts)).slice(0, 15)
+
+  // 聚合商業宣傳詞樣本
+  const fluffMap = new Map<string, number>()
+  for (const a of allAnalyses) {
+    for (const item of a.foundFluffWords || []) {
+      fluffMap.set(item.word, (fluffMap.get(item.word) || 0) + item.count)
+    }
+  }
+  const sampleFluff = Array.from(fluffMap.entries())
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count)
+
   const total = factualCount + fluffCount
   if (total === 0) {
     return {
       factualCount: 0,
       fluffCount: 0,
       factualPercent: 50,
-      fluffPercent: 50
+      fluffPercent: 50,
+      sampleFacts,
+      sampleFluff
     }
   }
 
@@ -272,7 +289,9 @@ const calculateFactDensity = (allAnalyses: SinglePageAnalysis[]): FactDensityMet
     factualCount,
     fluffCount,
     factualPercent,
-    fluffPercent
+    fluffPercent,
+    sampleFacts,
+    sampleFluff
   }
 }
 

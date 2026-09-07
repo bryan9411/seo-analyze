@@ -39,6 +39,7 @@ export interface SinglePageAnalysis {
   foundFluffWords: Array<{ word: string, count: number }>
   matchedQuestionHeadings: string[]
   factualNumberCount: number
+  sampleFacts?: string[]
   bodyTextSnippet: string
 }
 
@@ -142,6 +143,8 @@ export interface FactDensityMetrics {
   fluffCount: number
   factualPercent: number
   fluffPercent: number
+  sampleFacts?: string[]
+  sampleFluff?: Array<{ word: string, count: number }>
 }
 
 /** 診斷報告主體完整資料結構 */

@@ -13,11 +13,15 @@ const GET_RECENT_ARTICLES_QUERY = `
 `
 
 /**
- * 針對 life.iyp.com.tw 查詢最新代表性文章 (GraphQL Adapter)
+ * 針對支援內容饋送 API 之平台站點查詢最新代表性文章 (Content Feed Adapter)
  */
-export const fetchIypSampleArticles = async (limit = 6): Promise<string[]> => {
+export const fetchContentFeedArticles = async (
+  endpointUrl: string,
+  baseUrl: string,
+  limit = 12
+): Promise<string[]> => {
   try {
-    const res = await fetch('https://www.iyp.com.tw/graphql', {
+    const res = await fetch(endpointUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,9 +37,10 @@ export const fetchIypSampleArticles = async (limit = 6): Promise<string[]> => {
     const data = await res.json()
     const articles = data?.data?.articles?.data || []
 
+    const cleanBase = baseUrl.replace(/\/$/, '')
     return articles
       .filter((a: { articleLink?: string }) => Boolean(a.articleLink))
-      .map((a: { articleLink: string }) => `https://life.iyp.com.tw/article/${a.articleLink}`)
+      .map((a: { articleLink: string }) => `${cleanBase}/article/${a.articleLink}`)
   } catch {
     return []
   }

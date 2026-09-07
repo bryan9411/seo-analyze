@@ -192,8 +192,9 @@ const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) 
   )
 
   // 客觀事實數據出現頻率（數字、百分比、幣值、度量衡）
-  const factualNumberMatches = bodyText.match(/\d+(?:[.,]\d+)?\s*(?:%|元|歲|天|小時|分鐘|公分|kg|km|坪|折)/g) || []
+  const factualNumberMatches = bodyText.match(/\d+(?:[.,]\d+)?\s*(?:%|元|歲|天|小時|分鐘|公分|kg|km|坪|折|月|日|年|次)/g) || []
   const factualNumberCount = factualNumberMatches.length
+  const sampleFacts = Array.from(new Set(factualNumberMatches.map(s => s.trim()))).slice(0, 15)
 
   return {
     tableCount,
@@ -202,7 +203,8 @@ const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) 
     fluffCount,
     foundFluffWords,
     matchedQuestionHeadings,
-    factualNumberCount
+    factualNumberCount,
+    sampleFacts
   }
 }
 

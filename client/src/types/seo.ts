@@ -121,6 +121,8 @@ export interface FactDensityMetrics {
   fluffCount: number
   factualPercent: number
   fluffPercent: number
+  sampleFacts?: string[]
+  sampleFluff?: Array<{ word: string, count: number }>
 }
 
 export interface DiagnosticReport {

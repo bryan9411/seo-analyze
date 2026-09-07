@@ -125,12 +125,16 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.seoSection.eeatAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 紅色致命傷 Callout 警告框
+      // 紅色致命傷 Callout 警告框 / 綠色優勢框
       createCalloutBox(
-        '⚠️ 痛點診斷：導致傳統 Google 排名低迷的致命傷',
-        sections.seoSection.painPoints.join('\n\n'),
-        'C00000',
-        'FDF2F2'
+        sections.seoSection.painPoints.length > 0
+          ? '⚠️ 痛點診斷：導致傳統 Google 排名低迷的致命傷'
+          : '✅ 優勢診斷：傳統 SEO 基礎架構良好',
+        sections.seoSection.painPoints.length > 0
+          ? sections.seoSection.painPoints.join('\n\n')
+          : '經檢測，網頁 Title、Meta 與標題階層架構健全，未發現重大排名致命傷。',
+        sections.seoSection.painPoints.length > 0 ? 'C00000' : '385723',
+        sections.seoSection.painPoints.length > 0 ? 'FDF2F2' : 'F4FBF4'
       ),
       new Paragraph({ spacing: { after: 320 } })
     )
@@ -166,12 +170,16 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.geoSection.geoEntityAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 橙色在地隱形痛點 Callout 警告框
+      // 橙色在地隱形痛點 Callout 警告框 / 綠色優勢框
       createCalloutBox(
-        '⚠️ 痛點診斷：為什麼在地搜尋時這家店形同隱形',
-        sections.geoSection.painPoints.join('\n\n'),
-        'E36209',
-        'FFF8F2'
+        sections.geoSection.painPoints.length > 0
+          ? '⚠️ 痛點診斷：為什麼在地搜尋時這家店形同隱形'
+          : '✅ 優勢診斷：在地搜尋訊號完備',
+        sections.geoSection.painPoints.length > 0
+          ? sections.geoSection.painPoints.join('\n\n')
+          : '在地實體與 NAP 訊號完備，未發現在地搜尋隱形痛點。',
+        sections.geoSection.painPoints.length > 0 ? 'E36209' : '385723',
+        sections.geoSection.painPoints.length > 0 ? 'FFF8F2' : 'F4FBF4'
       ),
       new Paragraph({ spacing: { after: 320 } })
     )
@@ -207,12 +215,16 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.aioSection.qaRelevanceAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 紫色 AI 忽略痛點 Callout 警告框
+      // 紫色 AI 忽略痛點 Callout 警告框 / 綠色優勢框
       createCalloutBox(
-        '⚠️ 痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因',
-        sections.aioSection.painPoints.join('\n\n'),
-        '7030A0',
-        'F8F2FC'
+        sections.aioSection.painPoints.length > 0
+          ? '⚠️ 痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因'
+          : '✅ 優勢診斷：AIO 答案引擎結構體質良好',
+        sections.aioSection.painPoints.length > 0
+          ? sections.aioSection.painPoints.join('\n\n')
+          : '本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。',
+        sections.aioSection.painPoints.length > 0 ? '7030A0' : '385723',
+        sections.aioSection.painPoints.length > 0 ? 'F8F2FC' : 'F4FBF4'
       ),
       new Paragraph({ spacing: { after: 320 } })
     )

@@ -12,7 +12,8 @@ import {
   Check,
   Code2,
   TableProperties,
-  ArrowRight
+  ArrowRight,
+  CheckCircle2
 } from 'lucide-react'
 import type { StructuredSections } from '@/types/seo'
 
@@ -122,21 +123,28 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
                 </div>
               </div>
 
-              {/* 🔴 紅色致命傷警告框 */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-rose-900 flex items-center gap-1.5">
-                  <AlertTriangle className="h-4 w-4 text-rose-600" />
-                  痛點診斷：導致傳統 Google 排名低迷的致命傷
-                </h3>
-                {seoSection.painPoints.map((point, index) => (
-                  <div
-                    key={`seo-pain-${index}`}
-                    className="rounded-r-xl border border-rose-200/80 border-l-4 border-l-rose-500 bg-rose-50/60 p-4 text-xs text-rose-950 leading-relaxed shadow-xs whitespace-pre-line"
-                  >
-                    {point}
-                  </div>
-                ))}
-              </div>
+              {/* 🔴 紅色致命傷警告框 / 綠色優勢狀態 */}
+              {seoSection.painPoints.length > 0 ? (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-rose-900 flex items-center gap-1.5">
+                    <AlertTriangle className="h-4 w-4 text-rose-600" />
+                    痛點診斷：導致傳統 Google 排名低迷的致命傷
+                  </h3>
+                  {seoSection.painPoints.map((point, index) => (
+                    <div
+                      key={`seo-pain-${index}`}
+                      className="rounded-r-xl border border-rose-200/80 border-l-4 border-l-rose-500 bg-rose-50/60 p-4 text-xs text-rose-950 leading-relaxed shadow-xs whitespace-pre-line"
+                    >
+                      {point}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span><strong>優勢診斷：</strong>傳統 SEO 基礎架構健全，Title、Meta 與標題階層未檢測到重大致命傷。</span>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -164,21 +172,28 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
                 </div>
               </div>
 
-              {/* 🟠 橙色在地隱形痛點警告框 */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-1.5">
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  痛點診斷：為什麼在地搜尋時這家店形同隱形
-                </h3>
-                {geoSection.painPoints.map((point, index) => (
-                  <div
-                    key={`geo-pain-${index}`}
-                    className="rounded-r-xl border border-amber-200/80 border-l-4 border-l-amber-500 bg-amber-50/60 p-4 text-xs text-amber-950 leading-relaxed shadow-xs whitespace-pre-line"
-                  >
-                    {point}
-                  </div>
-                ))}
-              </div>
+              {/* 🟠 橙色在地隱形痛點警告框 / 綠色優勢狀態 */}
+              {geoSection.painPoints.length > 0 ? (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-1.5">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    痛點診斷：為什麼在地搜尋時這家店形同隱形
+                  </h3>
+                  {geoSection.painPoints.map((point, index) => (
+                    <div
+                      key={`geo-pain-${index}`}
+                      className="rounded-r-xl border border-amber-200/80 border-l-4 border-l-amber-500 bg-amber-50/60 p-4 text-xs text-amber-950 leading-relaxed shadow-xs whitespace-pre-line"
+                    >
+                      {point}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span><strong>優勢診斷：</strong>在地化實體訊號完備，未檢測到在地搜尋隱形痛點。</span>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -206,21 +221,28 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
                 </div>
               </div>
 
-              {/* 🟣 紫色 AI 忽略痛點警告框 */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-purple-900 flex items-center gap-1.5">
-                  <AlertTriangle className="h-4 w-4 text-purple-600" />
-                  痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因
-                </h3>
-                {aioSection.painPoints.map((point, index) => (
-                  <div
-                    key={`aio-pain-${index}`}
-                    className="rounded-r-xl border border-purple-200/80 border-l-4 border-l-purple-500 bg-purple-50/60 p-4 text-xs text-purple-950 leading-relaxed shadow-xs whitespace-pre-line"
-                  >
-                    {point}
-                  </div>
-                ))}
-              </div>
+              {/* 🟣 紫色 AI 忽略痛點警告框 / 綠色優勢狀態 */}
+              {aioSection.painPoints.length > 0 ? (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-purple-900 flex items-center gap-1.5">
+                    <AlertTriangle className="h-4 w-4 text-purple-600" />
+                    痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因
+                  </h3>
+                  {aioSection.painPoints.map((point, index) => (
+                    <div
+                      key={`aio-pain-${index}`}
+                      className="rounded-r-xl border border-purple-200/80 border-l-4 border-l-purple-500 bg-purple-50/60 p-4 text-xs text-purple-950 leading-relaxed shadow-xs whitespace-pre-line"
+                    >
+                      {point}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span><strong>優勢診斷：</strong>AIO 答案引擎結構良好，具備高引用潛力，未檢測到阻礙 AI 擷取之重大結構痛點。</span>
+                </div>
+              )}
             </motion.div>
           )}
 

@@ -24,6 +24,7 @@ export interface SinglePageAnalysis {
   hasLocalBusinessSchema: boolean
   hasOrganizationSchema: boolean
   hasFaqSchema: boolean
+  faqQuestionsCount?: number
   matchedPhones: string[]
   matchedAddresses: string[]
   hasMapEmbed: boolean

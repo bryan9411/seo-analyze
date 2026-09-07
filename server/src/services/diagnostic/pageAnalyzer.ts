@@ -109,6 +109,7 @@ const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
   let hasLocalBusinessSchema = false
   let hasOrganizationSchema = false
   let hasFaqSchema = false
+  let faqQuestionsCount = 0
   let jsonLdScriptsCount = 0
 
   $('script[type="application/ld+json"]').each((_, el) => {
@@ -135,6 +136,9 @@ const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
         }
         if (/FAQPage/i.test(type)) {
           hasFaqSchema = true
+          if (Array.isArray(obj.mainEntity)) {
+            faqQuestionsCount += obj.mainEntity.length
+          }
         }
         if (obj['@graph'] && Array.isArray(obj['@graph'])) {
           obj['@graph'].forEach(checkType)
@@ -159,6 +163,7 @@ const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
     hasLocalBusinessSchema,
     hasOrganizationSchema,
     hasFaqSchema,
+    faqQuestionsCount,
     matchedPhones,
     matchedAddresses,
     hasMapEmbed,

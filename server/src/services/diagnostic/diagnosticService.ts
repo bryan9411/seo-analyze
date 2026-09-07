@@ -52,7 +52,9 @@ export const runDiagnostics = (
   // 6. 建構四大結構化章節與具體方案
   const sections = buildStructuredSections(crawlData.primaryUrl, primaryAnalysis, {
     totalAddresses,
-    totalPhones
+    totalPhones,
+    evalResult,
+    allAnalyses
   })
 
   return {

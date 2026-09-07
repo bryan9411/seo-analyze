@@ -44,10 +44,14 @@ export const generateMarkdownReport = (
     md += `## 📋 1. 傳統 SEO 診斷 (搜尋引擎優化)\n\n`
     md += `### 標題與描述 (Title/Meta 分析)\n${sections.seoSection.titleMetaAnalysis}\n\n`
     md += `### 內容品質與結構 (E-E-A-T 分析)\n${sections.seoSection.eeatAnalysis}\n\n`
-    md += `> [!CAUTION]\n> ### ⚠️ 痛點診斷 (導致傳統 Google 排名低迷的致命傷)\n>\n`
-    sections.seoSection.painPoints.forEach(p => {
-      md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
-    })
+    if (sections.seoSection.painPoints.length > 0) {
+      md += `> [!CAUTION]\n> ### ⚠️ 痛點診斷 (導致傳統 Google 排名低迷的致命傷)\n>\n`
+      sections.seoSection.painPoints.forEach(p => {
+        md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
+      })
+    } else {
+      md += `> [!NOTE]\n> ### ✅ 優勢診斷 (傳統 SEO 架構良好)\n>\n> * 經檢測，網頁 Title、Meta 與標題階層架構健全，未發現重大排名致命傷。\n>\n`
+    }
     md += `\n---\n\n`
   }
 
@@ -56,10 +60,14 @@ export const generateMarkdownReport = (
     md += `## 📍 2. GEO 診斷 (在地化與區域搜尋優化)\n\n`
     md += `### 結構化資料 (Schema.org 檢核)\n${sections.geoSection.schemaAnalysis}\n\n`
     md += `### 地理實體關聯 (地址、電話、服務區域)\n${sections.geoSection.geoEntityAnalysis}\n\n`
-    md += `> [!WARNING]\n> ### ⚠️ 痛點診斷 (為什麼在地搜尋時這家店形同隱形)\n>\n`
-    sections.geoSection.painPoints.forEach(p => {
-      md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
-    })
+    if (sections.geoSection.painPoints.length > 0) {
+      md += `> [!WARNING]\n> ### ⚠️ 痛點診斷 (為什麼在地搜尋時這家店形同隱形)\n>\n`
+      sections.geoSection.painPoints.forEach(p => {
+        md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
+      })
+    } else {
+      md += `> [!NOTE]\n> ### ✅ 優勢診斷 (在地搜尋訊號完備)\n>\n> * 在地實體與 NAP 訊號完備，未發現在地搜尋隱形痛點。\n>\n`
+    }
     md += `\n---\n\n`
   }
 
@@ -68,10 +76,14 @@ export const generateMarkdownReport = (
     md += `## 🤖 3. AIO 診斷 (AI 答案引擎優化 / Generative Engine Optimization)\n\n`
     md += `### 資訊密度與結構 (清單、表格、廢話形容詞密度)\n${sections.aioSection.infoDensityAnalysis}\n\n`
     md += `### 問答契合度 (FAQ 口語長尾問答)\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
-    md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷 (Perplexity, ChatGPT, Gemini 忽略本站的核心原因)\n>\n`
-    sections.aioSection.painPoints.forEach(p => {
-      md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
-    })
+    if (sections.aioSection.painPoints.length > 0) {
+      md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷 (Perplexity, ChatGPT, Gemini 忽略本站的核心原因)\n>\n`
+      sections.aioSection.painPoints.forEach(p => {
+        md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
+      })
+    } else {
+      md += `> [!NOTE]\n> ### ✅ 優勢診斷 (AIO 結構體質良好)\n>\n> * 本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。\n>\n`
+    }
     md += `\n---\n\n`
   }
 

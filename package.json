@@ -1,0 +1,14 @@
+{
+  "name": "seo-analyze-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,green \"pnpm --filter server dev\" \"pnpm --filter client dev\"",
+    "build": "pnpm --filter server build && pnpm --filter client build",
+    "start": "concurrently -n server,client -c cyan,green \"pnpm --filter server start\" \"pnpm --filter client start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "packageManager": "pnpm@11.12.0+sha1.5b67ae1228da133e79a14f3947382e11b7fa6637"
+}

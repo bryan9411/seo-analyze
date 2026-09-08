@@ -14,7 +14,7 @@ diagnoseRouter.post('/', rateLimiter, async (req: Request, res: Response): Promi
     const { url, isSiteWide = false, mode = 'ALL' } = req.body || {}
 
     if (!url || typeof url !== 'string') {
-      res.status(400).json({ error: '請提供欲健檢的網站網址 (url)' })
+      res.status(400).json({ error: '請提供欲健檢的網站網址' })
       return
     }
 

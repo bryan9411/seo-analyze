@@ -59,7 +59,7 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction): vo
     res.setHeader('Retry-After', String(resetTimeSec))
 
     res.status(429).json({
-      error: '請求過於頻繁 (Rate Limit Exceeded)',
+      error: '請求過於頻繁，請稍候再試',
       message: `為保障伺服器運作效能，單一 IP 每分鐘最多執行 ${maxRequests} 次健檢分析，請於 ${resetTimeSec} 秒後再試。`,
       retryAfterSeconds: resetTimeSec
     })

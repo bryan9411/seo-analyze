@@ -180,7 +180,7 @@ const extractGeoSignals = (
   const statsMatches = bodyText.match(/\d+(?:[.,]\d+)?\s*(?:%|倍|項|篇|名|家|元|歲|天|小時|分鐘|公分|kg|km|坪|折)/g) || []
   const hasStatsOrData = statsMatches.length >= 3
 
-  // 直球對決首段濃縮解答檢測 (Direct Answer Snippet)
+  // 直球對決首段濃縮解答檢測
   const firstParas = $('article p, main p, .content p, p')
     .slice(0, 3)
     .map((_, el) => $(el).text().trim())

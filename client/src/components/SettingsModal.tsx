@@ -87,7 +87,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Key className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">API 金鑰配置 (BYOK)</h3>
+                <h3 className="text-sm font-semibold text-slate-900">API 金鑰配置</h3>
                 <p className="text-xs text-slate-500">可選填以啟動進階 AI 語意檢驗</p>
               </div>
             </div>

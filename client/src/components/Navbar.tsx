@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* 系統名稱 */}
         <div className="flex items-center shrink-0">
           <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">
-            SEO · GEO · AIO 網頁健檢診斷系統
+            SEO · GEO · AIO 網頁健檢診斷平台
           </span>
         </div>
 
@@ -67,12 +67,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={() => setIsSiteWide(!isSiteWide)}
             disabled={isLoading}
-            title={isSiteWide ? '切換為單頁模式' : '切換為全站抽樣 (10篇)'}
-            className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              isSiteWide
+            title={isSiteWide ? '切換為單頁模式' : '切換為全站抽樣'}
+            className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${isSiteWide
                 ? 'border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100/60'
                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-            }`}
+              }`}
           >
             {isSiteWide ? (
               <>
@@ -109,11 +108,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onExportWord}
             disabled={!hasReport || isExportingWord}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-              hasReport && !isExportingWord
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport && !isExportingWord
                 ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs'
                 : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
-            }`}
+              }`}
           >
             <FileDown className="h-3.5 w-3.5 text-slate-500" />
             <span>匯出 Word 報告</span>
@@ -123,11 +121,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onExportMarkdown}
             disabled={!hasReport}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-              hasReport
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport
                 ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs'
                 : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
-            }`}
+              }`}
           >
             <FileText className="h-3.5 w-3.5 text-slate-500" />
             <span>匯出 Markdown</span>
@@ -137,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             onClick={onOpenSettings}
             className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            title="系統設定"
+            title="平台設定"
           >
             <Settings className="h-4 w-4" />
           </button>

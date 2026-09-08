@@ -258,7 +258,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
 
             <div className="mt-4 space-y-3 max-h-80 overflow-y-auto pr-1 text-xs">
               <p className="text-slate-500 text-xs leading-relaxed">
-                以下為受測頁面中所偵測到的主觀商業行銷誇飾與空泛形容詞。生成式 AI 答案引擎（ChatGPT Search / Perplexity / Claude / Gemini）在整理答案時傾向過濾此類詞彙：
+                以下為受測頁面中所偵測到的主觀商業行銷誇飾與空泛形容詞。生成式 AI 答案引擎在整理答案時傾向過濾此類詞彙：
               </p>
 
               <div className="rounded-lg bg-amber-50/60 p-3.5 border border-amber-200/80">

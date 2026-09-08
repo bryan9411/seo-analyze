@@ -49,9 +49,9 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   // Meta Description 分析
   let metaAnalysis = ''
   if (!primary.metaDescription) {
-    metaAnalysis = '【Meta Description 缺失】：完全未配置 Meta Description，Google 只能由內文隨機擷取不連貫文字作為摘要，大幅削弱搜尋點擊吸引力 (CTR)。'
+    metaAnalysis = '【Meta Description 缺失】：完全未配置 Meta Description，Google 只能由內文隨機擷取不連貫文字作為摘要，大幅削弱搜尋點擊吸引力。'
   } else if (metaLen < 50) {
-    metaAnalysis = `【Meta 描述過短】：目前長度僅 ${metaLen} 字（「${primary.metaDescription}」），資訊量偏少，缺乏足夠的痛點描述、差異化賣點與行動號召 (CTA)。`
+    metaAnalysis = `【Meta 描述過短】：目前長度僅 ${metaLen} 字（「${primary.metaDescription}」），資訊量偏少，缺乏足夠的痛點描述、差異化賣點與行動號召。`
   } else if (metaLen > 160) {
     metaAnalysis = `【Meta 描述過長】：目前長度達 ${metaLen} 字，超過 160 字建議上限，在行動端或桌面端搜尋結果可能遭到截斷。`
   } else {
@@ -61,7 +61,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   const titleMetaAnalysis = `${titleAnalysis}\n${metaAnalysis}`
 
   // E-E-A-T 分析
-  const eeatParts: string[] = ['在 E-E-A-T (經驗、專業、權威、信任) 維度檢核結果如下：']
+  const eeatParts: string[] = ['在 E-E-A-T 經驗、專業、權威與信任維度檢核結果如下：']
 
   if (primary.authorTags) {
     eeatParts.push(
@@ -73,7 +73,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
     )
   } else {
     eeatParts.push(
-      '* **作者與審核機制**：頁面未檢測到明確作者署名 (Author Byline) 或專家審查標記，內容呈現無具名狀態，容易被 Google Helpful Content System 視為缺乏權威背書的非具名內容。'
+      '* **作者與審核機制**：頁面未檢測到明確作者署名或專家審查標記，內容呈現無具名狀態，容易被 Google Helpful Content System 視為缺乏權威背書的非具名內容。'
     )
   }
 
@@ -83,7 +83,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
     )
   } else if (primary.outboundLinksCount > 0) {
     eeatParts.push(
-      `* **權威文獻與外鏈引用**：檢測到 ${primary.outboundLinksCount} 個外部出站連結，但未包含高權威官方或學術站點，建議適度引述權威標準或法規報告以增強權威度 (Authoritativeness)。`
+      `* **權威文獻與外鏈引用**：檢測到 ${primary.outboundLinksCount} 個外部出站連結，但未包含高權威官方或學術站點，建議適度引述權威標準或法規報告以增強權威度。`
     )
   } else {
     eeatParts.push(
@@ -94,7 +94,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   if (primary.publishDate) {
     eeatParts.push(`* **時效性與修訂追溯**：具備明確的發布/修訂時間標記 (${primary.publishDate})，內容具備時效可追溯性。`)
   } else {
-    eeatParts.push('* **時效性與修訂追溯**：未檢測到發表時間或更新紀錄 (Published/Modified Date)，搜尋引擎與讀者難以評估內容的最新時效性。')
+    eeatParts.push('* **時效性與修訂追溯**：未檢測到發表時間或更新紀錄，搜尋引擎與讀者難以評估內容的最新時效性。')
   }
 
   const eeatAnalysis = eeatParts.join('\n')
@@ -114,11 +114,11 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 
   if (!primary.metaDescription) {
     painPoints.push(
-      '【搜尋展示致命傷：完全缺失 Meta Description 摘要】\nSERP 點閱率 (CTR) 將受到嚴重衝擊，搜尋引擎將隨機抓取頁首或頁尾文字，無法向搜尋者傳達核心吸引力。'
+      '【搜尋展示致命傷：完全缺失 Meta Description 摘要】\nSERP 點閱率將受到嚴重衝擊，搜尋引擎將隨機抓取頁首或頁尾文字，無法向搜尋者傳達核心吸引力。'
     )
   } else if (primary.metaDescription.length < 50) {
     painPoints.push(
-      `【搜尋展示弱點：Meta Description 過短 (${primary.metaDescription.length} 字)】\n摘要文字過短，缺乏行動呼籲 (CTA) 與關鍵賣點，點擊轉化潛力未充分釋放。`
+      `【搜尋展示弱點：Meta Description 過短 (${primary.metaDescription.length} 字)】\n摘要文字過短，缺乏行動呼籲與關鍵賣點，點擊轉化潛力未充分釋放。`
     )
   }
 
@@ -130,7 +130,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 
   if (!primary.publishDate) {
     painPoints.push(
-      '【時效性訊號缺失：缺乏明確日期標記】\n搜尋引擎在抓取解答型內容時重視時效 (Freshness)，缺乏更新日期將降低最新搜尋排名加權。'
+      '【時效性訊號缺失：缺乏明確日期標記】\n搜尋引擎在抓取解答型內容時重視時效性，缺乏更新日期將降低最新搜尋排名加權。'
     )
   }
 
@@ -141,7 +141,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   }
 
   return {
-    title: '1. 傳統 SEO 診斷 (搜尋引擎優化)',
+    title: '1. 傳統 SEO 診斷',
     titleMetaAnalysis,
     eeatAnalysis,
     painPoints
@@ -156,58 +156,58 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
   if (primary.hasArticleSchema && primary.hasOrganizationSchema) {
     schemaAnalysis = `【已建立核心實體圖譜】檢測到 Schema.org Article 與 Organization 結構化標記（${primary.detectedSchemaTypes.join('、')}），已向搜尋與生成式引擎宣告文章主體與發布機構身份。這能讓 ChatGPT、Perplexity、Claude 與 Gemini 明確辨識出版實體與內容層級關聯。建議進一步補充 author 的 Person 實體連結與 sameAs 官方社群標記，深化知識圖譜對齊。`
   } else if (primary.hasArticleSchema) {
-    schemaAnalysis = `【已具備文章語意，缺乏機構/作者圖譜】檢測到 Schema.org Article 標記，內容語意屬性良好；但目前尚未關聯 Organization 發布機構或 Person 作者專家實體。AI 爬蟲在交叉檢驗品牌權威度 (E-E-A-T) 時缺乏機構與人物實體錨點。`
+    schemaAnalysis = `【已具備文章語意，缺乏機構/作者圖譜】檢測到 Schema.org Article 標記，內容語意屬性良好；但目前尚未關聯 Organization 發布機構或 Person 作者專家實體。AI 爬蟲在交叉檢驗品牌 E-E-A-T 權威度時缺乏機構與人物實體錨點。`
   } else if (primary.hasOrganizationSchema) {
-    schemaAnalysis = `【僅配置機構標記，缺乏內容實體】檢測到 Schema.org Organization 組織標記，但頁面本身未宣告 Article 或 BlogPosting。生成式引擎知曉機構主體存在，但無法將該文章直接作為結構化知識實體納入檢索增強生成 (RAG) 切塊。`
+    schemaAnalysis = `【僅配置機構標記，缺乏內容實體】檢測到 Schema.org Organization 組織標記，但頁面本身未宣告 Article 或 BlogPosting。生成式引擎知曉機構主體存在，但無法將該文章直接作為結構化知識實體納入 RAG 檢索增強生成切塊。`
   } else if (primary.detectedSchemaTypes.length > 0) {
     schemaAnalysis = `【具備部分結構化標記】經原始碼解析，本頁檢測到結構化資料（${primary.detectedSchemaTypes.join('、')}），具備初步語意標籤；但目前仍缺失完整的 Article + Organization + Person 實體圖譜關聯。建議透過 Schema.org @graph 統整。`
   } else {
-    schemaAnalysis = `【結構化實體圖譜全滅】經原始碼解析，本頁完全缺乏任何 Schema.org 結構化資料標記。生成式 AI (ChatGPT / Perplexity / Claude / Gemini) 爬蟲只能將網頁視為無結構純文本，大幅降低在知識圖譜中的實體識別度與主動推薦置信度。`
+    schemaAnalysis = `【結構化實體圖譜全滅】經原始碼解析，本頁完全缺乏任何 Schema.org 結構化資料標記。生成式 AI 爬蟲只能將網頁視為無結構純文本，大幅降低在知識圖譜中的實體識別度與主動推薦置信度。`
   }
 
   const geoParts: string[] = []
 
-  // 出處引用 (Cite Sources)
+  // 出處引用
   if (primary.citationCount > 0) {
     geoParts.push(
-      `* **權威出處與文獻引述 (Cite Sources)**：內文檢測到 ${primary.citationCount} 處出站引用與引用區塊 (Blockquotes)。Princeton 大學最新 GEO 研究指出，「引述權威來源」能提升生成式 AI 引用率達 +30%~40%，有效降低 LLM 生成風險，本頁具備良好的第三方背書基礎。`
+      `* **權威出處與文獻引述**：內文檢測到 ${primary.citationCount} 處出站引用與引用區塊。Princeton 大學最新 GEO 研究指出，「引述權威來源」能提升生成式 AI 引用率達 +30%~40%，有效降低 LLM 生成風險，本頁具備良好的第三方背書基礎。`
     )
   } else {
     geoParts.push(
-      '* **權威出處與文獻引述 (Cite Sources)**：內文未檢測到任何外部權威研究、官方標準或權威文獻引述。依據 Princeton GEO 基準，缺乏可查證的外部引用來源，會導致生成式 AI 在合成解答時難以將本頁視為可信事實佐證。'
+      '* **權威出處與文獻引述**：內文未檢測到任何外部權威研究、官方標準或權威文獻引述。依據 Princeton GEO 基準，缺乏可查證的外部引用來源，會導致生成式 AI 在合成解答時難以將本頁視為可信事實佐證。'
     )
   }
 
-  // 數據與統計事實 (Statistics Addition)
+  // 數據與統計事實
   if (primary.hasStatsOrData) {
     geoParts.push(
-      `* **數據事實與資訊增益 (Statistics Addition)**：內文具備客觀數字與度量衡指標（包含百分比、具體倍數或量化區間）。GEO 基準顯示，豐富的量化數據能顯著提升資訊增益 (Information Gain)，降低 AI 幻覺，提高被 SearchGPT / Perplexity / Claude 採納為事實數據來源的頻率。`
+      `* **數據事實與資訊增益**：內文具備客觀數字與度量衡指標（包含百分比、具體倍數或量化區間）。GEO 基準顯示，豐富的量化數據能顯著提升資訊增益，降低 AI 幻覺，提高被 SearchGPT、Perplexity、Claude 採納為事實數據來源的頻率。`
     )
   } else {
     geoParts.push(
-      '* **數據事實與資訊增益 (Statistics Addition)**：內文多偏向主觀敘述或定性文字，缺乏足夠的統計數據、百分比或規格參數。生成式 AI 在合成具體答案時，無法提取量化數據支撐，容易被競品的數據型內容取代。'
+      '* **數據事實與資訊增益**：內文多偏向主觀敘述或定性文字，缺乏足夠的統計數據、百分比或規格參數。生成式 AI 在合成具體答案時，無法提取量化數據支撐，容易被競品的數據型內容取代。'
     )
   }
 
-  // 首段直球解答 (Direct Answer)
+  // 首段直球解答
   if (primary.directAnswerSnippetFound) {
     geoParts.push(
-      '* **首段直球解答 (Direct Answer Structure)**：頁面在開頭 1-3 段即展現核心定義或直接解答，符合現代生成式引擎直接擷取 Executive Summary 的偏好。'
+      '* **首段直球解答**：頁面在開頭 1-3 段即展現核心定義或直接解答，符合現代生成式引擎直接擷取 Executive Summary 的偏好。'
     )
   } else {
     geoParts.push(
-      '* **首段直球解答 (Direct Answer Structure)**：首段未能在 60-150 字內快速給出「直球結論」或核心定義，前言鋪陳過長。AI 搜尋爬蟲在首段抓不到立即可用的結論摘要時，會轉向其他提供直球答案的頁面。'
+      '* **首段直球解答**：首段未能在 60-150 字內快速給出「直球結論」或核心定義，前言鋪陳過長。AI 搜尋爬蟲在首段抓不到立即可用的結論摘要時，會轉向其他提供直球答案的頁面。'
     )
   }
 
   // 作者實體標記
   if (primary.authorTags) {
     geoParts.push(
-      `* **作者專家實體 (Author Entity)**：具備作者署名「${primary.authorTags}」，具備基礎責任歸屬，利於 AI 建立「誰在提供此觀點」的實體信任。`
+      `* **作者專家實體**：具備作者署名「${primary.authorTags}」，具備基礎責任歸屬，利於 AI 建立「誰在提供此觀點」的實體信任。`
     )
   } else {
     geoParts.push(
-      '* **作者專家實體 (Author Entity)**：缺乏明確的專業作者署名或專家資歷說明，內容匿名性偏高，在各主流 AI 引擎對 E-E-A-T 的嚴格審查下處於劣勢。'
+      '* **作者專家實體**：缺乏明確的專業作者署名或專家資歷說明，內容匿名性偏高，在各主流 AI 引擎對 E-E-A-T 的嚴格審查下處於劣勢。'
     )
   }
 
@@ -219,7 +219,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
   if (ctx.robotsTxt && !ctx.robotsTxt.allAiAllowed) {
     const blockedCritical = ctx.robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
     if (blockedCritical.length > 0) {
-      const blockedNames = blockedCritical.map(b => `${b.engine} (${b.userAgent})`).join('、')
+      const blockedNames = blockedCritical.map(b => `${b.engine}（${b.userAgent}）`).join('、')
       painPoints.push(
         `【生成式 GEO 致命痛點：robots.txt 封鎖 AI 爬蟲存取】\n檢測到目標網站的 robots.txt 阻擋了 ${blockedNames}。AI 引擎被防火牆或爬蟲規則拒於門外，此狀態下無論頁面內容或結構多優異，AI 皆 100% 無法讀取或引用本頁！請優先聯繫工程團隊或調整 CDN/Cloudflare 設定以開放存取。`
       )
@@ -228,30 +228,30 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 
   if (!primary.hasArticleSchema) {
     painPoints.push(
-      '【生成式 GEO 痛點 1：缺失 Article 實體結構化標記，LLM 難以進行實體對齊】\n生成式引擎（ChatGPT Search、Perplexity、Claude、Gemini）依賴 Schema.org 進行語意實體解析。因為沒有在原始碼中植入標準 Article JSON-LD，AI 爬蟲無法將內容視為權威出版文章，降低被選入生成式答案引用卡片 (Citation Cards) 的機會。'
+      '【生成式 GEO 痛點 1：缺失 Article 實體結構化標記，LLM 難以進行實體對齊】\n生成式引擎（ChatGPT Search、Perplexity、Claude、Gemini）依賴 Schema.org 進行語意實體解析。因為沒有在原始碼中植入標準 Article JSON-LD，AI 爬蟲無法將內容視為權威出版文章，降低被選入生成式答案引用卡片的機會。'
     )
   }
 
   if (primary.citationCount === 0) {
     painPoints.push(
-      '【生成式 GEO 痛點 2：缺乏第三方權威文獻引述 (Cite Sources 缺失)】\n根據 Princeton 大學 GEO (Generative Engine Optimization) 權威基準研究，「引述權威出處」可提升 30%~40% 的 AI 引用率。本頁未引用任何外部權威研究或行業標準，AI 模型在進行抗幻覺交叉查核時，難以將本頁列為優先推薦來源。'
+      '【生成式 GEO 痛點 2：缺乏第三方權威文獻引述】\n根據 Princeton 大學 GEO 權威基準研究，「引述權威出處」可提升 30%~40% 的 AI 引用率。本頁未引用任何外部權威研究或行業標準，AI 模型在進行抗幻覺交叉查核時，難以將本頁列為優先推薦來源。'
     )
   }
 
   if (!primary.hasStatsOrData) {
     painPoints.push(
-      '【生成式 GEO 痛點 3：客觀數據事實密度不足 (Statistics Addition 缺失)】\n內容多為定性敘述與推論，缺乏明確的數字、百分比或量化比對參數。AI 生成引擎在回答使用者「具體需要多少？」、「差異比例為何？」等精準問題時，無法由本頁獲取硬數據。'
+      '【生成式 GEO 痛點 3：客觀數據事實密度不足】\n內容多為定性敘述與推論，缺乏明確的數字、百分比或量化比對參數。AI 生成引擎在回答使用者「具體需要多少？」、「差異比例為何？」等精準問題時，無法由本頁獲取硬數據。'
     )
   }
 
   if (!primary.directAnswerSnippetFound) {
     painPoints.push(
-      '【生成式 GEO 痛點 4：缺乏首段直球解答 (Direct Answer Snippet 缺失)】\n頁面開頭缺乏「結論先行」的精煉定義或直接解答，AI 引擎在切分語意區塊 (Chunking) 時無法在首段提取到直接答案，大幅降低被選為首句 AI 摘要的置信度。'
+      '【生成式 GEO 痛點 4：缺乏首段直球解答】\n頁面開頭缺乏「結論先行」的精煉定義或直接解答，AI 引擎在切分語意區塊時無法在首段提取到直接答案，大幅降低被選為首句 AI 摘要的置信度。'
     )
   }
 
   return {
-    title: '2. 生成式 GEO 診斷 (Generative Engine Optimization)',
+    title: '2. 生成式 GEO 診斷',
     schemaAnalysis,
     geoEntityAnalysis,
     painPoints
@@ -263,26 +263,26 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
  */
 const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   const aioParts: string[] = [
-    'Google AI Overviews (AIO) 是由 Gemini 在 Google SERP 最上方直接生成的綜合解答區塊，旨在解決用戶零點擊搜尋 (Zero-Click Search)。'
+    'Google AI Overviews (AIO) 是由 Gemini 在 Google SERP 最上方直接生成的綜合解答區塊，旨在解決用戶零點擊搜尋需求。'
   ]
 
   if (primary.tableCount > 0) {
     aioParts.push(
-      `* **表格結構 (Table Extraction)**：頁面包含 ${primary.tableCount} 組 <table> 表格。Google AIO 極度偏好直接自表格提取規格、價格與比較參數產生圖卡，本頁在此項目具備良好的結構化優勢。`
+      `* **表格結構**：頁面包含 ${primary.tableCount} 組 <table> 表格。Google AIO 極度偏好直接自表格提取規格、價格與比較參數產生圖卡，本頁在此項目具備良好的結構化優勢。`
     )
   } else {
     aioParts.push(
-      `* **表格結構 (Table Extraction)**：目前頁面缺乏 <table> 結構。Google AIO 偏好直接從表格抓取價格比較、服務流程與規格參數，缺乏表格代表 AI 摘要生成器需要花費更多 Token 解析純文字，進而降低被選為圖卡來源的機率。`
+      `* **表格結構**：目前頁面缺乏 <table> 結構。Google AIO 偏好直接從表格抓取價格比較、服務流程與規格參數，缺乏表格代表 AI 摘要生成器需要花費更多 Token 解析純文字，進而降低被選為圖卡來源的機率。`
     )
   }
 
   if (primary.listCount >= 2) {
     aioParts.push(
-      `* **條列式清單 (List Extraction)**：頁面包含 ${primary.listCount} 組清單（共 ${primary.listItemCount} 個項目），結構清晰分明，符合 AIO 抓取步驟流程 (How-to) 與要點整理的偏好。`
+      `* **條列式清單**：頁面包含 ${primary.listCount} 組清單（共 ${primary.listItemCount} 個項目），結構清晰分明，符合 AIO 抓取步驟流程與要點整理的偏好。`
     )
   } else {
     aioParts.push(
-      `* **條列式清單 (List Extraction)**：清單結構僅有 ${primary.listCount} 組，文字多以密集長段落堆疊，不利於 AIO 快速完成語意切塊 (Chunking) 與摘要生成。`
+      `* **條列式清單**：清單結構僅有 ${primary.listCount} 組，文字多以密集長段落堆疊，不利於 AIO 快速完成語意切塊與摘要生成。`
     )
   }
 
@@ -315,7 +315,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   if (primary.hasFaqSchema) {
     const qCountDesc = primary.faqQuestionsCount ? `（共檢測到 ${primary.faqQuestionsCount} 組結構化問答）` : ''
     qaRelevanceAnalysis =
-      `* **問答契合度 (Q&A Fit)**：頁面**已成功部署 Schema.org FAQPage 結構化資料**${qCountDesc}！這能讓 Google AIO 直接擷取標準問答對決模組，精準命中用戶在對話式搜尋中的口語發問意圖。\n` +
+      `* **問答契合度**：頁面**已成功部署 Schema.org FAQPage 結構化資料**${qCountDesc}！這能讓 Google AIO 直接擷取標準問答對決模組，精準命中用戶在對話式搜尋中的口語發問意圖。\n` +
       `* **倒金字塔結構優勢**：${
         primary.matchedQuestionHeadings.length > 0
           ? `同時在內文標題中佈局了 ${primary.matchedQuestionHeadings.length} 個問答型標題（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），有效將用戶長尾疑慮前置。`
@@ -323,11 +323,11 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
       }`
   } else if (primary.matchedQuestionHeadings.length > 0) {
     qaRelevanceAnalysis =
-      `* **問答契合度 (Q&A Fit)**：內文標題中發現 ${primary.matchedQuestionHeadings.length} 個長尾問答句（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），具備良好口語提問基礎。**但尚未標記 Schema.org FAQPage 結構化資料**，目前仍停留於純文本，Google AIO 無法以最高置信度快速解析。\n` +
+      `* **問答契合度**：內文標題中發現 ${primary.matchedQuestionHeadings.length} 個長尾問答句（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），具備良好口語提問基礎。**但尚未標記 Schema.org FAQPage 結構化資料**，目前仍停留於純文本，Google AIO 無法以最高置信度快速解析。\n` +
       `* **建議行動**：立即為這 ${primary.matchedQuestionHeadings.length} 個現成問答補上 FAQPage JSON-LD 標記，直接將內文優勢轉化為 AIO 引用首選。`
   } else {
     qaRelevanceAnalysis =
-      `* **問答契合度 (Q&A Fit)**：檢測發現頁面缺乏結構化的「問答對決模組 (FAQ)」，亦未佈局問答型標題。現代使用者在 Google AIO 搜尋中多使用長尾口語問題（如「...怎麼辦？」、「...費用如何計算？」）。\n` +
+      `* **問答契合度**：檢測發現頁面缺乏結構化的「問答對決模組」，亦未佈局問答型標題。現代使用者在 Google AIO 搜尋中多使用長尾口語問題（如「...怎麼辦？」、「...費用如何計算？」）。\n` +
       `* **自說自話陷阱**：內容架構多為自說自話的介紹與行銷陳述，未採用「倒金字塔結構」（即標題提出問題後，首段第一句直接給出具體原因與解決答案），導致 AI 答案生成模型判定本頁答案回應速度慢、直接度低。`
   }
 
@@ -365,12 +365,12 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
 
   if (!primary.publishDate) {
     painPoints.push(
-      '【時效性痛點：缺乏內容發布與更新修訂時間戳】\n答案引擎在抓取解答與價格時高度重視時效 (Freshness)。未標記明確更新日期容易被判定為可能過時的資訊，降低即時對話推薦權重。'
+      '【時效性痛點：缺乏內容發布與更新修訂時間戳】\n答案引擎在抓取解答與價格時高度重視時效性。未標記明確更新日期容易被判定為可能過時的資訊，降低即時對話推薦權重。'
     )
   }
 
   return {
-    title: '3. Google AIO 診斷 (AI Overviews 摘要引擎優化)',
+    title: '3. Google AIO 診斷',
     infoDensityAnalysis,
     qaRelevanceAnalysis,
     painPoints
@@ -393,8 +393,8 @@ const buildImprovementSection = (
   if (!primary.hasArticleSchema || !primary.hasFaqSchema) {
     items.push({
       order: 1,
-      title: '建置 Schema.org JSON-LD (Article + Organization + Person 實體圖譜)',
-      roi: '極高 (讓 ChatGPT、Perplexity、Claude、Gemini 正式識別本頁為可信權威實體)',
+      title: '建置 Schema.org JSON-LD 實體圖譜',
+      roi: '極高',
       description: '透過標準 JSON-LD @graph 結構化標籤，將文章主題、作者專業資格、發布機構及常見常見問答一次結構化，建立強固語意網，符合最新 GEO 實體錨定標準。',
       codeSnippet: `<script type="application/ld+json">
 {
@@ -452,8 +452,8 @@ const buildImprovementSection = (
   } else {
     items.push({
       order: 1,
-      title: '【程式碼級】擴充進階 E-E-A-T 專家認證與權威引述 (Citation) 實體標記',
-      roi: '高 (提升 LLM 採納置信分數，強化在各生成式引擎中的引用優先級)',
+      title: '【程式碼級】擴充進階 E-E-A-T 專家認證與權威引述實體標記',
+      roi: '高',
       description: '本頁基礎 Article 與 FAQPage 結構化資料均已就緒！建議進一步在 JSON-LD 中補充 citation 出處引述連結與 author 的 knowsAbout 專業領域屬性。',
       codeSnippet: `<script type="application/ld+json">
 {
@@ -475,7 +475,7 @@ const buildImprovementSection = (
     })
   }
 
-  // 標題與搜尋結構 (Title / Meta / H1)
+  // 標題與搜尋結構
   const titleNeedsFix = primary.title.length < 15 || primary.title.length > 65
   const metaNeedsFix = !primary.metaDescription || primary.metaDescription.length < 50
   const h1NeedsFix = primary.h1List.length !== 1
@@ -485,7 +485,7 @@ const buildImprovementSection = (
     items.push({
       order: 2,
       title: '【結構級】重構 Title、Meta、H1 與圖片 alt 關鍵字佈局',
-      roi: '高 (直接影響 SERP 搜尋結果排名與自然點閱率 +30%~50%)',
+      roi: '高',
       description: '改採「核心主題痛點 + 權威指引 + 品牌」的高點擊轉化標準架構，並補齊圖片 alt 文字，確保搜尋引擎與 AI 爬蟲能精確萃取核心關鍵詞。',
       comparison: {
         beforeTitle: primary.title || '（未明確定義標題）',
@@ -500,7 +500,7 @@ const buildImprovementSection = (
     items.push({
       order: 2,
       title: '【權威級】深化 E-E-A-T 專業作者背書與時效性修訂機制',
-      roi: '高 (提升 Google 實用內容演算法評分與關鍵字長期排名穩定性)',
+      roi: '高',
       description: '本頁標題與 Meta 摘要結構優良！建議在內文頂部顯著位置植入專業作者簡介、審核標記與最後修訂時間，強化使用者與搜尋引擎的信任信號。',
       codeSnippet: `<!-- 範例：可在文章或頁面頂部植入的 E-E-A-T 專家作者與更新時間標籤 -->
 <div class="author-eeat-badge" style="display:flex; align-items:center; gap:12px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:20px;">
@@ -518,10 +518,10 @@ const buildImprovementSection = (
   if (primary.tableCount === 0) {
     items.push({
       order: 4,
-      title: '植入高資訊密度比對表格與規格清單 (結構化摘要強化)',
-      roi: '極高 (大幅增加被 ChatGPT Search / Perplexity / Claude / Google AIO 摘錄為 Answer 來源)',
+      title: '植入高資訊密度比對表格與規格清單',
+      roi: '極高',
       description:
-        'ChatGPT、Perplexity、Claude 與 Gemini 極度偏好直接自 HTML 表格中提取指標。在內文增設條理分明的比對表格 (<table>)，大幅提升被 AI 引用為圖卡與 Answer 來源的機率。',
+        'ChatGPT、Perplexity、Claude 與 Gemini 極度偏好直接自 HTML 表格中提取指標。在內文增設條理分明的比對表格，大幅提升被 AI 引用為圖卡與解答來源的機率。',
       codeSnippet: `<!-- 範例：AIO / GEO 友善規格與重點比對表格 -->
 <section class="aio-optimized-section">
   <h2>常見模式與核心指標快速比對</h2>
@@ -554,9 +554,9 @@ const buildImprovementSection = (
   } else if (primary.citationCount === 0) {
     items.push({
       order: 3,
-      title: '【內容級】增設權威出處引述 (Cite Sources 策略)',
-      roi: '極高 (Princeton GEO 基準：引用權威出處可提升 AI 引用率達 +40%)',
-      description: '生成式 AI 極為重視可驗證之事實。在內文中明確標註官方標準、行業權威研究出站連結與引用區塊 (<blockquote>)，能為 AI 降低生成風險並大幅提高引用置信度。',
+      title: '【內容級】增設權威出處引述',
+      roi: '極高',
+      description: '生成式 AI 極為重視可驗證之事實。在內文中明確標註官方標準、行業權威研究出站連結與引用區塊，能為 AI 降低生成風險並大幅提高引用置信度。',
       codeSnippet: `<!-- 範例：Princeton GEO 權威文獻引述區塊 -->
 <blockquote style="border-left: 4px solid #2563eb; background: #eff6ff; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
   <p style="margin: 0; font-size: 14px; color: #1e3a8a;">
@@ -570,8 +570,8 @@ const buildImprovementSection = (
   } else {
     items.push({
       order: 3,
-      title: '【內容級】強化事實數據密度與倒金字塔解答 (擴充客觀規格與量化指標)',
-      roi: '高 (提升 AI 答案生成引用置信度與回答覆蓋率)',
+      title: '【內容級】強化事實數據密度與倒金字塔解答',
+      roi: '高',
       description: '本頁已具備良好的表格與引用基礎！後續關鍵在於：確保問答首句採用「結論先行」直球回答，並在內文中增補具體客觀數據（如作業時程、量化成效、費用區間），進一步鞏固 AI 引用首選地位。',
       codeSnippet: `<!-- 範例：GEO / AIO 友善的高資訊密度事實速查卡 (可置於重點段落前) -->
 <div class="aio-fact-highlights" style="border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; padding: 16px; margin: 20px 0;">
@@ -587,7 +587,7 @@ const buildImprovementSection = (
   }
 
   return {
-    title: '4. 優先改善建議方案 (高 ROI 立即執行計畫)',
+    title: '4. 優先改善建議方案',
     items
   }
 }

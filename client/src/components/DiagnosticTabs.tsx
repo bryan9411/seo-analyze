@@ -81,11 +81,10 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-medium transition-all whitespace-nowrap ${
-                isActive
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-medium transition-all whitespace-nowrap ${isActive
                   ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border border-transparent'
-              }`}
+                }`}
             >
               <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
               <span>{tab.label}</span>
@@ -111,14 +110,14 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               className="space-y-6"
             >
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">標題與描述 (Title / Meta 分析)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">標題與描述分析</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {seoSection.titleMetaAnalysis}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">內容品質與結構 (E-E-A-T 權威度分析)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">內容品質與 E-E-A-T 權威度分析</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {seoSection.eeatAnalysis}
                 </div>
@@ -168,7 +167,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                         <Bot className="h-4 w-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-slate-900">主流 AI 搜尋引擎爬蟲授權矩陣 (robots.txt 檢核)</h4>
+                        <h4 className="text-xs font-bold text-slate-900">主流 AI 搜尋引擎爬蟲授權矩陣</h4>
                         <p className="text-[11px] text-slate-500">
                           針對 ChatGPT、Perplexity、Claude 與 Google AI 即時爬蟲通行權限檢測
                         </p>
@@ -178,12 +177,12 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                       {robotsTxt.allAiAllowed ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200 shadow-2xs">
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                          AI 爬蟲全面暢通 (All Allowed)
+                          AI 爬蟲全部通過
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700 border border-rose-200 shadow-2xs">
                           <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
-                          {robotsTxt.blockedBotsCount} 組 AI 爬蟲受阻 (Blocked)
+                          {robotsTxt.blockedBotsCount} 組 AI 爬蟲受阻
                         </span>
                       )}
                     </div>
@@ -196,22 +195,20 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                       return (
                         <div
                           key={crawler.crawlerId}
-                          className={`rounded-lg p-3 border text-xs transition-all ${
-                            isBlocked
+                          className={`rounded-lg p-3 border text-xs transition-all ${isBlocked
                               ? 'bg-rose-50/60 border-rose-200 text-rose-950'
                               : 'bg-white border-slate-200/80 text-slate-800 shadow-2xs'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="font-semibold text-slate-900 flex items-center gap-1.5">
                               <span className="font-mono text-[11px] font-bold text-indigo-600">{crawler.engine}</span>
                             </span>
                             <span
-                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                                isBlocked
+                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${isBlocked
                                   ? 'bg-rose-100 text-rose-800 border border-rose-300'
                                   : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              }`}
+                                }`}
                             >
                               {isBlocked ? '🚫 阻擋禁行' : '🟢 允許存取'}
                             </span>
@@ -235,14 +232,14 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               )}
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">Schema 實體圖譜 (Article / Organization 關聯)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">Schema 結構化實體圖譜</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {geoSection.schemaAnalysis}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">生成式引擎優化指標 (Princeton GEO: 權威佐證、數據事實、直球解答)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">生成式引擎優化指標：權威佐證、數據事實、直球解答</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {geoSection.geoEntityAnalysis}
                 </div>
@@ -284,14 +281,14 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               className="space-y-6"
             >
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">資訊密度與結構 (清單、表格、廢話形容詞密度)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">資訊密度與結構分析</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {aioSection.infoDensityAnalysis}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">問答契合度 (FAQ 口語長尾問答)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">問答契合度與口語長尾問答</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {aioSection.qaRelevanceAnalysis}
                 </div>
@@ -362,8 +359,8 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                           <thead className="bg-slate-50 border-b border-slate-200 text-slate-500">
                             <tr>
                               <th className="py-2.5 px-3 w-24">維度</th>
-                              <th className="py-2.5 px-3 w-1/2">改善前 (現狀)</th>
-                              <th className="py-2.5 px-3 w-1/2">建議改善後 (優化方案)</th>
+                              <th className="py-2.5 px-3 w-1/2">改善前現狀</th>
+                              <th className="py-2.5 px-3 w-1/2">建議改善後</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">

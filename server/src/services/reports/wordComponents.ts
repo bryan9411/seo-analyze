@@ -230,12 +230,12 @@ export const createSamplePagesTable = (allPages: AuditSampleItem[]): Table => {
             width: { size: 22, type: WidthType.PERCENTAGE }
           }),
           new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: '網頁標題 (Title)', bold: true, color: 'FFFFFF' })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: '網頁標題', bold: true, color: 'FFFFFF' })] })],
             shading: { fill: '2F5597' },
             width: { size: 30, type: WidthType.PERCENTAGE }
           }),
           new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: '完整檢驗網址 (URL)', bold: true, color: 'FFFFFF' })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: '完整檢驗網址', bold: true, color: 'FFFFFF' })] })],
             shading: { fill: '1F4E78' },
             width: { size: 38, type: WidthType.PERCENTAGE }
           })

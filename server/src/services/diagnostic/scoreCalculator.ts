@@ -53,7 +53,7 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
   // Meta Description 檢核
   if (!primary.metaDescription) {
     score -= 18
-    issues.push('缺少 Meta Description，搜尋引擎將隨機抓取內文，導致點閱率 (CTR) 低迷')
+    issues.push('缺少 Meta Description，搜尋引擎將隨機抓取內文，導致點閱率低迷')
   } else if (primary.metaDescription.length < 50) {
     score -= 8
     issues.push(`Meta Description 過短 (${primary.metaDescription.length} 字)，缺乏足夠行動號召與關鍵字`)
@@ -75,7 +75,7 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
   // E-E-A-T 訊號檢核
   if (!primary.authorTags) {
     score -= 12
-    issues.push('缺乏明確的作者標記 (Author Byline) 與作者權威資格說明，E-E-A-T 信賴度低')
+    issues.push('缺乏明確的作者標記與權威資格說明，E-E-A-T 信賴度低')
   } else {
     strengths.push(`具備作者資訊標註 (${primary.authorTags})，利於建立作者權威實體`)
   }
@@ -123,7 +123,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
       issues.push(`🚨 致命阻擋：robots.txt 阻擋了 ${botNames} 爬蟲，導致該 AI 引擎 100% 無法造訪網頁，失去在生成式答案中被引用的資格！`)
     } else {
       score += 10
-      strengths.push('✅ AI 爬蟲全面暢通：robots.txt 完整開放 ChatGPT、Perplexity、Claude 與 Google 抓取權限，具備生成式引用的最高通行資格')
+      strengths.push('✅ AI 爬蟲全部通過：robots.txt 完整開放 ChatGPT、Perplexity、Claude 與 Google 抓取權限，具備生成式引用的最高通行資格')
     }
   }
 
@@ -138,7 +138,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
   const detectedSchemas = Array.from(new Set(allAnalyses.flatMap(a => a.detectedSchemaTypes)))
   if (articleFound || orgFound) {
     score += 15
-    strengths.push(`已配置語意實體結構 (${detectedSchemas.slice(0, 3).join('、') || 'Article/Organization'})，利於生成式引擎 (ChatGPT / Perplexity / Claude / Gemini) 建立知識圖譜關聯`)
+    strengths.push(`已配置語意實體結構 (${detectedSchemas.slice(0, 3).join('、') || 'Article/Organization'})，利於生成式引擎建立知識圖譜關聯`)
   } else {
     score -= 20
     issues.push('完全缺乏 Article 或 Organization 實體結構化標記，AI 搜尋爬蟲無法將內容與發布者實體明確錨定')
@@ -148,31 +148,31 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
     score += 8
     strengths.push('具備 Person / Author 實體標記，為生成式引擎提供明確的作者專家責任歸屬')
   } else {
-    issues.push('未配置 Person / Author 專家實體結構，降低 LLM (ChatGPT / Perplexity / Claude) 在權威度 (E-E-A-T) 採納上的置信分數')
+    issues.push('未配置 Person / Author 專家實體結構，降低 LLM 在 E-E-A-T 權威度採納上的置信分數')
   }
 
-  // 出處引用 (Cite Sources)
+  // 出處引用
   if (totalCitations > 0) {
     score += 15
-    strengths.push(`具備權威出處引述與文獻佐證 (共 ${totalCitations} 處引用)，符合 GEO 基準之「引述出處 (Cite Sources)」原則`)
+    strengths.push(`具備權威出處引述與文獻佐證 (共 ${totalCitations} 處引用)，符合 GEO 基準之「引述出處」原則`)
   } else {
     score -= 15
-    issues.push('內文缺乏外部權威佐證或專業出處引用 (Princeton GEO 核心優化點：Cite Sources)，生成式模型難以將本頁列為高可信度參考來源')
+    issues.push('內文缺乏外部權威佐證或專業出處引用，生成式模型難以將本頁列為高可信度參考來源')
   }
 
-  // 數據事實 (Statistics Addition)
+  // 數據事實
   if (statsFound) {
     score += 12
-    strengths.push('內文具備客觀統計數據與量化指標，顯著提升資訊增益 (Information Gain) 並降低 AI 生成幻覺')
+    strengths.push('內文具備客觀統計數據與量化指標，顯著提升資訊增益並降低 AI 生成幻覺')
   } else {
     score -= 12
-    issues.push('缺乏具體量化數據與客觀統計指標 (Princeton GEO 核心優化點：Statistics Addition)，內容多屬定性敘述，容易被生成式引擎稀釋或忽略')
+    issues.push('缺乏具體量化數據與客觀統計指標，內容多屬定性敘述，容易被生成式引擎稀釋或忽略')
   }
 
-  // 首段解答 (Direct Answer)
+  // 首段解答
   if (directAnswerFound) {
     score += 10
-    strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎 (SearchGPT / Perplexity / Claude) 直取為精選解答摘要')
+    strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎直取為精選解答摘要')
   } else {
     issues.push('首段缺乏「直球解答」或核心摘要定義，前言鋪陳過長，不利於 AI 搜尋引擎在第一時間提取為精選答案')
   }
@@ -199,7 +199,7 @@ const evaluateAio = (primary: SinglePageAnalysis, allAnalyses: SinglePageAnalysi
 
   if (avgTables === 0) {
     score -= 15
-    issues.push('全站內容無任何 `<table>` 結構，AI 搜尋引擎 (Perplexity/ChatGPT) 極度缺乏可直接抽取的規格比對數據')
+    issues.push('全站內容無任何 `<table>` 結構，AI 搜尋引擎極度缺乏可直接抽取的規格比對數據')
   } else {
     strengths.push(`具備表格結構 (${Math.round(avgTables)} 組)，有助於 AI 快速引用結構化比較資訊`)
   }

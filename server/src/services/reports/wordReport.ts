@@ -65,7 +65,7 @@ export const generateDiagnosticWordReport = async (
   docChildren.push(
     new Paragraph({
       children: [
-        new TextRun({ text: '📊 綜合健康度評分矩陣 (Health Scorecard)', bold: true, size: 28, color: '1F4E78' })
+        new TextRun({ text: '📊 綜合健康度評分矩陣', bold: true, size: 28, color: '1F4E78' })
       ],
       spacing: { after: 140 }
     }),
@@ -78,7 +78,7 @@ export const generateDiagnosticWordReport = async (
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '📑 抽查檢驗之頁面清單 (Audit Sample List)', bold: true, size: 28, color: '1F4E78' })
+          new TextRun({ text: '📑 抽查檢驗之頁面清單', bold: true, size: 28, color: '1F4E78' })
         ],
         spacing: { before: 180, after: 100 }
       }),
@@ -100,14 +100,14 @@ export const generateDiagnosticWordReport = async (
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '📋 1. 傳統 SEO 診斷 (搜尋引擎優化)', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '📋 1. 傳統 SEO 診斷', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 標題與描述 (Title/Meta 分析)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 標題與描述分析', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -117,7 +117,7 @@ export const generateDiagnosticWordReport = async (
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 內容品質與結構 (E-E-A-T 分析)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 內容品質與 E-E-A-T 架構', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -145,14 +145,14 @@ export const generateDiagnosticWordReport = async (
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '🚀 2. 生成式 GEO 診斷 (Generative Engine Optimization)', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '🚀 2. 生成式 GEO 診斷', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 結構化資料 (Schema.org 實體圖譜檢核)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 結構化資料與實體圖譜檢核', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -162,7 +162,7 @@ export const generateDiagnosticWordReport = async (
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 生成式優化指標 (權威佐證、數據事實、直球解答)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 生成式優化指標：權威佐證、數據事實、直球解答', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -190,14 +190,14 @@ export const generateDiagnosticWordReport = async (
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '🤖 3. Google AIO 診斷 (AI Overviews 摘要引擎優化)', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '🤖 3. Google AIO 診斷', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 資訊密度與結構 (清單、表格、廢話形容詞密度)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 資訊密度與結構分析', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -207,7 +207,7 @@ export const generateDiagnosticWordReport = async (
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 問答契合度 (FAQ 口語長尾問答)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 問答契合度與口語長尾問答', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -234,7 +234,7 @@ export const generateDiagnosticWordReport = async (
   docChildren.push(
     new Paragraph({
       children: [
-        new TextRun({ text: '🛠️ 4. 優先改善建議方案 (高 ROI 立即執行計畫)', bold: true, size: 32, color: '1F4E78' })
+        new TextRun({ text: '🛠️ 4. 優先改善建議方案', bold: true, size: 32, color: '1F4E78' })
       ],
       heading: HeadingLevel.HEADING_1,
       spacing: { before: 200, after: 160 }

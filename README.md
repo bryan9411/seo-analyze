@@ -1,6 +1,6 @@
-# SEO · GEO · AIO 網頁健檢診斷系統
+# SEO · GEO · AIO 網頁健檢診斷平台
 
-專門針對**傳統搜尋引擎 (SEO)**、**生成式 AI 引擎 (GEO)** 與 **AI 答案引擎 (AIO/AEO)** 的自動化網頁健檢診斷工具。提供單頁深入分析與全站抽樣探索，並能自動產出客觀評分矩陣、問題診斷、Before/After 標題對照表、Schema 範本以及匯出 Word / Markdown 健檢報告。
+專門針對**傳統搜尋引擎 SEO**、**生成式 AI 引擎 GEO** 與 **AI 答案引擎 AIO** 的自動化網頁健檢診斷平台。提供單頁深入分析與全站抽樣探索，並能自動產出客觀評分矩陣、問題診斷、Before/After 標題對照表、Schema 範本以及匯出 Word / Markdown 健檢報告。
 
 ---
 
@@ -80,14 +80,14 @@ seo-analyze/
    - 驗證全頁 `<h1>` 唯一性、圖片 `alt` 屬性缺失數。
    - 檢測基礎 E-E-A-T 信號（作者署名、發布日期、官方外鏈）。
 
-2. **生成式 GEO (Generative Engine Optimization)**
+2. **生成式 GEO 診斷**
    - 檢驗 Schema.org 實體圖譜（Article、Organization、Person）。
    - 檢測主流 AI 爬蟲存取權限（針對 GPTBot、PerplexityBot、ClaudeBot、Google-Extended 的 `robots.txt` 規則）。
    - 檢核權威文獻出處引用（Cite Sources 原則）。
    - 檢核量化客觀數據指標（Statistics Addition 原則，降低 AI 生成幻覺）。
-   - 檢測開頭 1~3 段是否具備結論先行的「直球首段解答 (Direct Answer)」。
+   - 檢測開頭 1~3 段是否具備結論先行的「直球首段解答」。
 
-3. **答案引擎 AIO / AEO (AI Overviews & Answer Engine Optimization)**
+3. **答案引擎 AIO 診斷**
    - 檢核表格結構（`<table>`）與清單階層（`<ul>`、`<ol>`），利於答案引擎抽取為精選摘要與比較圖卡。
    - 檢測問答契合度：是否部署 `Schema.org/FAQPage`，以及標題是否命中口語長尾問答詞彙（如「如何」、「費用」、「差別」）。
    - 內容事實密度檢測：比對客觀數值比例 vs 商業誇飾形容詞出現頻率。
@@ -190,11 +190,11 @@ pnpm start
 
 ## 資安防護與防禦機制
 
-1. **嚴格 SSRF (Server-Side Request Forgery) 防護**：
+1. **嚴格 SSRF 伺服器端請求偽造防護**：
    - 爬蟲執行前進行嚴格網址驗證。
    - 解析主機真實 IP，防範 DNS Rebinding 攻擊。
    - 阻擋私有網段（RFC 1918、`127.0.0.0/8`、`10.0.0.0/8`、`192.168.0.0/16`、`172.16.0.0/12`）、雲端 Metadata 端點（`169.254.169.254`）與本機 Loopback IPv6。
-2. **滑動窗口頻率限制 (Sliding Window Rate Limiter)**：
+2. **滑動窗口頻率限制**：
    - 依 IP 進行請求頻率管控（預設限制每分鐘最多 5 次分析），定期自動清理過期紀錄以避免記憶體洩漏。
-3. **金鑰零日誌隔離 (BYOK 原則)**：
+3. **金鑰零日誌隔離**：
    - 使用者在前端設定的 API 金鑰僅保存在瀏覽器記憶體中，透過 HTTPS Header 傳送，後端僅在分析運算過程於記憶體即時使用，嚴格禁止寫入資料庫或伺服器日誌。

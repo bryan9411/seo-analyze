@@ -119,14 +119,14 @@ const DashboardPage = () => {
       md += `> **評估時間**：${new Date(report.timestamp).toLocaleString('zh-TW')}  \n`
       md += `> **受測網址**：${targetUrl}  \n`
       md += `> **網頁標題**：${pageTitle}  \n`
-      md += `> **分析範疇**：${siteWide ? `全站抽樣深度健檢 (主頁 + ${analyzedPageCount - 1} 篇抽樣頁面)` : '單頁專項深度診斷'}  \n\n`
+      md += `> **分析範疇**：${siteWide ? `全站抽樣深度健檢（主頁與 ${analyzedPageCount - 1} 篇抽樣頁面）` : '單頁專項深度診斷'}  \n\n`
 
       md += `## 綜合健康度評分矩陣\n\n`
       md += `| 評估維度 | 評估分數 | 狀態等級 |\n`
       md += `| :--- | :---: | :--- |\n`
-      md += `| **傳統 SEO (搜尋引擎優化)** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '良好' : '需深度優化'} |\n`
-      md += `| **GEO (生成式引擎優化)** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '良好' : '缺乏引述優化'} |\n`
-      md += `| **AIO (Google AI Overviews)** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '良好' : '容易被忽略'} |\n`
+      md += `| **傳統 SEO** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '良好' : '需深度優化'} |\n`
+      md += `| **生成式 GEO** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '良好' : '缺乏引述優化'} |\n`
+      md += `| **Google AIO** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '良好' : '容易被忽略'} |\n`
       md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **綜合評級** |\n\n`
       md += `---\n\n`
 
@@ -141,8 +141,8 @@ const DashboardPage = () => {
       }
 
       md += `## 1. 傳統 SEO 診斷\n\n${sections.seoSection.titleMetaAnalysis}\n\n${sections.seoSection.eeatAnalysis}\n\n`
-      md += `## 2. 生成式 GEO 診斷 (Generative Engine Optimization)\n\n${sections.geoSection.schemaAnalysis}\n\n${sections.geoSection.geoEntityAnalysis}\n\n`
-      md += `## 3. Google AIO 診斷 (AI Overviews 摘要引擎優化)\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
+      md += `## 2. 生成式 GEO 診斷\n\n${sections.geoSection.schemaAnalysis}\n\n${sections.geoSection.geoEntityAnalysis}\n\n`
+      md += `## 3. Google AIO 診斷\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
 
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
       const downloadUrl = window.URL.createObjectURL(blob)
@@ -191,13 +191,23 @@ const DashboardPage = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50/80 p-4 text-sm text-rose-800 shadow-2xs"
+              className="flex items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50/80 p-4 text-sm text-rose-800 shadow-2xs"
             >
-              <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
-              <div>
-                <p className="font-semibold">診斷中斷提示</p>
-                <p className="mt-0.5 text-rose-700 text-xs">{error}</p>
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
+                <div>
+                  <p className="font-semibold">診斷中斷提示</p>
+                  <p className="mt-0.5 text-rose-700 text-xs">{error}</p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={handleStartDiagnose}
+                disabled={isLoading}
+                className="shrink-0 rounded-md border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50 active:scale-95 transition-all shadow-2xs"
+              >
+                重新嘗試
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -251,8 +261,27 @@ const DashboardPage = () => {
               </div>
               <h3 className="text-sm font-semibold text-slate-800">尚未開始網頁健檢診斷</h3>
               <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 leading-relaxed">
-                請在上方導覽列輸入您欲檢驗的公開網址，點擊「開始健檢」按鈕啟動檢核。
+                請在上方導覽列輸入欲檢驗的公開網址，或點選下方範例網址快速體驗：
               </p>
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                {[
+                  { name: '維基百科 SEO 指南', url: 'https://zh.wikipedia.org/wiki/SEO' },
+                  { name: 'MDN Web Docs', url: 'https://developer.mozilla.org' },
+                  { name: 'GitHub 官方首頁', url: 'https://github.com' }
+                ].map((sample) => (
+                  <button
+                    key={sample.url}
+                    type="button"
+                    onClick={() => {
+                      setUrl(sample.url)
+                    }}
+                    className="group inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3.5 py-1.5 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 transition active:scale-95 shadow-2xs"
+                  >
+                    <span className="font-medium">{sample.name}</span>
+                    <span className="text-[11px] font-mono text-slate-400 group-hover:text-blue-500">{sample.url}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )
         )}
@@ -270,7 +299,7 @@ const DashboardPage = () => {
 
       {/* 頁尾 */}
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
-        SEO · GEO · AIO 網頁健檢診斷系統
+        SEO · GEO · AIO 網頁健檢診斷平台
       </footer>
     </div>
   )

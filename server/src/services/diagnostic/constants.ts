@@ -23,7 +23,7 @@ export const TAIWAN_ADDRESS_REGEX = new RegExp(
 )
 
 /**
- * 商業誇飾形容詞詞庫（AI 引擎傾向過濾的商業行銷廢話）
+ * 誇飾宣傳形容詞清單
  */
 export const FLUFF_WORDS = [
   '最頂級', '全台第一', '第一首選', '尊榮享受', '極致體驗', '獨家保證', '領先業界',
@@ -32,7 +32,7 @@ export const FLUFF_WORDS = [
 ]
 
 /**
- * 長尾問答核心關鍵詞（符合使用者口語搜尋習慣）
+ * 問答型標題關鍵詞
  */
 export const QUESTION_KEYWORDS = [
   '如何', '為什麼', '怎麼辦', '推薦', '費用', '價格', '流程', '多久', '注意事項', '懶人包', '指南', '差別', '迷思', '教學'

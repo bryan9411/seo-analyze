@@ -22,16 +22,15 @@ interface ChartsSectionProps {
   factDensity: FactDensityMetrics
 }
 
-const DONUT_COLORS = ['#2563EB', '#F59E0B'] // 客觀事實 (Royal Blue), 宣傳行銷 (Amber)
+const DONUT_COLORS = ['#2563EB', '#F59E0B'] // 事實數據, 宣傳詞
 
-// 關鍵指標達成率：六個指標專屬色彩
 const METRIC_COLORS = [
-  '#2563EB', // 1. Title 標題佈局 - 皇家藍
-  '#0D9488', // 2. Meta 摘要描述 - 湖水青
-  '#6366F1', // 3. H1 唯一層級 - 靛青紫
-  '#D97706', // 4. Schema 實體圖譜 - 暖琥珀
-  '#E11D48', // 5. 權威佐證與數據 - 櫻桃紅
-  '#7C3AED'  // 6. AIO 問答解答 - 薰衣紫
+  '#2563EB', // Title
+  '#0D9488', // Meta
+  '#6366F1', // H1
+  '#D97706', // Schema
+  '#E11D48', // 佐證與數據
+  '#7C3AED'  // AIO 問答
 ]
 
 export const ChartsSection: React.FC<ChartsSectionProps> = ({
@@ -50,7 +49,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-      {/* 左側：內容事實密度 (圓環圖 + 宣傳形容詞清單 + 完整明細彈窗) */}
+      {/* 內容事實密度 */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs lg:col-span-6 flex flex-col justify-between">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 tracking-tight">
@@ -104,7 +103,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
             </PieChart>
           </ResponsiveContainer>
 
-          {/* 圓心百分比文字 */}
+          {/* 圓心文字 */}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="text-2xl font-bold font-mono text-slate-900">
               {factDensity.factualPercent}%
@@ -156,7 +155,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
         </div>
       </div>
 
-      {/* 右側：關鍵指標達成率 (各指標獨立色彩長條圖) */}
+      {/* 關鍵指標達成率 */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs lg:col-span-6 flex flex-col justify-between">
         <div>
           <h3 className="text-sm font-bold text-slate-900 tracking-tight">
@@ -223,7 +222,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
           </ResponsiveContainer>
         </div>
 
-        {/* 底部圖例標籤 */}
+        {/* 圖例標籤 */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 border-t border-slate-100 pt-3 text-[11px] text-slate-600 text-center">
           {complianceMetrics.map((item, idx) => (
             <div key={`legend-${idx}`} className="flex items-center justify-center gap-1 truncate">
@@ -237,7 +236,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
         </div>
       </div>
 
-      {/* 宣傳詞完整清單明細彈窗 */}
+      {/* 宣傳詞明細彈窗 */}
       {showDetailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl">

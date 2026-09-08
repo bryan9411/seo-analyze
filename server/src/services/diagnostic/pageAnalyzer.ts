@@ -9,7 +9,7 @@ import {
 } from './constants.js'
 
 /**
- * 萃取 Title、Meta、標題層次等 SEO 基礎特徵
+ * 萃取 SEO 基礎特徵 (Title, Meta, Headings)
  */
 const extractSeoMetadata = ($: CheerioAPI) => {
   const title = $('title').text().trim() || ''
@@ -69,7 +69,7 @@ const extractSeoMetadata = ($: CheerioAPI) => {
 }
 
 /**
- * 萃取 E-E-A-T 信任與作者權威特徵
+ * 萃取 E-E-A-T 信任訊號
  */
 const extractEeatSignals = ($: CheerioAPI, currentUrl: string) => {
   const authorTags =
@@ -114,8 +114,7 @@ const extractEeatSignals = ($: CheerioAPI, currentUrl: string) => {
 }
 
 /**
- * 萃取生成式 GEO (Generative Engine Optimization) 訊號
- * 涵蓋 Schema 實體關聯圖譜、權威佐證出處、防 AI 幻覺之客觀度與直球解答架構
+ * 萃取 GEO 訊號 (Schema, 出處引用, 數據事實, 首段解答)
  */
 const extractGeoSignals = (
   $: CheerioAPI,
@@ -207,14 +206,14 @@ const extractGeoSignals = (
 }
 
 /**
- * 萃取 AIO 生成式回答引擎特徵（表格、清單、形容詞、客觀數字）
+ * 萃取 AIO 相關特徵 (表格、清單、宣傳詞、問答標題)
  */
 const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) => {
   const tableCount = $('table').length
   const listCount = $('ul, ol').length
   const listItemCount = $('li').length
 
-  // 商業浮誇形容詞計數
+  // 宣傳形容詞計數
   let fluffCount = 0
   const foundFluffWords: Array<{ word: string, count: number }> = []
 
@@ -226,12 +225,12 @@ const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) 
     }
   }
 
-  // 長尾問答標題匹配
+  // 問答型標題匹配
   const matchedQuestionHeadings = headings.filter(h =>
     QUESTION_KEYWORDS.some(kw => h.includes(kw))
   )
 
-  // 客觀事實數據出現頻率（數字、百分比、幣值、度量衡）
+  // 數值與單位出現頻率
   const factualNumberMatches = bodyText.match(/\d+(?:[.,]\d+)?\s*(?:%|元|歲|天|小時|分鐘|公分|kg|km|坪|折|月|日|年|次)/g) || []
   const factualNumberCount = factualNumberMatches.length
   const sampleFacts = Array.from(new Set(factualNumberMatches.map(s => s.trim()))).slice(0, 15)
@@ -249,19 +248,19 @@ const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) 
 }
 
 /**
- * 深入解析單一 HTML 頁面的 SEO, GEO, AIO 結構
+ * 解析單一 HTML 頁面的 SEO、GEO、AIO 特徵
  */
 export const analyzeSinglePage = (html: string, url: string): SinglePageAnalysis => {
   const $ = cheerio.load(html)
   const bodyText = $('body').text().replace(/\s+/g, ' ').trim()
 
-  // 1. 傳統 SEO 元數據萃取
+  // SEO 元數據萃取
   const seoData = extractSeoMetadata($)
 
-  // 2. E-E-A-T 權威訊號萃取
+  // E-E-A-T 訊號萃取
   const eeatData = extractEeatSignals($, url)
 
-  // 3. GEO 生成式引擎優化特徵萃取
+  // GEO 訊號萃取
   const geoData = extractGeoSignals(
     $,
     bodyText,
@@ -269,7 +268,7 @@ export const analyzeSinglePage = (html: string, url: string): SinglePageAnalysis
     eeatData.authoritativeOutbound
   )
 
-  // 4. AIO 答案引擎特徵萃取
+  // AIO 特徵萃取
   const allHeadings = [...seoData.h2List, ...seoData.h3List]
   const aioData = extractAioSignals($, bodyText, allHeadings)
 

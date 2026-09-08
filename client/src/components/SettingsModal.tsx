@@ -55,7 +55,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* 背景遮罩 */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -64,7 +64,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
           />
 
-          {/* 彈窗卡片 */}
+
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -72,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             transition={{ duration: 0.2 }}
             className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
           >
-            {/* 關閉按鈕 */}
+
             <button
               type="button"
               onClick={onClose}
@@ -81,7 +81,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <X className="h-4 w-4" />
             </button>
 
-            {/* 標題 */}
+
             <div className="flex items-center gap-2.5 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
                 <Key className="h-4 w-4" />
@@ -92,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
 
-            {/* 資安隔離提示 */}
+
             <div className="my-4 flex items-start gap-2 rounded-lg bg-emerald-50/80 p-3 text-xs text-emerald-900 border border-emerald-200/80">
               <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
               <p className="leading-relaxed">

@@ -11,7 +11,7 @@ export interface CrawlOptions {
 }
 
 /**
- * 核心網頁爬蟲控制器 (支援單頁分析與全站 10 篇抽樣)
+ * 網頁爬取服務 (支援單頁與抽樣)
  */
 export const crawlTarget = async (
   targetUrl: string,
@@ -19,7 +19,7 @@ export const crawlTarget = async (
 ): Promise<CrawlResult> => {
   const { isSiteWide = false, sampleLimit = 10 } = options
 
-  // 1. 平行抓取主頁面與 robots.txt AI 授權狀態
+  // 平行抓取首頁與 robots.txt
   const [primaryResult, robotsTxt] = await Promise.all([
     fetchHtml(targetUrl),
     checkRobotsTxt(targetUrl)
@@ -46,7 +46,7 @@ export const crawlTarget = async (
     return result
   }
 
-  // 2. 全站模式：搜集候選子頁面
+  // 全站模式：搜集候選子頁面
   const candidateLinks: string[] = []
 
   // 若為具備專屬內容 API 饋送之平台站點，優先整合結構化饋送
@@ -84,7 +84,7 @@ export const crawlTarget = async (
     return result
   }
 
-  // 3. 平行抓取抽樣頁面
+  // 抓取抽樣頁面
   const sampledPages: SampledPage[] = []
   const fetchPromises = uniqueCandidates.map(async (pageUrl) => {
     const pageRes = await fetchHtml(pageUrl, 15000)

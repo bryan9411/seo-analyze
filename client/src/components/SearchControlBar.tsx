@@ -10,7 +10,7 @@ interface SearchControlBarProps {
   setIsSiteWide: (val: boolean) => void
   onStartDiagnose: () => void
   isLoading: boolean
-  currentStep: number // 1: 開始健檢, 2: 網頁探索, 3: 演算法診斷, 4: 完成管理
+  currentStep: number // 1..4
 }
 
 const STEPS = [
@@ -38,7 +38,7 @@ export const SearchControlBar: React.FC<SearchControlBarProps> = ({
   return (
     <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 輸入列與按鈕 */}
+        {/* 搜尋輸入列 */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
@@ -72,7 +72,7 @@ export const SearchControlBar: React.FC<SearchControlBarProps> = ({
           </button>
         </div>
 
-        {/* 分析範圍選項切換 */}
+        {/* 分析範圍切換 */}
         <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-slate-600">
           <span className="font-medium text-slate-500">分析範疇：</span>
           <label className="flex items-center gap-1.5 cursor-pointer">
@@ -107,7 +107,7 @@ export const SearchControlBar: React.FC<SearchControlBarProps> = ({
         </div>
       </form>
 
-      {/* 4 步驟即時進度條與流光效果 */}
+      {/* 步驟進度條 */}
       {isLoading && (
         <div className="mt-5 border-t border-slate-100 pt-5">
           <div className="relative mb-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -115,7 +115,7 @@ export const SearchControlBar: React.FC<SearchControlBarProps> = ({
               className="h-full bg-blue-600 transition-all duration-500 relative"
               style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
             >
-              {/* 動態流光脈衝 */}
+              {/* 流光效果 */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
             </div>
           </div>

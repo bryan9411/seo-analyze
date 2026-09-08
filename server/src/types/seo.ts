@@ -126,7 +126,7 @@ export interface ImprovementItem {
   codeSnippet?: string
 }
 
-/** 四大結構化章節內容 */
+/** 診斷報告結構化內容 */
 export interface SeoSection {
   title: string
   titleMetaAnalysis: string

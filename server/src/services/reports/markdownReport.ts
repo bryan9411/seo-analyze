@@ -1,7 +1,7 @@
 import type { DiagnosticReport, DiagnosticMode } from '../../types/seo.js'
 
 /**
- * 產出符合標準排版之 Markdown (.md) 格式健檢診斷文本
+ * 產出 Markdown 格式健檢診斷報告
  */
 export const generateMarkdownReport = (
   report: DiagnosticReport,
@@ -24,7 +24,7 @@ export const generateMarkdownReport = (
   md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **${scores.overall >= 70 ? '綜合表現良好' : '急需全面改善'}** |\n\n`
   md += `---\n\n`
 
-  // 抽查檢驗之頁面清單
+  // 抽查頁面清單
   if (allPages && allPages.length > 0) {
     md += `## 📑 抽查檢驗之頁面清單 (Audit Sample List)\n\n`
     md += `以下為本次深入檢測之網頁清單，包含主頁與系統抽查之代表性文章完整網址：\n\n`
@@ -39,7 +39,7 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // 章節 1: 傳統 SEO 診斷
+  // 傳統 SEO 診斷
   if (mode === 'ALL' || mode === 'SEO') {
     md += `## 📋 1. 傳統 SEO 診斷 (搜尋引擎優化)\n\n`
     md += `### 標題與描述 (Title/Meta 分析)\n${sections.seoSection.titleMetaAnalysis}\n\n`
@@ -55,7 +55,7 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // 章節 2: 生成式 GEO 診斷
+  // 生成式 GEO 診斷
   if (mode === 'ALL' || mode === 'GEO') {
     md += `## 🚀 2. 生成式 GEO 診斷 (Generative Engine Optimization)\n\n`
     md += `### 結構化資料 (Schema.org 實體圖譜檢核)\n${sections.geoSection.schemaAnalysis}\n\n`
@@ -71,7 +71,7 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // 章節 3: Google AIO 診斷
+  // Google AIO 診斷
   if (mode === 'ALL' || mode === 'AIO') {
     md += `## 🤖 3. Google AIO 診斷 (AI Overviews 摘要引擎優化)\n\n`
     md += `### 資訊密度與結構 (清單、表格、廢話形容詞密度)\n${sections.aioSection.infoDensityAnalysis}\n\n`
@@ -87,7 +87,7 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // 章節 4: 優先改善建議方案
+  // 改善建議方案
   md += `## 🛠️ 4. 優先改善建議方案 (高 ROI 立即執行計畫)\n\n`
   sections.improvementSection.items.forEach(item => {
     md += `### 建議 ${item.order}: ${item.title}\n`

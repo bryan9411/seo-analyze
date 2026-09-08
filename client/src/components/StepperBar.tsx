@@ -19,10 +19,7 @@ export const StepperBar: React.FC<StepperBarProps> = ({ currentStep, isLoading }
   return (
     <div className="w-full max-w-4xl mx-auto py-2 px-4">
       <div className="flex items-center justify-between relative">
-        {/* 背景連線 */}
         <div className="absolute left-8 right-8 top-4 -translate-y-1/2 h-0.5 bg-slate-200 z-0" />
-
-        {/* 動態進行進度條 */}
         <div
           className="absolute left-8 top-4 -translate-y-1/2 h-0.5 bg-blue-600 z-0 transition-all duration-500 ease-out"
           style={{

@@ -9,16 +9,16 @@ import { evaluateDiagnostics } from './scoreCalculator.js'
 import { buildStructuredSections } from './sectionBuilder.js'
 
 /**
- * 執行完整 SEO / GEO / AIO 深度診斷服務
+ * 執行 SEO / GEO / AIO 診斷服務
  */
 export const runDiagnostics = (
   crawlData: CrawlResult,
   mode: DiagnosticMode = 'ALL'
 ): DiagnosticReport => {
-  // 1. 分析主頁面
+  // 主頁面分析
   const primaryAnalysis = analyzeSinglePage(crawlData.primaryHtml, crawlData.primaryUrl)
 
-  // 2. 分析抽樣頁面
+  // 抽樣頁面分析
   const sampledAnalyses = crawlData.sampledPages.map(page =>
     analyzeSinglePage(page.html, page.url)
   )
@@ -26,14 +26,14 @@ export const runDiagnostics = (
   const allAnalyses = [primaryAnalysis, ...sampledAnalyses]
   const isSiteWide = crawlData.isSiteWide && sampledAnalyses.length > 0
 
-  // 3. 計算評分與達標率 (納入 robots.txt AI 授權狀態)
+  // 計算評分與達標率
   const evalResult = evaluateDiagnostics(primaryAnalysis, allAnalyses, crawlData.robotsTxt)
 
-  // 4. 搜集匯整全站電話與地址特徵 (若有)
+  // 彙整電話與地址
   const totalPhones = Array.from(new Set(allAnalyses.flatMap(a => a.matchedPhones || [])))
   const totalAddresses = Array.from(new Set(allAnalyses.flatMap(a => a.matchedAddresses || [])))
 
-  // 5. 彙整抽查檢驗之頁面清單
+  // 彙整抽查頁面清單
   const allPages: AuditSampleItem[] = [
     {
       no: 0,
@@ -49,7 +49,7 @@ export const runDiagnostics = (
     }))
   ]
 
-  // 6. 建構四大結構化章節與具體方案
+  // 產生結構化診斷區塊與改善建議
   const sections = buildStructuredSections(crawlData.primaryUrl, primaryAnalysis, {
     totalAddresses,
     totalPhones,

@@ -8,7 +8,7 @@ import type { DiagnosticMode } from '../types/seo.js'
 
 export const diagnoseRouter = Router()
 
-// 套用滑動窗口頻率限制 (每分最多 5 次)
+// 頻率限制 (每分最多 5 次)
 diagnoseRouter.post('/', rateLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const { url, isSiteWide = false, mode = 'ALL' } = req.body || {}
@@ -18,7 +18,7 @@ diagnoseRouter.post('/', rateLimiter, async (req: Request, res: Response): Promi
       return
     }
 
-    // 1. 嚴格 SSRF 網址校驗
+    // SSRF 網址驗證
     const ssrfCheck = await validateTargetUrl(url)
     if (!ssrfCheck.ok || !ssrfCheck.normalizedUrl) {
       res.status(400).json({
@@ -30,17 +30,17 @@ diagnoseRouter.post('/', rateLimiter, async (req: Request, res: Response): Promi
 
     const targetUrl = ssrfCheck.normalizedUrl
 
-    // 2. 擷取自訂金鑰 (BYOK 純記憶體使用，零日誌記錄)
+    // 讀取自訂 API 金鑰
     const geminiKey = (req.headers['x-gemini-key'] as string) || ''
     const openaiKey = (req.headers['x-openai-key'] as string) || ''
 
-    // 3. 執行網頁爬取與抽樣探索
+    // 網頁爬取與抽樣
     const crawlResult = await crawlTarget(targetUrl, {
       isSiteWide: Boolean(isSiteWide),
       sampleLimit: 10
     })
 
-    // 4. 執行演算法規則與結構化語意診斷
+    // 執行健檢診斷
     const diagnosticReport = runDiagnostics(crawlResult, mode as DiagnosticMode)
 
     res.json(diagnosticReport)

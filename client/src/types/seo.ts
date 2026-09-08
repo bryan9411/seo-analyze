@@ -1,4 +1,4 @@
-/** 主流 AI 爬蟲存取授權項目 */
+/** AI 爬蟲授權項目 */
 export interface AiCrawlerPermission {
   crawlerId: string
   name: string
@@ -9,7 +9,7 @@ export interface AiCrawlerPermission {
   isCritical: boolean
 }
 
-/** robots.txt 健檢分析報告 */
+/** robots.txt 檢核結果 */
 export interface RobotsTxtReport {
   fetched: boolean
   url: string
@@ -32,7 +32,7 @@ export interface SinglePageAnalysis {
   h3List: string[]
   ogTitle: string
   ogImage: string
-  // 圖片與 Alt 標籤
+  // 圖片與 alt
   imageCount: number
   missingAltCount: number
   authorTags: string

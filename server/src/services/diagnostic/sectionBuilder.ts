@@ -19,13 +19,13 @@ export interface SectionContext {
 }
 
 /**
- * 章節 1：傳統 SEO 診斷（依據真實 Title、Meta、H1、E-E-A-T 數據動態生成）
+ * 傳統 SEO 診斷區塊
  */
 const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   const titleLen = primary.title.length
   const metaLen = primary.metaDescription.length
 
-  // 1. Title 分析
+  // Title 分析
   let titleAnalysis = ''
   if (!primary.title) {
     titleAnalysis = '【網頁標題缺失】：目前網頁完全未定義 `<title>` 標籤，搜尋引擎檢索器無法識別頁面核心主旨，在 SERP 中將無從展示。'
@@ -46,7 +46,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
     titleAnalysis += ` 但全頁存在多個 <h1> 標籤 (${primary.h1List.length} 個)，多重主標題容易分散權重。`
   }
 
-  // 2. Meta Description 分析
+  // Meta Description 分析
   let metaAnalysis = ''
   if (!primary.metaDescription) {
     metaAnalysis = '【Meta Description 缺失】：完全未配置 Meta Description，Google 只能由內文隨機擷取不連貫文字作為摘要，大幅削弱搜尋點擊吸引力 (CTR)。'
@@ -60,7 +60,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 
   const titleMetaAnalysis = `${titleAnalysis}\n${metaAnalysis}`
 
-  // 3. E-E-A-T 分析
+  // E-E-A-T 分析
   const eeatParts: string[] = ['在 E-E-A-T (經驗、專業、權威、信任) 維度檢核結果如下：']
 
   if (primary.authorTags) {
@@ -99,7 +99,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 
   const eeatAnalysis = eeatParts.join('\n')
 
-  // 4. 動態收集真實痛點
+  // 痛點彙整
   const painPoints: string[] = []
 
   if (primary.h1List.length === 0) {
@@ -149,8 +149,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 }
 
 /**
- * 章節 2：生成式 GEO 診斷 (Generative Engine Optimization)
- * 依據真實 Schema 實體圖譜、出處引用、客觀數據與直球解答架構動態生成
+ * 生成式 GEO 診斷區塊
  */
 const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoSection => {
   let schemaAnalysis = ''
@@ -168,7 +167,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 
   const geoParts: string[] = []
 
-  // 1. 權威出處與引用佐證 (Cite Sources - Princeton GEO 研究最核心策略)
+  // 出處引用 (Cite Sources)
   if (primary.citationCount > 0) {
     geoParts.push(
       `* **權威出處與文獻引述 (Cite Sources)**：內文檢測到 ${primary.citationCount} 處出站引用與引用區塊 (Blockquotes)。Princeton 大學最新 GEO 研究指出，「引述權威來源」能提升生成式 AI 引用率達 +30%~40%，有效降低 LLM 生成風險，本頁具備良好的第三方背書基礎。`
@@ -179,7 +178,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
     )
   }
 
-  // 2. 數據事實與資訊增益 (Statistics Addition - 抗 AI 幻覺)
+  // 數據與統計事實 (Statistics Addition)
   if (primary.hasStatsOrData) {
     geoParts.push(
       `* **數據事實與資訊增益 (Statistics Addition)**：內文具備客觀數字與度量衡指標（包含百分比、具體倍數或量化區間）。GEO 基準顯示，豐富的量化數據能顯著提升資訊增益 (Information Gain)，降低 AI 幻覺，提高被 SearchGPT / Perplexity / Claude 採納為事實數據來源的頻率。`
@@ -190,7 +189,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
     )
   }
 
-  // 3. 直球首段解答 (Direct Answer Structure)
+  // 首段直球解答 (Direct Answer)
   if (primary.directAnswerSnippetFound) {
     geoParts.push(
       '* **首段直球解答 (Direct Answer Structure)**：頁面在開頭 1-3 段即展現核心定義或直接解答，符合現代生成式引擎直接擷取 Executive Summary 的偏好。'
@@ -201,7 +200,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
     )
   }
 
-  // 4. E-E-A-T 發言者實體
+  // 作者實體標記
   if (primary.authorTags) {
     geoParts.push(
       `* **作者專家實體 (Author Entity)**：具備作者署名「${primary.authorTags}」，具備基礎責任歸屬，利於 AI 建立「誰在提供此觀點」的實體信任。`
@@ -216,7 +215,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 
   const painPoints: string[] = []
 
-  // 檢查 robots.txt 是否阻擋關鍵 AI 爬蟲
+  // 檢查 robots.txt 是否阻擋 AI 爬蟲
   if (ctx.robotsTxt && !ctx.robotsTxt.allAiAllowed) {
     const blockedCritical = ctx.robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
     if (blockedCritical.length > 0) {
@@ -260,7 +259,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 }
 
 /**
- * 章節 3：Google AIO 診斷（依據真實表格、清單、FAQ Schema 與客觀數據動態生成）
+ * Google AIO 診斷區塊
  */
 const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   const aioParts: string[] = [
@@ -379,7 +378,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
 }
 
 /**
- * 章節 4：優先改善建議方案（真實驗證狀態與實際缺漏項目動態決策）
+ * 產出優先改善建議方案
  */
 const buildImprovementSection = (
   targetUrl: string,
@@ -390,9 +389,7 @@ const buildImprovementSection = (
 ): ImprovementSection => {
   const items: ImprovementItem[] = []
 
-  // ==========================================
-  // 建議 1: 結構化資料層 (Schema.org 實體圖譜)
-  // ==========================================
+  // 結構化資料 (Schema.org)
   if (!primary.hasArticleSchema || !primary.hasFaqSchema) {
     items.push({
       order: 1,
@@ -478,9 +475,7 @@ const buildImprovementSection = (
     })
   }
 
-  // ==========================================
-  // 建議 2: 搜尋結構與 SERP 展示層
-  // ==========================================
+  // 標題與搜尋結構 (Title / Meta / H1)
   const titleNeedsFix = primary.title.length < 15 || primary.title.length > 65
   const metaNeedsFix = !primary.metaDescription || primary.metaDescription.length < 50
   const h1NeedsFix = primary.h1List.length !== 1
@@ -519,9 +514,7 @@ const buildImprovementSection = (
     })
   }
 
-  // ==========================================
-  // 建議 3: 內容與 GEO/AIO 答案引擎層
-  // ==========================================
+  // 內容與數據指標
   if (primary.tableCount === 0) {
     items.push({
       order: 4,
@@ -600,7 +593,7 @@ const buildImprovementSection = (
 }
 
 /**
- * 產出符合四大結構之深度診斷分析章節與具體行動方案
+ * 彙整各診斷區塊與改善建議方案
  */
 export const buildStructuredSections = (
   targetUrl: string,
@@ -609,7 +602,7 @@ export const buildStructuredSections = (
 ): StructuredSections => {
   const domain = new URL(targetUrl).hostname
 
-  // 萃取主題關鍵字（例如：「⭐室外機清洗全攻略：可以直接沖水嗎？」 -> 「室外機清洗」）
+  // 萃取主題關鍵字與品牌名稱
   const cleanTitle = primary.title.replace(/^[⭐★\s\d\-]+/, '').trim()
   const brandParts = cleanTitle.split(/[|｜_–—]/).map(s => s.trim()).filter(Boolean)
   const brandName = brandParts.length > 1 ? brandParts[brandParts.length - 1] : domain

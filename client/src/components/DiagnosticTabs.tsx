@@ -71,7 +71,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
 
   return (
     <div className="rounded-xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
-      {/* 頁籤切換按鈕列 */}
+      {/* 頁籤切換 */}
       <div className="flex border-b border-slate-200/80 bg-slate-50/50 p-2 overflow-x-auto gap-1">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id
@@ -97,10 +97,10 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
         })}
       </div>
 
-      {/* 頁籤內容展示區 */}
+      {/* 頁籤內容 */}
       <div className="p-6">
         <AnimatePresence mode="wait">
-          {/* 1. 傳統 SEO 診斷 */}
+          {/* 傳統 SEO */}
           {activeTab === 'seo' && (
             <motion.div
               key="seo"
@@ -124,7 +124,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                 </div>
               </div>
 
-              {/* 🔴 紅色致命傷警告框 / 綠色優勢狀態 */}
+              {/* 痛點 / 優勢列表 */}
               {seoSection.painPoints.length > 0 ? (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-rose-900 flex items-center gap-1.5">
@@ -149,7 +149,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             </motion.div>
           )}
 
-          {/* 2. 生成式 GEO 診斷 */}
+          {/* 生成式 GEO */}
           {activeTab === 'geo' && (
             <motion.div
               key="geo"
@@ -159,7 +159,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
-              {/* 0. 主流 AI 搜尋引擎爬蟲授權矩陣 (robots.txt 檢核) */}
+              {/* AI 爬蟲檢核 (robots.txt) */}
               {robotsTxt && (
                 <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 space-y-3 shadow-2xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3">
@@ -189,7 +189,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                     </div>
                   </div>
 
-                  {/* 爬蟲清單格狀卡片 */}
+                  {/* 爬蟲清單 */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
                     {robotsTxt.crawlers.map((crawler) => {
                       const isBlocked = crawler.status === 'blocked'
@@ -248,7 +248,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                 </div>
               </div>
 
-              {/* 🟠 橙色生成式弱點警告框 / 綠色優勢狀態 */}
+              {/* 痛點 / 優勢列表 */}
               {geoSection.painPoints.length > 0 ? (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-1.5">
@@ -273,7 +273,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             </motion.div>
           )}
 
-          {/* 3. Google AIO 診斷 */}
+          {/* Google AIO */}
           {activeTab === 'aio' && (
             <motion.div
               key="aio"
@@ -297,7 +297,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                 </div>
               </div>
 
-              {/* 🟣 紫色 AI 忽略痛點警告框 / 綠色優勢狀態 */}
+              {/* 痛點 / 優勢列表 */}
               {aioSection.painPoints.length > 0 ? (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-purple-900 flex items-center gap-1.5">
@@ -322,7 +322,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             </motion.div>
           )}
 
-          {/* 4. 優先改善建議方案 */}
+          {/* 改善建議方案 */}
           {activeTab === 'improvements' && (
             <motion.div
               key="improvements"
@@ -350,7 +350,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                     {item.description}
                   </p>
 
-                  {/* 建議 2: Title / Meta / H1 改造前後對照表 */}
+                  {/* 標題與語意前後對照表 */}
                   {item.comparison && (
                     <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white">
                       <div className="bg-slate-100/80 px-4 py-2 text-xs font-semibold text-slate-700 border-b border-slate-200 flex items-center gap-1.5">
@@ -400,7 +400,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                     </div>
                   )}
 
-                  {/* 建議 1 & 3: 程式碼範本與一鍵複製按鈕 */}
+                  {/* 程式碼範本 */}
                   {item.codeSnippet && (
                     <div className="mt-4 space-y-2">
                       <div className="flex items-center justify-between">

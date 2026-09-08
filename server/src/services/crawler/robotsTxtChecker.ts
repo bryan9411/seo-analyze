@@ -133,7 +133,7 @@ const evaluateAgentStatus = (
   const agentKey = targetAgent.toLowerCase()
   const agentRules = rulesMap.get(agentKey)
 
-  // 1. 若有針對該 Agent 的專屬規則，以專屬規則為準
+  // 專屬規則優先
   if (agentRules && (agentRules.disallows.length > 0 || agentRules.allows.length > 0)) {
     const isRootDisallowed = agentRules.disallows.some(d => d === '/' || d === '/*')
     const isRootAllowed = agentRules.allows.some(a => a === '/' || a === '/*')
@@ -144,7 +144,7 @@ const evaluateAgentStatus = (
     return 'allowed'
   }
 
-  // 2. 若無專屬規則，退回通用規則 User-agent: *
+  // 無專屬規則時，退回通用規則 User-agent: *
   const wildcardRules = rulesMap.get('*')
   if (wildcardRules) {
     const isRootDisallowed = wildcardRules.disallows.some(d => d === '/' || d === '/*')
@@ -160,7 +160,7 @@ const evaluateAgentStatus = (
 }
 
 /**
- * 健檢目標網域的 robots.txt 與主流 AI 爬蟲授權狀態
+ * 檢核目標網域的 robots.txt 與 AI 爬蟲授權狀態
  */
 export const checkRobotsTxt = async (targetUrl: string): Promise<RobotsTxtReport> => {
   try {

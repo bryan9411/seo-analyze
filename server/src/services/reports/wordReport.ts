@@ -16,7 +16,7 @@ import {
 } from './wordComponents.js'
 
 /**
- * 產出符合現代排版之 Word (.docx) 二進位緩衝區報告
+ * 產出 Word (.docx) 格式報告
  */
 export const generateDiagnosticWordReport = async (
   report: DiagnosticReport,
@@ -29,7 +29,7 @@ export const generateDiagnosticWordReport = async (
 
   const docChildren: any[] = []
 
-  // 1. 報告標題與副標題
+  // 標題與副標題
   docChildren.push(
     new Paragraph({
       children: [
@@ -55,13 +55,13 @@ export const generateDiagnosticWordReport = async (
     })
   )
 
-  // 2. 受測目標概要資訊表
+  // 目標基本資訊
   docChildren.push(
     createHeaderTable(report),
     new Paragraph({ spacing: { after: 240 } })
   )
 
-  // 3. 綜合健康度評分矩陣
+  // 評分矩陣
   docChildren.push(
     new Paragraph({
       children: [
@@ -73,7 +73,7 @@ export const generateDiagnosticWordReport = async (
     new Paragraph({ spacing: { after: 280 } })
   )
 
-  // 4. 抽查檢驗之頁面清單 (全站模式抽樣文章列表)
+  // 抽查頁面清單
   if (report.allPages && report.allPages.length > 0) {
     docChildren.push(
       new Paragraph({
@@ -95,7 +95,7 @@ export const generateDiagnosticWordReport = async (
 
   const { sections } = report
 
-  // 5. 章節 1: 傳統 SEO 診斷
+  // 傳統 SEO 診斷
   if (mode === 'ALL' || mode === 'SEO') {
     docChildren.push(
       new Paragraph({
@@ -125,7 +125,7 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.seoSection.eeatAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 紅色致命傷 Callout 警告框 / 綠色優勢框
+      // 痛點 / 優勢提示框
       createCalloutBox(
         sections.seoSection.painPoints.length > 0
           ? '⚠️ 痛點診斷：導致傳統 Google 排名低迷的致命傷'
@@ -140,7 +140,7 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // 6. 章節 2: 生成式 GEO 診斷
+  // 生成式 GEO 診斷
   if (mode === 'ALL' || mode === 'GEO') {
     docChildren.push(
       new Paragraph({
@@ -170,7 +170,7 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.geoSection.geoEntityAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 橙色生成式弱點 Callout 警告框 / 綠色優勢框
+      // 痛點 / 優勢提示框
       createCalloutBox(
         sections.geoSection.painPoints.length > 0
           ? '⚠️ 痛點診斷：為什麼生成式 AI 難以主動引述本站'
@@ -185,7 +185,7 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // 7. 章節 3: Google AIO 診斷
+  // Google AIO 診斷
   if (mode === 'ALL' || mode === 'AIO') {
     docChildren.push(
       new Paragraph({
@@ -215,7 +215,7 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.aioSection.qaRelevanceAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 紫色 AIO 忽略痛點 Callout 警告框 / 綠色優勢框
+      // 痛點 / 優勢提示框
       createCalloutBox(
         sections.aioSection.painPoints.length > 0
           ? '⚠️ 痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因'
@@ -230,7 +230,7 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // 8. 章節 4: 優先改善建議方案
+  // 改善建議方案
   docChildren.push(
     new Paragraph({
       children: [

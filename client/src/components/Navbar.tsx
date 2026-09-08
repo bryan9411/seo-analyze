@@ -39,14 +39,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* 左側系統名稱 */}
+        {/* 系統名稱 */}
         <div className="flex items-center shrink-0">
           <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">
             SEO · GEO · AIO 網頁健檢診斷系統
           </span>
         </div>
 
-        {/* 中間搜尋輸入與操作條 */}
+        {/* 搜尋與操作列 */}
         <form onSubmit={handleSubmit} className="flex flex-1 max-w-xl items-center gap-2">
           <div className="relative flex-1">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -62,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           </div>
 
-          {/* 模式切換按鈕 */}
+          {/* 模式切換 */}
           <button
             type="button"
             onClick={() => setIsSiteWide(!isSiteWide)}
@@ -103,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </form>
 
-        {/* 右側匯出報告與設定按鈕 */}
+        {/* 匯出與設定 */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"

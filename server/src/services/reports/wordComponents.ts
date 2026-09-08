@@ -16,7 +16,7 @@ import type {
 } from '../../types/seo.js'
 
 /**
- * 建立美觀的 Callout 警告框 (支援紅、橙、紫痛點主題)
+ * 建立 Callout 提示框 (支援自訂邊框與背景色)
  */
 export const createCalloutBox = (
   titleText: string,

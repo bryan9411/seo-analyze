@@ -107,16 +107,14 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
 }
 
 /**
- * GEO (Generative Engine Optimization 生成式引擎優化) 評估
- * 依據 Princeton GEO 基準 (Cite Sources, Statistics Addition, Schema Entity Graph, Direct Answer)
- * 與 AI 爬蟲存取權限 (ChatGPT / Perplexity / Claude / Gemini)
+ * GEO 評估 (Schema、引用、數據與 robots.txt 存取權限)
  */
 const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtReport) => {
   let score = 60
   const issues: string[] = []
   const strengths: string[] = []
 
-  // 0. AI 爬蟲存取權限檢核 (robots.txt 關鍵門檻)
+  // robots.txt 爬蟲權限
   if (robotsTxt) {
     const blockedCritical = robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
     if (blockedCritical.length > 0) {
@@ -136,7 +134,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
   const statsFound = allAnalyses.some(a => a.hasStatsOrData)
   const directAnswerFound = allAnalyses.some(a => a.directAnswerSnippetFound)
 
-  // 1. Schema 實體圖譜 (Entity Graph for LLMs)
+  // Schema 結構化資料
   const detectedSchemas = Array.from(new Set(allAnalyses.flatMap(a => a.detectedSchemaTypes)))
   if (articleFound || orgFound) {
     score += 15
@@ -153,7 +151,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
     issues.push('未配置 Person / Author 專家實體結構，降低 LLM (ChatGPT / Perplexity / Claude) 在權威度 (E-E-A-T) 採納上的置信分數')
   }
 
-  // 2. 權威佐證與出處引述 (Cite Sources - Princeton GEO 關鍵策略)
+  // 出處引用 (Cite Sources)
   if (totalCitations > 0) {
     score += 15
     strengths.push(`具備權威出處引述與文獻佐證 (共 ${totalCitations} 處引用)，符合 GEO 基準之「引述出處 (Cite Sources)」原則`)
@@ -162,7 +160,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
     issues.push('內文缺乏外部權威佐證或專業出處引用 (Princeton GEO 核心優化點：Cite Sources)，生成式模型難以將本頁列為高可信度參考來源')
   }
 
-  // 3. 客觀數據事實密度 (Statistics Addition - 抗 AI 幻覺)
+  // 數據事實 (Statistics Addition)
   if (statsFound) {
     score += 12
     strengths.push('內文具備客觀統計數據與量化指標，顯著提升資訊增益 (Information Gain) 並降低 AI 生成幻覺')
@@ -171,7 +169,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtRep
     issues.push('缺乏具體量化數據與客觀統計指標 (Princeton GEO 核心優化點：Statistics Addition)，內容多屬定性敘述，容易被生成式引擎稀釋或忽略')
   }
 
-  // 4. 直球首段濃縮解答 (Direct Answer Snippet)
+  // 首段解答 (Direct Answer)
   if (directAnswerFound) {
     score += 10
     strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎 (SearchGPT / Perplexity / Claude) 直取為精選解答摘要')
@@ -236,7 +234,7 @@ const evaluateAio = (primary: SinglePageAnalysis, allAnalyses: SinglePageAnalysi
 }
 
 /**
- * 計算 6 大關鍵指標達標率
+ * 計算各項關鍵指標達標率
  */
 const calculateComplianceMetrics = (
   primary: SinglePageAnalysis,
@@ -261,14 +259,14 @@ const calculateComplianceMetrics = (
   if (primary.h1List.length === 1) h1Rate = 80
   else if (primary.h1List.length > 1) h1Rate = 40
 
-  // Schema 實體圖譜達標率 (Article, Organization, Person, FAQPage)
+  // Schema 達標率
   let schemaRate = 0
   if (allAnalyses.some(a => a.hasArticleSchema)) schemaRate += 35
   if (allAnalyses.some(a => a.hasOrganizationSchema)) schemaRate += 25
   if (allAnalyses.some(a => a.hasPersonSchema)) schemaRate += 15
   if (allAnalyses.some(a => a.hasFaqSchema)) schemaRate += 25
 
-  // 權威佐證與數據達標率 (Princeton GEO: Citations, Stats, Outbound)
+  // 出處引用與數據達標率
   let evidenceRate = 0
   const totalCitations = allAnalyses.reduce((acc, a) => acc + a.citationCount, 0)
   if (totalCitations > 0) evidenceRate += 35
@@ -276,7 +274,7 @@ const calculateComplianceMetrics = (
   if (allAnalyses.some(a => a.authoritativeOutbound)) evidenceRate += 20
   if (primary.factualNumberCount >= 5) evidenceRate += 10
 
-  // AIO 問答解答達標率 (FAQ Schema, Question Headings, Direct Answer)
+  // AIO 問答達標率
   let aioRate = 0
   const questionCount = allAnalyses.reduce((acc, a) => acc + a.matchedQuestionHeadings.length, 0)
   if (allAnalyses.some(a => a.hasFaqSchema)) aioRate += 40
@@ -348,22 +346,22 @@ export const evaluateDiagnostics = (
   allAnalyses: SinglePageAnalysis[],
   robotsTxt?: RobotsTxtReport
 ): EvaluationResult => {
-  // 1. 傳統 SEO 評估
+  // SEO 評估
   const seoEval = evaluateSeo(primary)
 
-  // 2. 生成式 GEO 評估 (Generative Engine Optimization)
+  // GEO 評估
   const geoEval = evaluateGeo(allAnalyses, robotsTxt)
 
-  // 3. Google AIO 答案引擎評估
+  // AIO 評估
   const aioEval = evaluateAio(primary, allAnalyses)
 
-  // 4. 綜合整體健康度
+  // 綜合評分
   const overall = Math.round((seoEval.score + geoEval.score + aioEval.score) / 3)
 
-  // 5. 圖表指標：關鍵指標達標率
+  // 指標達標率
   const complianceMetrics = calculateComplianceMetrics(primary, allAnalyses)
 
-  // 6. 圖表指標：客觀數據 vs 行銷宣傳詞事實密度
+  // 事實密度指標
   const factDensity = calculateFactDensity(allAnalyses)
 
   return {

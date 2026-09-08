@@ -13,7 +13,7 @@ const GET_RECENT_ARTICLES_QUERY = `
 `
 
 /**
- * 針對支援內容饋送 API 之平台站點查詢最新代表性文章 (Content Feed Adapter)
+ * 取得特定平台內容饋送 API 之文章列表
  */
 export const fetchContentFeedArticles = async (
   endpointUrl: string,

@@ -19,7 +19,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 微動效：進度條流光動畫 */
+/* 進度條動畫 */
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);

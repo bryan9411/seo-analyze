@@ -22,7 +22,7 @@ const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [isExportingWord, setIsExportingWord] = useState(false)
 
-  // 設定彈窗與自訂 API 金鑰狀態 (BYOK 純記憶體隔離)
+  // API Key 設定狀態
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [geminiKey, setGeminiKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
@@ -35,7 +35,7 @@ const DashboardPage = () => {
     setError(null)
     setCurrentStep(1)
 
-    // 平滑模擬 4 步驟進度推移
+    // 步驟進度模擬
     const stepTimer1 = setTimeout(() => setCurrentStep(2), 600)
     const stepTimer2 = setTimeout(() => setCurrentStep(3), 1600)
 
@@ -75,7 +75,7 @@ const DashboardPage = () => {
     }
   }
 
-  // 下載 Word 報告 (.docx)
+  // 匯出 Word 報告
   const handleExportWord = async () => {
     if (!report || isExportingWord) return
 
@@ -109,7 +109,7 @@ const DashboardPage = () => {
     }
   }
 
-  // 下載 Markdown 報告 (.md)
+  // 匯出 Markdown 報告
   const handleExportMarkdown = () => {
     if (!report) return
 
@@ -158,14 +158,14 @@ const DashboardPage = () => {
     }
   }
 
-  // 取得推薦的 Schema 代碼
+  // 推薦 Schema 代碼
   const recommendedCodeSnippet = report?.sections.improvementSection.items.find(
     (item) => item.codeSnippet
   )?.codeSnippet
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-slate-900">
-      {/* 頂部導航條 (包含系統名稱、網址輸入、藍色開始按鈕與匯出按鈕) */}
+      {/* 頂部導航 */}
       <Navbar
         url={url}
         setUrl={setUrl}
@@ -181,10 +181,10 @@ const DashboardPage = () => {
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        {/* 四步驟線性進度軌道 */}
+        {/* 步驟進度條 */}
         <StepperBar currentStep={currentStep} isLoading={isLoading} />
 
-        {/* 錯誤提示框 */}
+        {/* 錯誤提示 */}
         <AnimatePresence>
           {error && (
             <motion.div
@@ -202,7 +202,7 @@ const DashboardPage = () => {
           )}
         </AnimatePresence>
 
-        {/* 健檢報告成果區域 */}
+        {/* 診斷報告 */}
         {report ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -210,16 +210,16 @@ const DashboardPage = () => {
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
-            {/* 1. KPI 卡片 (四環進度儀表) */}
+            {/* KPI 卡片 */}
             <ScoreOverview scores={report.scores} />
 
-            {/* 2. 雙欄圖表區：左側圓環圖事實密度 + 右側關鍵指標直方圖 */}
+            {/* 圖表區 */}
             <ChartsSection
               complianceMetrics={report.complianceMetrics}
               factDensity={report.factDensity}
             />
 
-            {/* 3. 雙欄資訊區：左側抽查檢驗清單表格 + 右側優先改善建議代碼框 */}
+            {/* 抽樣頁面清單與代碼範本 */}
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
               <div className="lg:col-span-6">
                 <SampleArticlesTable
@@ -232,7 +232,7 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* 4. 詳細健檢分類頁籤與詳細方案 */}
+            {/* 詳細診斷頁籤 */}
             <div className="pt-2">
               <div className="mb-3">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -243,7 +243,7 @@ const DashboardPage = () => {
             </div>
           </motion.div>
         ) : (
-          /* 未進行健檢時的極簡面板狀態 */
+          /* 初始空狀態 */
           !isLoading && (
             <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-2xs">
               <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 mb-3">
@@ -258,7 +258,7 @@ const DashboardPage = () => {
         )}
       </main>
 
-      {/* 系統設定彈窗 (BYOK API Key) */}
+      {/* API Key 設定彈窗 */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

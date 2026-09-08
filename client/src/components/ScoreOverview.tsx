@@ -175,7 +175,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 items-center justify-around">
-        {/* 1. 綜合評分 - 經典深藍底搭配電光群青環 */}
+        {/* 綜合評分 */}
         <CircularGauge
           label="綜合評分"
           score={animatedOverall}
@@ -186,7 +186,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           tagColor={overallTag.color}
         />
 
-        {/* 2. 傳統 SEO - 翡翠綠環 */}
+        {/* 傳統 SEO */}
         <CircularGauge
           label="傳統SEO"
           score={animatedSeo}
@@ -196,7 +196,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           labelColor="text-emerald-800"
         />
 
-        {/* 3. 生成式 GEO - 暖琥珀橘環 */}
+        {/* 生成式 GEO */}
         <CircularGauge
           label="生成式GEO"
           score={animatedGeo}
@@ -206,7 +206,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           labelColor="text-amber-800"
         />
 
-        {/* 4. Google AIO - 紫羅蘭靛藍環 */}
+        {/* Google AIO */}
         <CircularGauge
           label="Google AIO"
           score={animatedAio}

@@ -21,14 +21,18 @@ export interface SinglePageAnalysis {
   wordCount: number
   jsonLdScriptsCount: number
   detectedSchemaTypes: string[]
-  hasLocalBusinessSchema: boolean
+  hasArticleSchema: boolean
   hasOrganizationSchema: boolean
+  hasPersonSchema: boolean
   hasFaqSchema: boolean
   faqQuestionsCount?: number
-  matchedPhones: string[]
-  matchedAddresses: string[]
-  hasMapEmbed: boolean
-  hasServiceAreaDesc: boolean
+  citationCount: number
+  hasStatsOrData: boolean
+  directAnswerSnippetFound: boolean
+  matchedPhones?: string[]
+  matchedAddresses?: string[]
+  hasMapEmbed?: boolean
+  hasServiceAreaDesc?: boolean
   tableCount: number
   listCount: number
   listItemCount: number

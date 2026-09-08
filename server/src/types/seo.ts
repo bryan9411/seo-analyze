@@ -21,17 +21,21 @@ export interface SinglePageAnalysis {
   outboundLinksCount: number
   authoritativeOutbound: boolean
   wordCount: number
-  // GEO 訊號
+  // GEO (生成式引擎優化) 訊號
   jsonLdScriptsCount: number
   detectedSchemaTypes: string[]
-  hasLocalBusinessSchema: boolean
+  hasArticleSchema: boolean
   hasOrganizationSchema: boolean
+  hasPersonSchema: boolean
   hasFaqSchema: boolean
   faqQuestionsCount?: number
-  matchedPhones: string[]
-  matchedAddresses: string[]
-  hasMapEmbed: boolean
-  hasServiceAreaDesc: boolean
+  citationCount: number
+  hasStatsOrData: boolean
+  directAnswerSnippetFound: boolean
+  matchedPhones?: string[]
+  matchedAddresses?: string[]
+  hasMapEmbed?: boolean
+  hasServiceAreaDesc?: boolean
   // AIO 訊號
   tableCount: number
   listCount: number

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'SEO · GEO · AIO 現代化網頁健檢系統 | 2026 演算法診斷儀表板',
-  description: '全方位檢核 Google SERP 排名、Schema.org LocalBusiness NAP 在地圖譜與生成式 AI 答案引擎 (Perplexity/ChatGPT/Gemini) 引用結構'
+  description: '全方位檢核 Google SERP 傳統排名、生成式引擎 GEO (ChatGPT/Perplexity 權威引述圖譜) 與 Google AIO 摘要結構'
 }
 
 const RootLayout = ({

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search,
-  MapPin,
+  Sparkles,
   Bot,
   Wrench,
   AlertTriangle,
@@ -47,14 +47,14 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
     },
     {
       id: 'geo' as TabType,
-      label: '📍 GEO 在地化診斷',
-      icon: MapPin,
-      badge: `${geoSection.painPoints.length} 項隱形痛點`,
+      label: '🚀 生成式 GEO 診斷',
+      icon: Sparkles,
+      badge: `${geoSection.painPoints.length} 項優化弱點`,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
     },
     {
       id: 'aio' as TabType,
-      label: '🤖 AIO 答案引擎診斷',
+      label: '🤖 Google AIO 診斷',
       icon: Bot,
       badge: `${aioSection.painPoints.length} 項忽視痛點`,
       badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
@@ -148,7 +148,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
             </motion.div>
           )}
 
-          {/* 2. GEO 在地化診斷 */}
+          {/* 2. 生成式 GEO 診斷 */}
           {activeTab === 'geo' && (
             <motion.div
               key="geo"
@@ -159,25 +159,25 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
               className="space-y-6"
             >
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">結構化資料 (Schema.org 檢核)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">Schema 實體圖譜 (Article / Organization 關聯)</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {geoSection.schemaAnalysis}
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">地理實體關聯 (地址、電話、服務區域)</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-2">生成式引擎優化指標 (Princeton GEO: 權威佐證、數據事實、直球解答)</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
                   {geoSection.geoEntityAnalysis}
                 </div>
               </div>
 
-              {/* 🟠 橙色在地隱形痛點警告框 / 綠色優勢狀態 */}
+              {/* 🟠 橙色生成式弱點警告框 / 綠色優勢狀態 */}
               {geoSection.painPoints.length > 0 ? (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-1.5">
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    痛點診斷：為什麼在地搜尋時這家店形同隱形
+                    痛點診斷：ChatGPT、Perplexity、Gemini 難以主動引用推薦的核心弱點
                   </h3>
                   {geoSection.painPoints.map((point, index) => (
                     <div
@@ -191,13 +191,13 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
               ) : (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span><strong>優勢診斷：</strong>在地化實體訊號完備，未檢測到在地搜尋隱形痛點。</span>
+                  <span><strong>優勢診斷：</strong>生成式 GEO 訊號完備，未檢測到阻礙 AI 引用之核心弱點。</span>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* 3. AIO 答案引擎診斷 */}
+          {/* 3. Google AIO 診斷 */}
           {activeTab === 'aio' && (
             <motion.div
               key="aio"
@@ -226,7 +226,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-purple-900 flex items-center gap-1.5">
                     <AlertTriangle className="h-4 w-4 text-purple-600" />
-                    痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因
+                    痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因
                   </h3>
                   {aioSection.painPoints.map((point, index) => (
                     <div
@@ -240,7 +240,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
               ) : (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span><strong>優勢診斷：</strong>AIO 答案引擎結構良好，具備高引用潛力，未檢測到阻礙 AI 擷取之重大結構痛點。</span>
+                  <span><strong>優勢診斷：</strong>Google AIO 結構良好，具備高引用潛力，未檢測到阻礙 AI 擷取之重大結構痛點。</span>
                 </div>
               )}
             </motion.div>

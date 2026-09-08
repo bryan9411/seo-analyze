@@ -19,8 +19,8 @@ export const generateMarkdownReport = (
   md += `| 評估維度 | 評估分數 | 狀態等級 |\n`
   md += `| :--- | :---: | :--- |\n`
   md += `| **傳統 SEO (搜尋引擎優化)** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '🟢 良好' : '🔴 需深度優化'} |\n`
-  md += `| **GEO (在地化地理搜尋)** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '🟢 良好' : '🔴 嚴重脫節'} |\n`
-  md += `| **AIO (生成式 AI 答案引擎)** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '🟢 良好' : '🔴 容易被忽略'} |\n`
+  md += `| **GEO (生成式引擎優化)** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '🟢 良好' : '🔴 缺乏引述優化'} |\n`
+  md += `| **AIO (Google AI Overviews)** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '🟢 良好' : '🔴 容易被忽略'} |\n`
   md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **${scores.overall >= 70 ? '綜合表現良好' : '急需全面改善'}** |\n\n`
   md += `---\n\n`
 
@@ -55,29 +55,29 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // 章節 2: GEO 診斷
+  // 章節 2: 生成式 GEO 診斷
   if (mode === 'ALL' || mode === 'GEO') {
-    md += `## 📍 2. GEO 診斷 (在地化與區域搜尋優化)\n\n`
-    md += `### 結構化資料 (Schema.org 檢核)\n${sections.geoSection.schemaAnalysis}\n\n`
-    md += `### 地理實體關聯 (地址、電話、服務區域)\n${sections.geoSection.geoEntityAnalysis}\n\n`
+    md += `## 🚀 2. 生成式 GEO 診斷 (Generative Engine Optimization)\n\n`
+    md += `### 結構化資料 (Schema.org 實體圖譜檢核)\n${sections.geoSection.schemaAnalysis}\n\n`
+    md += `### 生成式優化指標 (權威佐證、數據事實、直球解答)\n${sections.geoSection.geoEntityAnalysis}\n\n`
     if (sections.geoSection.painPoints.length > 0) {
-      md += `> [!WARNING]\n> ### ⚠️ 痛點診斷 (為什麼在地搜尋時這家店形同隱形)\n>\n`
+      md += `> [!WARNING]\n> ### ⚠️ 痛點診斷 (為什麼生成式 AI 難以主動引述本站)\n>\n`
       sections.geoSection.painPoints.forEach(p => {
         md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
       })
     } else {
-      md += `> [!NOTE]\n> ### ✅ 優勢診斷 (在地搜尋訊號完備)\n>\n> * 在地實體與 NAP 訊號完備，未發現在地搜尋隱形痛點。\n>\n`
+      md += `> [!NOTE]\n> ### ✅ 優勢診斷 (生成式 GEO 訊號完備)\n>\n> * Schema 實體圖譜與權威數據訊號完備，未檢測到生成式引擎引用痛點。\n>\n`
     }
     md += `\n---\n\n`
   }
 
-  // 章節 3: AIO 診斷
+  // 章節 3: Google AIO 診斷
   if (mode === 'ALL' || mode === 'AIO') {
-    md += `## 🤖 3. AIO 診斷 (AI 答案引擎優化 / Generative Engine Optimization)\n\n`
+    md += `## 🤖 3. Google AIO 診斷 (AI Overviews 摘要引擎優化)\n\n`
     md += `### 資訊密度與結構 (清單、表格、廢話形容詞密度)\n${sections.aioSection.infoDensityAnalysis}\n\n`
     md += `### 問答契合度 (FAQ 口語長尾問答)\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
     if (sections.aioSection.painPoints.length > 0) {
-      md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷 (Perplexity, ChatGPT, Gemini 忽略本站的核心原因)\n>\n`
+      md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷 (Google AI Overviews 難以提取為頂部答案的核心原因)\n>\n`
       sections.aioSection.painPoints.forEach(p => {
         md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
       })

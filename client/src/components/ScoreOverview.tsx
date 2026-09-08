@@ -196,9 +196,9 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           labelColor="text-emerald-800"
         />
 
-        {/* 3. 在地 GEO - 暖琥珀橘環 */}
+        {/* 3. 生成式 GEO - 暖琥珀橘環 */}
         <CircularGauge
-          label="在地GEO"
+          label="生成式GEO"
           score={animatedGeo}
           targetScore={scores.geo}
           strokeColor="text-amber-500"
@@ -206,9 +206,9 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           labelColor="text-amber-800"
         />
 
-        {/* 4. AI 引擎 AIO - 紫羅蘭靛藍環 */}
+        {/* 4. Google AIO - 紫羅蘭靛藍環 */}
         <CircularGauge
-          label="AI引擎AIO"
+          label="Google AIO"
           score={animatedAio}
           targetScore={scores.aio}
           strokeColor="text-violet-500"

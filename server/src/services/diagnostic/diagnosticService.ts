@@ -29,9 +29,9 @@ export const runDiagnostics = (
   // 3. 計算評分與達標率
   const evalResult = evaluateDiagnostics(primaryAnalysis, allAnalyses)
 
-  // 4. 搜集匯整全站電話與地址特徵
-  const totalPhones = Array.from(new Set(allAnalyses.flatMap(a => a.matchedPhones)))
-  const totalAddresses = Array.from(new Set(allAnalyses.flatMap(a => a.matchedAddresses)))
+  // 4. 搜集匯整全站電話與地址特徵 (若有)
+  const totalPhones = Array.from(new Set(allAnalyses.flatMap(a => a.matchedPhones || [])))
+  const totalAddresses = Array.from(new Set(allAnalyses.flatMap(a => a.matchedAddresses || [])))
 
   // 5. 彙整抽查檢驗之頁面清單
   const allPages: AuditSampleItem[] = [

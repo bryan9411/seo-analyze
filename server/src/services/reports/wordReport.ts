@@ -140,19 +140,19 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // 6. 章節 2: GEO 診斷
+  // 6. 章節 2: 生成式 GEO 診斷
   if (mode === 'ALL' || mode === 'GEO') {
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '📍 2. GEO 診斷 (在地化與區域搜尋優化)', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '🚀 2. 生成式 GEO 診斷 (Generative Engine Optimization)', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 結構化資料 (Schema.org 檢核)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 結構化資料 (Schema.org 實體圖譜檢核)', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -162,7 +162,7 @@ export const generateDiagnosticWordReport = async (
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: '• 地理實體關聯 (地址、電話、服務區域)', bold: true, size: 24, color: '2E4053' })
+          new TextRun({ text: '• 生成式優化指標 (權威佐證、數據事實、直球解答)', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
@@ -170,14 +170,14 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.geoSection.geoEntityAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 橙色在地隱形痛點 Callout 警告框 / 綠色優勢框
+      // 橙色生成式弱點 Callout 警告框 / 綠色優勢框
       createCalloutBox(
         sections.geoSection.painPoints.length > 0
-          ? '⚠️ 痛點診斷：為什麼在地搜尋時這家店形同隱形'
-          : '✅ 優勢診斷：在地搜尋訊號完備',
+          ? '⚠️ 痛點診斷：為什麼生成式 AI 難以主動引述本站'
+          : '✅ 優勢診斷：生成式 GEO 訊號完備',
         sections.geoSection.painPoints.length > 0
           ? sections.geoSection.painPoints.join('\n\n')
-          : '在地實體與 NAP 訊號完備，未發現在地搜尋隱形痛點。',
+          : 'Schema 實體圖譜與權威數據訊號完備，未檢測到生成式引擎引用痛點。',
         sections.geoSection.painPoints.length > 0 ? 'E36209' : '385723',
         sections.geoSection.painPoints.length > 0 ? 'FFF8F2' : 'F4FBF4'
       ),
@@ -185,12 +185,12 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // 7. 章節 3: AIO 診斷
+  // 7. 章節 3: Google AIO 診斷
   if (mode === 'ALL' || mode === 'AIO') {
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '🤖 3. AIO 診斷 (AI 答案引擎優化 / GEO)', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '🤖 3. Google AIO 診斷 (AI Overviews 摘要引擎優化)', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
@@ -215,11 +215,11 @@ export const generateDiagnosticWordReport = async (
         children: [new TextRun({ text: sections.aioSection.qaRelevanceAnalysis, size: 22 })],
         spacing: { after: 200 }
       }),
-      // 紫色 AI 忽略痛點 Callout 警告框 / 綠色優勢框
+      // 紫色 AIO 忽略痛點 Callout 警告框 / 綠色優勢框
       createCalloutBox(
         sections.aioSection.painPoints.length > 0
-          ? '⚠️ 痛點診斷：Perplexity, ChatGPT, Gemini 忽略本站的核心原因'
-          : '✅ 優勢診斷：AIO 答案引擎結構體質良好',
+          ? '⚠️ 痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因'
+          : '✅ 優勢診斷：Google AIO 結構體質良好',
         sections.aioSection.painPoints.length > 0
           ? sections.aioSection.painPoints.join('\n\n')
           : '本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。',

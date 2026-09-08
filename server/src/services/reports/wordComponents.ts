@@ -176,11 +176,11 @@ export const createScorecardTable = (scores: DiagnosticScores): Table => {
             shading: { fill: '2F5597' }
           }),
           new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: 'GEO 在地化評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
+            children: [new Paragraph({ children: [new TextRun({ text: 'GEO 生成式評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
             shading: { fill: '2F5597' }
           }),
           new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: 'AIO 答案引擎評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
+            children: [new Paragraph({ children: [new TextRun({ text: 'Google AIO 評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
             shading: { fill: '2F5597' }
           }),
           new TableCell({

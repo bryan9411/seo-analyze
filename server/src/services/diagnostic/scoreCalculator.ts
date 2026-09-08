@@ -96,46 +96,62 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
 }
 
 /**
- * GEO 在地化搜尋規則評估
+ * GEO (Generative Engine Optimization 生成式引擎優化) 評估
+ * 依據 Princeton GEO 基準 (Cite Sources, Statistics Addition, Schema Entity Graph, Direct Answer)
  */
 const evaluateGeo = (allAnalyses: SinglePageAnalysis[]) => {
   let score = 60
   const issues: string[] = []
   const strengths: string[] = []
 
-  const localBusinessFound = allAnalyses.some(a => a.hasLocalBusinessSchema)
-  const organizationFound = allAnalyses.some(a => a.hasOrganizationSchema)
-  const totalPhones = Array.from(new Set(allAnalyses.flatMap(a => a.matchedPhones)))
-  const totalAddresses = Array.from(new Set(allAnalyses.flatMap(a => a.matchedAddresses)))
-  const mapFound = allAnalyses.some(a => a.hasMapEmbed)
+  const articleFound = allAnalyses.some(a => a.hasArticleSchema)
+  const orgFound = allAnalyses.some(a => a.hasOrganizationSchema)
+  const personFound = allAnalyses.some(a => a.hasPersonSchema)
+  const totalCitations = allAnalyses.reduce((acc, a) => acc + a.citationCount, 0)
+  const statsFound = allAnalyses.some(a => a.hasStatsOrData)
+  const directAnswerFound = allAnalyses.some(a => a.directAnswerSnippetFound)
 
-  if (!localBusinessFound && !organizationFound) {
-    score -= 30
-    issues.push('完全缺乏 Schema.org LocalBusiness 或 Organization 結構化資料，Google Maps 與在地實體完全脫節')
-  } else if (!localBusinessFound && organizationFound) {
-    score -= 15
-    issues.push('僅配置通用 Organization，缺少精確的 LocalBusiness 實體 (如地址、電話、坐標、營業時間)')
-  } else {
+  // 1. Schema 實體圖譜 (Entity Graph for LLMs)
+  const detectedSchemas = Array.from(new Set(allAnalyses.flatMap(a => a.detectedSchemaTypes)))
+  if (articleFound || orgFound) {
     score += 15
-    strengths.push('已配置 LocalBusiness 結構化資料，利於在地搜尋實體識別')
-  }
-
-  if (totalAddresses.length === 0) {
+    strengths.push(`已配置語意實體結構 (${detectedSchemas.slice(0, 3).join('、') || 'Article/Organization'})，利於生成式引擎 (Perplexity/ChatGPT) 建立知識圖譜關聯`)
+  } else {
     score -= 20
-    issues.push('內文未檢測到標準台灣實體地址 (如 縣市+區+路段+號)，區域搜尋演算法無法識別在地營業點')
-  } else {
-    strengths.push(`檢測到實體地址：${totalAddresses[0]}，具備在地地理特徵`)
+    issues.push('完全缺乏 Article 或 Organization 實體結構化標記，AI 搜尋爬蟲無法將內容與發布者實體明確錨定')
   }
 
-  if (totalPhones.length === 0) {
-    score -= 10
-    issues.push('內文缺乏清晰聯絡電話，NAP (Name, Address, Phone) 完整度不足')
+  if (personFound) {
+    score += 8
+    strengths.push('具備 Person / Author 實體標記，為生成式引擎提供明確的作者專家責任歸屬')
   } else {
-    strengths.push(`檢測到電話實體：${totalPhones[0]}`)
+    issues.push('未配置 Person / Author 專家實體結構，降低 LLM 在權威度 (E-E-A-T) 採納上的置信分數')
   }
 
-  if (!mapFound) {
-    issues.push('頁面無 Google 地圖嵌入或 Maps 導向連結，在地使用者缺乏直觀路徑導引')
+  // 2. 權威佐證與出處引述 (Cite Sources - Princeton GEO 關鍵策略)
+  if (totalCitations > 0) {
+    score += 15
+    strengths.push(`具備權威出處引述與文獻佐證 (共 ${totalCitations} 處引用)，符合 GEO 基準之「引述出處 (Cite Sources)」原則`)
+  } else {
+    score -= 15
+    issues.push('內文缺乏外部權威佐證或專業出處引用 (Princeton GEO 核心優化點：Cite Sources)，生成式模型難以將本頁列為高可信度參考來源')
+  }
+
+  // 3. 客觀數據事實密度 (Statistics Addition - 抗 AI 幻覺)
+  if (statsFound) {
+    score += 12
+    strengths.push('內文具備客觀統計數據與量化指標，顯著提升資訊增益 (Information Gain) 並降低 AI 生成幻覺')
+  } else {
+    score -= 12
+    issues.push('缺乏具體量化數據與客觀統計指標 (Princeton GEO 核心優化點：Statistics Addition)，內容多屬定性敘述，容易被生成式引擎稀釋或忽略')
+  }
+
+  // 4. 直球首段濃縮解答 (Direct Answer Snippet)
+  if (directAnswerFound) {
+    score += 10
+    strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎 (SearchGPT / Perplexity) 直取為精選解答摘要')
+  } else {
+    issues.push('首段缺乏「直球解答」或核心摘要定義，前言鋪陳過長，不利於 AI 搜尋引擎在第一時間提取為精選答案')
   }
 
   return {
@@ -220,31 +236,35 @@ const calculateComplianceMetrics = (
   if (primary.h1List.length === 1) h1Rate = 80
   else if (primary.h1List.length > 1) h1Rate = 40
 
-  // Schema 達標率
+  // Schema 實體圖譜達標率 (Article, Organization, Person, FAQPage)
   let schemaRate = 0
-  if (allAnalyses.some(a => a.hasLocalBusinessSchema)) schemaRate += 60
-  if (allAnalyses.some(a => a.hasFaqSchema)) schemaRate += 40
-  else if (allAnalyses.some(a => a.hasOrganizationSchema)) schemaRate += 20
+  if (allAnalyses.some(a => a.hasArticleSchema)) schemaRate += 35
+  if (allAnalyses.some(a => a.hasOrganizationSchema)) schemaRate += 25
+  if (allAnalyses.some(a => a.hasPersonSchema)) schemaRate += 15
+  if (allAnalyses.some(a => a.hasFaqSchema)) schemaRate += 25
 
-  // NAP 在地達標率
-  let napRate = 0
-  if (allAnalyses.some(a => a.matchedPhones.length > 0)) napRate += 40
-  if (allAnalyses.some(a => a.matchedAddresses.length > 0)) napRate += 40
-  if (allAnalyses.some(a => a.hasMapEmbed)) napRate += 20
+  // 權威佐證與數據達標率 (Princeton GEO: Citations, Stats, Outbound)
+  let evidenceRate = 0
+  const totalCitations = allAnalyses.reduce((acc, a) => acc + a.citationCount, 0)
+  if (totalCitations > 0) evidenceRate += 35
+  if (allAnalyses.some(a => a.hasStatsOrData)) evidenceRate += 35
+  if (allAnalyses.some(a => a.authoritativeOutbound)) evidenceRate += 20
+  if (primary.factualNumberCount >= 5) evidenceRate += 10
 
-  // FAQ 長尾達標率
-  let faqRate = 0
+  // AIO 問答解答達標率 (FAQ Schema, Question Headings, Direct Answer)
+  let aioRate = 0
   const questionCount = allAnalyses.reduce((acc, a) => acc + a.matchedQuestionHeadings.length, 0)
-  if (allAnalyses.some(a => a.hasFaqSchema)) faqRate += 50
-  faqRate += Math.min(50, questionCount * 15)
+  if (allAnalyses.some(a => a.hasFaqSchema)) aioRate += 40
+  if (allAnalyses.some(a => a.directAnswerSnippetFound)) aioRate += 30
+  aioRate += Math.min(30, questionCount * 10)
 
   return [
     { name: 'Title 標題佈局', rate: titleRate, benchmark: 90, status: getStatus(titleRate) },
     { name: 'Meta 摘要描述', rate: metaRate, benchmark: 85, status: getStatus(metaRate) },
     { name: 'H1 唯一層級', rate: h1Rate, benchmark: 90, status: getStatus(h1Rate) },
-    { name: 'Schema 結構化', rate: schemaRate, benchmark: 80, status: getStatus(schemaRate) },
-    { name: 'NAP 在地實體', rate: napRate, benchmark: 85, status: getStatus(napRate) },
-    { name: 'FAQ 問答結構', rate: faqRate, benchmark: 75, status: getStatus(faqRate) }
+    { name: 'Schema 實體圖譜', rate: schemaRate, benchmark: 85, status: getStatus(schemaRate) },
+    { name: '權威佐證與數據', rate: evidenceRate, benchmark: 80, status: getStatus(evidenceRate) },
+    { name: 'AIO 問答解答', rate: aioRate, benchmark: 75, status: getStatus(aioRate) }
   ]
 }
 
@@ -305,10 +325,10 @@ export const evaluateDiagnostics = (
   // 1. 傳統 SEO 評估
   const seoEval = evaluateSeo(primary)
 
-  // 2. GEO 在地化搜尋評估
+  // 2. 生成式 GEO 評估 (Generative Engine Optimization)
   const geoEval = evaluateGeo(allAnalyses)
 
-  // 3. AIO 答案引擎評估
+  // 3. Google AIO 答案引擎評估
   const aioEval = evaluateAio(primary, allAnalyses)
 
   // 4. 綜合整體健康度

@@ -29,9 +29,9 @@ const METRIC_COLORS = [
   '#2563EB', // 1. Title 標題佈局 - 皇家藍
   '#0D9488', // 2. Meta 摘要描述 - 湖水青
   '#6366F1', // 3. H1 唯一層級 - 靛青紫
-  '#D97706', // 4. Schema 結構化 - 暖琥珀
-  '#E11D48', // 5. NAP 在地實體 - 櫻桃紅
-  '#7C3AED'  // 6. FAQ 問答結構 - 薰衣紫
+  '#D97706', // 4. Schema 實體圖譜 - 暖琥珀
+  '#E11D48', // 5. 權威佐證與數據 - 櫻桃紅
+  '#7C3AED'  // 6. AIO 問答解答 - 薰衣紫
 ]
 
 export const ChartsSection: React.FC<ChartsSectionProps> = ({

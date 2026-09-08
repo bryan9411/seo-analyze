@@ -102,12 +102,19 @@ const extractEeatSignals = ($: CheerioAPI, currentUrl: string) => {
 }
 
 /**
- * 萃取 Schema.org、NAP 與地理資訊特徵
+ * 萃取生成式 GEO (Generative Engine Optimization) 訊號
+ * 涵蓋 Schema 實體關聯圖譜、權威佐證出處、防 AI 幻覺之客觀度與直球解答架構
  */
-const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
+const extractGeoSignals = (
+  $: CheerioAPI,
+  bodyText: string,
+  outboundLinksCount: number,
+  authoritativeOutbound: boolean
+) => {
   const detectedSchemaTypes: string[] = []
-  let hasLocalBusinessSchema = false
+  let hasArticleSchema = false
   let hasOrganizationSchema = false
+  let hasPersonSchema = false
   let hasFaqSchema = false
   let faqQuestionsCount = 0
   let jsonLdScriptsCount = 0
@@ -128,11 +135,14 @@ const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
           detectedSchemaTypes.push(type)
         }
 
-        if (/LocalBusiness|Store|Restaurant|ProfessionalService|AutoRepair|HealthAndBeautyBusiness|HomeAndConstructionBusiness/i.test(type)) {
-          hasLocalBusinessSchema = true
+        if (/Article|NewsArticle|BlogPosting|TechArticle|Report/i.test(type)) {
+          hasArticleSchema = true
         }
-        if (/Organization|Corporation/i.test(type)) {
+        if (/Organization|Corporation|GovernmentOrganization/i.test(type)) {
           hasOrganizationSchema = true
+        }
+        if (/Person|Author/i.test(type)) {
+          hasPersonSchema = true
         }
         if (/FAQPage/i.test(type)) {
           hasFaqSchema = true
@@ -151,23 +161,36 @@ const extractGeoSignals = ($: CheerioAPI, bodyText: string) => {
     }
   })
 
-  // 電話與地址搜尋
-  const matchedPhones = Array.from(new Set(bodyText.match(TAIWAN_PHONE_REGEX) || []))
-  const matchedAddresses = Array.from(new Set(bodyText.match(TAIWAN_ADDRESS_REGEX) || []))
-  const hasMapEmbed = $('iframe[src*="google.com/maps"]').length > 0 || $('a[href*="google.com/maps"]').length > 0
-  const hasServiceAreaDesc = /服務範圍|全台配送|到府服務|雙北|全省|區域|門市地址|營業時間/i.test(bodyText)
+  // 權威出處引述訊號 (Citations & Blockquotes)
+  const blockquoteCount = $('blockquote').length
+  const citationCount = outboundLinksCount + blockquoteCount
+
+  // 數據與客觀佐證訊號
+  const statsMatches = bodyText.match(/\d+(?:[.,]\d+)?\s*(?:%|倍|項|篇|名|家|元|歲|天|小時|分鐘|公分|kg|km|坪|折)/g) || []
+  const hasStatsOrData = statsMatches.length >= 3
+
+  // 直球對決首段濃縮解答檢測 (Direct Answer Snippet)
+  const firstParas = $('article p, main p, .content p, p')
+    .slice(0, 3)
+    .map((_, el) => $(el).text().trim())
+    .get()
+    .filter((t) => t.length >= 30 && t.length <= 250)
+
+  const directAnswerSnippetFound = firstParas.some((t) =>
+    /(?:是指|定義|代表|主要提供|包含以下|總結來說|解答如下|核心重點|快速結論|根據)/.test(t)
+  )
 
   return {
     jsonLdScriptsCount,
     detectedSchemaTypes: Array.from(new Set(detectedSchemaTypes)),
-    hasLocalBusinessSchema,
+    hasArticleSchema,
     hasOrganizationSchema,
+    hasPersonSchema,
     hasFaqSchema,
     faqQuestionsCount,
-    matchedPhones,
-    matchedAddresses,
-    hasMapEmbed,
-    hasServiceAreaDesc
+    citationCount,
+    hasStatsOrData,
+    directAnswerSnippetFound
   }
 }
 
@@ -226,8 +249,13 @@ export const analyzeSinglePage = (html: string, url: string): SinglePageAnalysis
   // 2. E-E-A-T 權威訊號萃取
   const eeatData = extractEeatSignals($, url)
 
-  // 3. GEO 在地化搜尋特徵萃取
-  const geoData = extractGeoSignals($, bodyText)
+  // 3. GEO 生成式引擎優化特徵萃取
+  const geoData = extractGeoSignals(
+    $,
+    bodyText,
+    eeatData.outboundLinksCount,
+    eeatData.authoritativeOutbound
+  )
 
   // 4. AIO 答案引擎特徵萃取
   const allHeadings = [...seoData.h2List, ...seoData.h3List]

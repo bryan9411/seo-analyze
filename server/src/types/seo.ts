@@ -2,6 +2,28 @@
  * SEO / GEO / AIO 分析與診斷型別定義
  */
 
+/** 主流 AI 爬蟲存取授權項目 */
+export interface AiCrawlerPermission {
+  crawlerId: string
+  name: string
+  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AIO)'
+  userAgent: string
+  status: 'allowed' | 'blocked'
+  description: string
+  isCritical: boolean
+}
+
+/** robots.txt 健檢分析報告 */
+export interface RobotsTxtReport {
+  fetched: boolean
+  url: string
+  contentSnippet?: string
+  crawlers: AiCrawlerPermission[]
+  allAiAllowed: boolean
+  blockedBotsCount: number
+  hasCustomRules: boolean
+}
+
 /** 單一頁面爬取後的語意特徵 */
 export interface SinglePageAnalysis {
   url: string
@@ -15,6 +37,9 @@ export interface SinglePageAnalysis {
   h3List: string[]
   ogTitle: string
   ogImage: string
+  // 圖片與 Alt 標籤
+  imageCount: number
+  missingAltCount: number
   // E-E-A-T 訊號
   authorTags: string
   publishDate: string
@@ -62,6 +87,7 @@ export interface CrawlResult {
   primaryTitle: string
   primaryHtml: string
   sampledPages: SampledPage[]
+  robotsTxt?: RobotsTxtReport
 }
 
 /** 健檢評分矩陣 */
@@ -173,6 +199,7 @@ export interface DiagnosticReport {
   allPages: AuditSampleItem[]
   sections: StructuredSections
   primaryAnalysis: SinglePageAnalysis
+  robotsTxt?: RobotsTxtReport
 }
 
 /** 診斷模式列舉 */

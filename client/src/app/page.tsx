@@ -239,7 +239,7 @@ const DashboardPage = () => {
                   深度分析與維度診斷細項
                 </h3>
               </div>
-              <DiagnosticTabs sections={report.sections} />
+              <DiagnosticTabs sections={report.sections} robotsTxt={report.robotsTxt} />
             </div>
           </motion.div>
         ) : (

@@ -15,15 +15,16 @@ import {
   ArrowRight,
   CheckCircle2
 } from 'lucide-react'
-import type { StructuredSections } from '@/types/seo'
+import type { StructuredSections, RobotsTxtReport } from '@/types/seo'
 
 interface DiagnosticTabsProps {
   sections: StructuredSections
+  robotsTxt?: RobotsTxtReport
 }
 
 type TabType = 'seo' | 'geo' | 'aio' | 'improvements'
 
-export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
+export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robotsTxt }) => {
   const [activeTab, setActiveTab] = useState<TabType>('seo')
   const [copiedSnippetId, setCopiedSnippetId] = useState<string | null>(null)
 
@@ -158,6 +159,81 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
+              {/* 0. 主流 AI 搜尋引擎爬蟲授權矩陣 (robots.txt 檢核) */}
+              {robotsTxt && (
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/50 p-4 space-y-3 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+                        <Bot className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">主流 AI 搜尋引擎爬蟲授權矩陣 (robots.txt 檢核)</h4>
+                        <p className="text-[11px] text-slate-500">
+                          針對 ChatGPT、Perplexity、Claude 與 Google AI 即時爬蟲通行權限檢測
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {robotsTxt.allAiAllowed ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200 shadow-2xs">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                          AI 爬蟲全面暢通 (All Allowed)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700 border border-rose-200 shadow-2xs">
+                          <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
+                          {robotsTxt.blockedBotsCount} 組 AI 爬蟲受阻 (Blocked)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 爬蟲清單格狀卡片 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {robotsTxt.crawlers.map((crawler) => {
+                      const isBlocked = crawler.status === 'blocked'
+                      return (
+                        <div
+                          key={crawler.crawlerId}
+                          className={`rounded-lg p-3 border text-xs transition-all ${
+                            isBlocked
+                              ? 'bg-rose-50/60 border-rose-200 text-rose-950'
+                              : 'bg-white border-slate-200/80 text-slate-800 shadow-2xs'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                              <span className="font-mono text-[11px] font-bold text-indigo-600">{crawler.engine}</span>
+                            </span>
+                            <span
+                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
+                                isBlocked
+                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}
+                            >
+                              {isBlocked ? '🚫 阻擋禁行' : '🟢 允許存取'}
+                            </span>
+                          </div>
+                          <div className="text-[11px] font-mono text-slate-500 mb-1">
+                            User-agent: <strong className="text-slate-700">{crawler.userAgent}</strong>
+                          </div>
+                          <div className="text-[11px] text-slate-600 leading-snug">
+                            {crawler.description}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-1 gap-2 border-t border-slate-200/50">
+                    <span>檢測端點：<code className="text-slate-600 font-mono">{robotsTxt.url}</code></span>
+                    <span>{robotsTxt.fetched ? '已成功抓取並依標準規則解析' : '未配置 robots.txt（預設全網公開允許）'}</span>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">Schema 實體圖譜 (Article / Organization 關聯)</h3>
                 <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
@@ -177,7 +253,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections }) => {
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-1.5">
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    痛點診斷：ChatGPT、Perplexity、Gemini 難以主動引用推薦的核心弱點
+                    痛點診斷：ChatGPT、Perplexity、Claude、Gemini 難以主動引用推薦的核心弱點
                   </h3>
                   {geoSection.painPoints.map((point, index) => (
                     <div

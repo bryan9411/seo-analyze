@@ -5,7 +5,8 @@ import type {
   GeoSection,
   AioSection,
   ImprovementSection,
-  ImprovementItem
+  ImprovementItem,
+  RobotsTxtReport
 } from '../../types/seo.js'
 import type { EvaluationResult } from './scoreCalculator.js'
 
@@ -14,6 +15,7 @@ export interface SectionContext {
   totalPhones: string[]
   evalResult?: EvaluationResult
   allAnalyses?: SinglePageAnalysis[]
+  robotsTxt?: RobotsTxtReport
 }
 
 /**
@@ -132,6 +134,12 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
     )
   }
 
+  if (primary.imageCount > 0 && primary.missingAltCount > 0) {
+    painPoints.push(
+      `【圖片 SEO 缺失：${primary.missingAltCount} 張圖片缺少 alt 替代文字】\n全頁共有 ${primary.imageCount} 張圖片，其中 ${primary.missingAltCount} 張未設定 alt 屬性。這會直接損害在 Google 圖片搜尋的收錄曝光，且無法通過現代網頁無障礙標準檢驗。`
+    )
+  }
+
   return {
     title: '1. 傳統 SEO 診斷 (搜尋引擎優化)',
     titleMetaAnalysis,
@@ -147,7 +155,7 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoSection => {
   let schemaAnalysis = ''
   if (primary.hasArticleSchema && primary.hasOrganizationSchema) {
-    schemaAnalysis = `【已建立核心實體圖譜】檢測到 Schema.org Article 與 Organization 結構化標記（${primary.detectedSchemaTypes.join('、')}），已向搜尋與生成式引擎宣告文章主體與發布機構身份。這能讓 Perplexity、ChatGPT Search 與 Gemini 明確辨識出版實體與內容層級關聯。建議進一步補充 author 的 Person 實體連結與 sameAs 官方社群標記，深化知識圖譜對齊。`
+    schemaAnalysis = `【已建立核心實體圖譜】檢測到 Schema.org Article 與 Organization 結構化標記（${primary.detectedSchemaTypes.join('、')}），已向搜尋與生成式引擎宣告文章主體與發布機構身份。這能讓 ChatGPT、Perplexity、Claude 與 Gemini 明確辨識出版實體與內容層級關聯。建議進一步補充 author 的 Person 實體連結與 sameAs 官方社群標記，深化知識圖譜對齊。`
   } else if (primary.hasArticleSchema) {
     schemaAnalysis = `【已具備文章語意，缺乏機構/作者圖譜】檢測到 Schema.org Article 標記，內容語意屬性良好；但目前尚未關聯 Organization 發布機構或 Person 作者專家實體。AI 爬蟲在交叉檢驗品牌權威度 (E-E-A-T) 時缺乏機構與人物實體錨點。`
   } else if (primary.hasOrganizationSchema) {
@@ -155,7 +163,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
   } else if (primary.detectedSchemaTypes.length > 0) {
     schemaAnalysis = `【具備部分結構化標記】經原始碼解析，本頁檢測到結構化資料（${primary.detectedSchemaTypes.join('、')}），具備初步語意標籤；但目前仍缺失完整的 Article + Organization + Person 實體圖譜關聯。建議透過 Schema.org @graph 統整。`
   } else {
-    schemaAnalysis = `【結構化實體圖譜全滅】經原始碼解析，本頁完全缺乏任何 Schema.org 結構化資料標記。生成式 AI (ChatGPT/Perplexity/Gemini) 爬蟲只能將網頁視為無結構純文本，大幅降低在知識圖譜中的實體識別度與主動推薦置信度。`
+    schemaAnalysis = `【結構化實體圖譜全滅】經原始碼解析，本頁完全缺乏任何 Schema.org 結構化資料標記。生成式 AI (ChatGPT / Perplexity / Claude / Gemini) 爬蟲只能將網頁視為無結構純文本，大幅降低在知識圖譜中的實體識別度與主動推薦置信度。`
   }
 
   const geoParts: string[] = []
@@ -174,7 +182,7 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
   // 2. 數據事實與資訊增益 (Statistics Addition - 抗 AI 幻覺)
   if (primary.hasStatsOrData) {
     geoParts.push(
-      `* **數據事實與資訊增益 (Statistics Addition)**：內文具備客觀數字與度量衡指標（包含百分比、具體倍數或量化區間）。GEO 基準顯示，豐富的量化數據能顯著提升資訊增益 (Information Gain)，降低 AI 幻覺，提高被 Perplexity / SearchGPT 採納為事實數據來源的頻率。`
+      `* **數據事實與資訊增益 (Statistics Addition)**：內文具備客觀數字與度量衡指標（包含百分比、具體倍數或量化區間）。GEO 基準顯示，豐富的量化數據能顯著提升資訊增益 (Information Gain)，降低 AI 幻覺，提高被 SearchGPT / Perplexity / Claude 採納為事實數據來源的頻率。`
     )
   } else {
     geoParts.push(
@@ -208,9 +216,20 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 
   const painPoints: string[] = []
 
+  // 檢查 robots.txt 是否阻擋關鍵 AI 爬蟲
+  if (ctx.robotsTxt && !ctx.robotsTxt.allAiAllowed) {
+    const blockedCritical = ctx.robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
+    if (blockedCritical.length > 0) {
+      const blockedNames = blockedCritical.map(b => `${b.engine} (${b.userAgent})`).join('、')
+      painPoints.push(
+        `【生成式 GEO 致命痛點：robots.txt 封鎖 AI 爬蟲存取】\n檢測到目標網站的 robots.txt 阻擋了 ${blockedNames}。AI 引擎被防火牆或爬蟲規則拒於門外，此狀態下無論頁面內容或結構多優異，AI 皆 100% 無法讀取或引用本頁！請優先聯繫工程團隊或調整 CDN/Cloudflare 設定以開放存取。`
+      )
+    }
+  }
+
   if (!primary.hasArticleSchema) {
     painPoints.push(
-      '【生成式 GEO 痛點 1：缺失 Article 實體結構化標記，LLM 難以進行實體對齊】\n生成式引擎（ChatGPT Search、Perplexity、Gemini）依賴 Schema.org 進行語意實體解析。因為沒有在原始碼中植入標準 Article JSON-LD，AI 爬蟲無法將內容視為權威出版文章，降低被選入生成式答案引用卡片 (Citation Cards) 的機會。'
+      '【生成式 GEO 痛點 1：缺失 Article 實體結構化標記，LLM 難以進行實體對齊】\n生成式引擎（ChatGPT Search、Perplexity、Claude、Gemini）依賴 Schema.org 進行語意實體解析。因為沒有在原始碼中植入標準 Article JSON-LD，AI 爬蟲無法將內容視為權威出版文章，降低被選入生成式答案引用卡片 (Citation Cards) 的機會。'
     )
   }
 
@@ -377,8 +396,8 @@ const buildImprovementSection = (
   if (!primary.hasArticleSchema || !primary.hasFaqSchema) {
     items.push({
       order: 1,
-      title: '【程式碼級】植入 Schema.org Article + Organization + FAQPage 實體圖譜',
-      roi: '極高 (讓 ChatGPT、Perplexity、Gemini 正式識別本頁為可信權威實體)',
+      title: '建置 Schema.org JSON-LD (Article + Organization + Person 實體圖譜)',
+      roi: '極高 (讓 ChatGPT、Perplexity、Claude、Gemini 正式識別本頁為可信權威實體)',
       description: '透過標準 JSON-LD @graph 結構化標籤，將文章主題、作者專業資格、發布機構及常見常見問答一次結構化，建立強固語意網，符合最新 GEO 實體錨定標準。',
       codeSnippet: `<script type="application/ld+json">
 {
@@ -465,13 +484,14 @@ const buildImprovementSection = (
   const titleNeedsFix = primary.title.length < 15 || primary.title.length > 65
   const metaNeedsFix = !primary.metaDescription || primary.metaDescription.length < 50
   const h1NeedsFix = primary.h1List.length !== 1
+  const missingAlt = primary.missingAltCount > 0
 
-  if (titleNeedsFix || metaNeedsFix || h1NeedsFix) {
+  if (titleNeedsFix || metaNeedsFix || h1NeedsFix || missingAlt) {
     items.push({
       order: 2,
-      title: '【結構級】重構 Title、Meta Description 與 H1/H2 階層關鍵字',
+      title: '【結構級】重構 Title、Meta、H1 與圖片 alt 關鍵字佈局',
       roi: '高 (直接影響 SERP 搜尋結果排名與自然點閱率 +30%~50%)',
-      description: '改採「核心主題痛點 + 權威指引 + 品牌」的高點擊轉化標準架構，確保搜尋引擎與 AI 爬蟲能精確萃取核心關鍵詞。',
+      description: '改採「核心主題痛點 + 權威指引 + 品牌」的高點擊轉化標準架構，並補齊圖片 alt 文字，確保搜尋引擎與 AI 爬蟲能精確萃取核心關鍵詞。',
       comparison: {
         beforeTitle: primary.title || '（未明確定義標題）',
         afterTitle: `${mainTopic}推薦指南：關鍵解析、流程與常見疑問解答｜${brandName}`,
@@ -504,11 +524,12 @@ const buildImprovementSection = (
   // ==========================================
   if (primary.tableCount === 0) {
     items.push({
-      order: 3,
-      title: '【內容級】AIO / GEO 友善資訊密度重組：增設規格與比對表格',
-      roi: '極高 (大幅增加被 Perplexity / ChatGPT Search / Google AIO 摘錄為 Answer 來源)',
-      description: 'Perplexity、Gemini 與 ChatGPT 極度偏好直接自 HTML 表格中提取指標。在內文增設條理分明的比對表格 (<table>)，大幅提升被 AI 引用為圖卡與 Answer 來源的機率。',
-      codeSnippet: `<!-- 範例：可直接插入內文的 AIO / GEO 友善規格與重點比對表格 -->
+      order: 4,
+      title: '植入高資訊密度比對表格與規格清單 (結構化摘要強化)',
+      roi: '極高 (大幅增加被 ChatGPT Search / Perplexity / Claude / Google AIO 摘錄為 Answer 來源)',
+      description:
+        'ChatGPT、Perplexity、Claude 與 Gemini 極度偏好直接自 HTML 表格中提取指標。在內文增設條理分明的比對表格 (<table>)，大幅提升被 AI 引用為圖卡與 Answer 來源的機率。',
+      codeSnippet: `<!-- 範例：AIO / GEO 友善規格與重點比對表格 -->
 <section class="aio-optimized-section">
   <h2>常見模式與核心指標快速比對</h2>
   <table border="1" cellpadding="8" style="width:100%; border-collapse: collapse; margin: 16px 0;">

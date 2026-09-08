@@ -26,8 +26,8 @@ export const runDiagnostics = (
   const allAnalyses = [primaryAnalysis, ...sampledAnalyses]
   const isSiteWide = crawlData.isSiteWide && sampledAnalyses.length > 0
 
-  // 3. 計算評分與達標率
-  const evalResult = evaluateDiagnostics(primaryAnalysis, allAnalyses)
+  // 3. 計算評分與達標率 (納入 robots.txt AI 授權狀態)
+  const evalResult = evaluateDiagnostics(primaryAnalysis, allAnalyses, crawlData.robotsTxt)
 
   // 4. 搜集匯整全站電話與地址特徵 (若有)
   const totalPhones = Array.from(new Set(allAnalyses.flatMap(a => a.matchedPhones || [])))
@@ -54,7 +54,8 @@ export const runDiagnostics = (
     totalAddresses,
     totalPhones,
     evalResult,
-    allAnalyses
+    allAnalyses,
+    robotsTxt: crawlData.robotsTxt
   })
 
   return {
@@ -76,6 +77,7 @@ export const runDiagnostics = (
     totalAddresses,
     allPages,
     sections,
-    primaryAnalysis
+    primaryAnalysis,
+    robotsTxt: crawlData.robotsTxt
   }
 }

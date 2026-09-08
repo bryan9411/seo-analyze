@@ -2,7 +2,8 @@ import type {
   SinglePageAnalysis,
   DiagnosticScores,
   ComplianceMetric,
-  FactDensityMetrics
+  FactDensityMetrics,
+  RobotsTxtReport
 } from '../../types/seo.js'
 
 export interface EvaluationResult {
@@ -88,6 +89,16 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
     issues.push('缺乏引用官方/權威第三方文獻或研究外鏈，內容權威背書偏弱')
   }
 
+  // 圖片 Alt 替代文字檢核
+  if (primary.imageCount > 0) {
+    if (primary.missingAltCount > 0) {
+      score -= Math.min(10, primary.missingAltCount * 2)
+      issues.push(`頁面共偵測到 ${primary.imageCount} 張圖片，其中 ${primary.missingAltCount} 張缺乏 \`alt\` 替代文字說明，損害圖片搜尋與無障礙體驗`)
+    } else {
+      strengths.push(`全頁 ${primary.imageCount} 張圖片皆配置了 \`alt\` 替代文字說明，符合圖片搜尋與無障礙標準`)
+    }
+  }
+
   return {
     score: clampScore(score),
     issues,
@@ -98,11 +109,25 @@ const evaluateSeo = (primary: SinglePageAnalysis) => {
 /**
  * GEO (Generative Engine Optimization 生成式引擎優化) 評估
  * 依據 Princeton GEO 基準 (Cite Sources, Statistics Addition, Schema Entity Graph, Direct Answer)
+ * 與 AI 爬蟲存取權限 (ChatGPT / Perplexity / Claude / Gemini)
  */
-const evaluateGeo = (allAnalyses: SinglePageAnalysis[]) => {
+const evaluateGeo = (allAnalyses: SinglePageAnalysis[], robotsTxt?: RobotsTxtReport) => {
   let score = 60
   const issues: string[] = []
   const strengths: string[] = []
+
+  // 0. AI 爬蟲存取權限檢核 (robots.txt 關鍵門檻)
+  if (robotsTxt) {
+    const blockedCritical = robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
+    if (blockedCritical.length > 0) {
+      score -= Math.min(30, blockedCritical.length * 15)
+      const botNames = blockedCritical.map(b => `${b.engine} (${b.name})`).join('、')
+      issues.push(`🚨 致命阻擋：robots.txt 阻擋了 ${botNames} 爬蟲，導致該 AI 引擎 100% 無法造訪網頁，失去在生成式答案中被引用的資格！`)
+    } else {
+      score += 10
+      strengths.push('✅ AI 爬蟲全面暢通：robots.txt 完整開放 ChatGPT、Perplexity、Claude 與 Google 抓取權限，具備生成式引用的最高通行資格')
+    }
+  }
 
   const articleFound = allAnalyses.some(a => a.hasArticleSchema)
   const orgFound = allAnalyses.some(a => a.hasOrganizationSchema)
@@ -115,7 +140,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[]) => {
   const detectedSchemas = Array.from(new Set(allAnalyses.flatMap(a => a.detectedSchemaTypes)))
   if (articleFound || orgFound) {
     score += 15
-    strengths.push(`已配置語意實體結構 (${detectedSchemas.slice(0, 3).join('、') || 'Article/Organization'})，利於生成式引擎 (Perplexity/ChatGPT) 建立知識圖譜關聯`)
+    strengths.push(`已配置語意實體結構 (${detectedSchemas.slice(0, 3).join('、') || 'Article/Organization'})，利於生成式引擎 (ChatGPT / Perplexity / Claude / Gemini) 建立知識圖譜關聯`)
   } else {
     score -= 20
     issues.push('完全缺乏 Article 或 Organization 實體結構化標記，AI 搜尋爬蟲無法將內容與發布者實體明確錨定')
@@ -125,7 +150,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[]) => {
     score += 8
     strengths.push('具備 Person / Author 實體標記，為生成式引擎提供明確的作者專家責任歸屬')
   } else {
-    issues.push('未配置 Person / Author 專家實體結構，降低 LLM 在權威度 (E-E-A-T) 採納上的置信分數')
+    issues.push('未配置 Person / Author 專家實體結構，降低 LLM (ChatGPT / Perplexity / Claude) 在權威度 (E-E-A-T) 採納上的置信分數')
   }
 
   // 2. 權威佐證與出處引述 (Cite Sources - Princeton GEO 關鍵策略)
@@ -149,7 +174,7 @@ const evaluateGeo = (allAnalyses: SinglePageAnalysis[]) => {
   // 4. 直球首段濃縮解答 (Direct Answer Snippet)
   if (directAnswerFound) {
     score += 10
-    strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎 (SearchGPT / Perplexity) 直取為精選解答摘要')
+    strengths.push('首段具備直球核心定義或解答架構，極易被 AI 搜尋引擎 (SearchGPT / Perplexity / Claude) 直取為精選解答摘要')
   } else {
     issues.push('首段缺乏「直球解答」或核心摘要定義，前言鋪陳過長，不利於 AI 搜尋引擎在第一時間提取為精選答案')
   }
@@ -320,13 +345,14 @@ const calculateFactDensity = (allAnalyses: SinglePageAnalysis[]): FactDensityMet
  */
 export const evaluateDiagnostics = (
   primary: SinglePageAnalysis,
-  allAnalyses: SinglePageAnalysis[]
+  allAnalyses: SinglePageAnalysis[],
+  robotsTxt?: RobotsTxtReport
 ): EvaluationResult => {
   // 1. 傳統 SEO 評估
   const seoEval = evaluateSeo(primary)
 
   // 2. 生成式 GEO 評估 (Generative Engine Optimization)
-  const geoEval = evaluateGeo(allAnalyses)
+  const geoEval = evaluateGeo(allAnalyses, robotsTxt)
 
   // 3. Google AIO 答案引擎評估
   const aioEval = evaluateAio(primary, allAnalyses)

@@ -3,6 +3,7 @@ import type { CrawlResult, SampledPage } from '../../types/seo.js'
 import { fetchHtml } from './httpFetcher.js'
 import { extractInternalArticleLinks } from './linkExtractor.js'
 import { fetchContentFeedArticles } from './contentFeedAdapter.js'
+import { checkRobotsTxt } from './robotsTxtChecker.js'
 
 export interface CrawlOptions {
   isSiteWide?: boolean
@@ -18,8 +19,12 @@ export const crawlTarget = async (
 ): Promise<CrawlResult> => {
   const { isSiteWide = false, sampleLimit = 10 } = options
 
-  // 1. 抓取主頁面
-  const primaryResult = await fetchHtml(targetUrl)
+  // 1. 平行抓取主頁面與 robots.txt AI 授權狀態
+  const [primaryResult, robotsTxt] = await Promise.all([
+    fetchHtml(targetUrl),
+    checkRobotsTxt(targetUrl)
+  ])
+
   if (!primaryResult.ok || !primaryResult.html) {
     throw new Error(`無法連線至該網址: ${primaryResult.error || '未知錯誤'}`)
   }
@@ -32,7 +37,8 @@ export const crawlTarget = async (
     primaryUrl: primaryResult.url,
     primaryTitle,
     primaryHtml: primaryResult.html,
-    sampledPages: []
+    sampledPages: [],
+    robotsTxt
   }
 
   // 若為單頁模式，直接回傳

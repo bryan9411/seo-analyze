@@ -42,6 +42,16 @@ const extractSeoMetadata = ($: CheerioAPI) => {
   const ogTitle = $('meta[property="og:title" i]').attr('content')?.trim() || ''
   const ogImage = $('meta[property="og:image" i]').attr('content')?.trim() || ''
 
+  const imageElements = $('img')
+  const imageCount = imageElements.length
+  let missingAltCount = 0
+  imageElements.each((_, el) => {
+    const alt = $(el).attr('alt')
+    if (alt === undefined || alt === null || alt.trim() === '') {
+      missingAltCount++
+    }
+  })
+
   return {
     title,
     metaDescription,
@@ -52,7 +62,9 @@ const extractSeoMetadata = ($: CheerioAPI) => {
     h2List,
     h3List,
     ogTitle,
-    ogImage
+    ogImage,
+    imageCount,
+    missingAltCount
   }
 }
 

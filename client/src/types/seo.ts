@@ -1,6 +1,24 @@
-/**
- * 前端共用之 SEO / GEO / AIO 分析與診斷型別定義
- */
+/** 主流 AI 爬蟲存取授權項目 */
+export interface AiCrawlerPermission {
+  crawlerId: string
+  name: string
+  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AIO)'
+  userAgent: string
+  status: 'allowed' | 'blocked'
+  description: string
+  isCritical: boolean
+}
+
+/** robots.txt 健檢分析報告 */
+export interface RobotsTxtReport {
+  fetched: boolean
+  url: string
+  contentSnippet?: string
+  crawlers: AiCrawlerPermission[]
+  allAiAllowed: boolean
+  blockedBotsCount: number
+  hasCustomRules: boolean
+}
 
 export interface SinglePageAnalysis {
   url: string
@@ -14,6 +32,9 @@ export interface SinglePageAnalysis {
   h3List: string[]
   ogTitle: string
   ogImage: string
+  // 圖片與 Alt 標籤
+  imageCount: number
+  missingAltCount: number
   authorTags: string
   publishDate: string
   outboundLinksCount: number
@@ -150,6 +171,7 @@ export interface DiagnosticReport {
   allPages: AuditSampleItem[]
   sections: StructuredSections
   primaryAnalysis: SinglePageAnalysis
+  robotsTxt?: RobotsTxtReport
 }
 
 export type DiagnosticMode = 'ALL' | 'SEO' | 'GEO' | 'AIO'

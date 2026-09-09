@@ -95,6 +95,19 @@ export const generateDiagnosticWordReport = async (
 
   const { sections } = report
 
+  const createTextParagraphs = (rawText: string, defaultAfter = 160): Paragraph[] => {
+    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean)
+    return lines.map((line, idx) => {
+      const isBullet = line.startsWith('•')
+      const isLast = idx === lines.length - 1
+      return new Paragraph({
+        children: [new TextRun({ text: line, size: 22 })],
+        spacing: { after: isLast ? defaultAfter : isBullet ? 60 : 100 },
+        indent: isBullet ? { left: 240 } : undefined
+      })
+    })
+  }
+
   // 傳統 SEO 診斷
   if (mode === 'ALL' || mode === 'SEO') {
     docChildren.push(
@@ -111,20 +124,14 @@ export const generateDiagnosticWordReport = async (
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.seoSection.titleMetaAnalysis, size: 22 })],
-        spacing: { after: 160 }
-      }),
+      ...createTextParagraphs(sections.seoSection.titleMetaAnalysis, 160),
       new Paragraph({
         children: [
           new TextRun({ text: '• 內容品質與 E-E-A-T 架構', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.seoSection.eeatAnalysis, size: 22 })],
-        spacing: { after: 200 }
-      }),
+      ...createTextParagraphs(sections.seoSection.eeatAnalysis, 200),
       // 痛點 / 優勢提示框
       createCalloutBox(
         sections.seoSection.painPoints.length > 0
@@ -156,20 +163,14 @@ export const generateDiagnosticWordReport = async (
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.geoSection.schemaAnalysis, size: 22 })],
-        spacing: { after: 160 }
-      }),
+      ...createTextParagraphs(sections.geoSection.schemaAnalysis, 160),
       new Paragraph({
         children: [
           new TextRun({ text: '• 生成式優化指標：權威佐證、數據事實、直球解答', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.geoSection.geoEntityAnalysis, size: 22 })],
-        spacing: { after: 200 }
-      }),
+      ...createTextParagraphs(sections.geoSection.geoEntityAnalysis, 200),
       // 痛點 / 優勢提示框
       createCalloutBox(
         sections.geoSection.painPoints.length > 0
@@ -201,20 +202,14 @@ export const generateDiagnosticWordReport = async (
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.aioSection.infoDensityAnalysis, size: 22 })],
-        spacing: { after: 160 }
-      }),
+      ...createTextParagraphs(sections.aioSection.infoDensityAnalysis, 160),
       new Paragraph({
         children: [
           new TextRun({ text: '• 問答契合度與口語長尾問答', bold: true, size: 24, color: '2E4053' })
         ],
         spacing: { after: 80 }
       }),
-      new Paragraph({
-        children: [new TextRun({ text: sections.aioSection.qaRelevanceAnalysis, size: 22 })],
-        spacing: { after: 200 }
-      }),
+      ...createTextParagraphs(sections.aioSection.qaRelevanceAnalysis, 200),
       // 痛點 / 優勢提示框
       createCalloutBox(
         sections.aioSection.painPoints.length > 0

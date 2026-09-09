@@ -28,8 +28,14 @@ const DashboardPage = () => {
   const [openaiKey, setOpenaiKey] = useState('')
 
   // 執行健檢診斷
-  const handleStartDiagnose = async () => {
-    if (!url.trim()) return
+  const handleStartDiagnose = async (overrideUrl?: string, overrideSiteWide?: boolean) => {
+    const activeUrl = (overrideUrl !== undefined ? overrideUrl : url).trim()
+    const activeSiteWide = overrideSiteWide !== undefined ? overrideSiteWide : isSiteWide
+
+    if (!activeUrl) return
+
+    if (overrideUrl !== undefined) setUrl(overrideUrl)
+    if (overrideSiteWide !== undefined) setIsSiteWide(overrideSiteWide)
 
     setIsLoading(true)
     setError(null)
@@ -50,8 +56,8 @@ const DashboardPage = () => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          url: url.trim(),
-          isSiteWide,
+          url: activeUrl,
+          isSiteWide: activeSiteWide,
           mode: 'ALL'
         })
       })
@@ -73,6 +79,13 @@ const DashboardPage = () => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 快速體驗：點選後立即將網址帶入並直接執行全站抽樣分析
+  const handleQuickAnalyze = (sampleUrl: string) => {
+    setUrl(sampleUrl)
+    setIsSiteWide(true)
+    handleStartDiagnose(sampleUrl, true)
   }
 
   // 匯出 Word 報告
@@ -171,7 +184,7 @@ const DashboardPage = () => {
         setUrl={setUrl}
         isSiteWide={isSiteWide}
         setIsSiteWide={setIsSiteWide}
-        onStartDiagnose={handleStartDiagnose}
+        onStartDiagnose={() => handleStartDiagnose()}
         isLoading={isLoading}
         hasReport={Boolean(report)}
         onExportWord={handleExportWord}
@@ -202,9 +215,9 @@ const DashboardPage = () => {
               </div>
               <button
                 type="button"
-                onClick={handleStartDiagnose}
+                onClick={() => handleStartDiagnose()}
                 disabled={isLoading}
-                className="shrink-0 rounded-md border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50 active:scale-95 transition-all shadow-2xs"
+                className="shrink-0 rounded-md border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50 active:scale-95 transition-all shadow-2xs cursor-pointer"
               >
                 重新嘗試
               </button>
@@ -265,20 +278,25 @@ const DashboardPage = () => {
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
                 {[
-                  { name: '維基百科 SEO 指南', url: 'https://zh.wikipedia.org/wiki/SEO' },
+                  { name: '維基百科首頁', url: 'https://zh.wikipedia.org' },
                   { name: 'MDN Web Docs', url: 'https://developer.mozilla.org' },
                   { name: 'GitHub 官方首頁', url: 'https://github.com' }
                 ].map((sample) => (
                   <button
                     key={sample.url}
                     type="button"
-                    onClick={() => {
-                      setUrl(sample.url)
-                    }}
-                    className="group inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3.5 py-1.5 text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 transition active:scale-95 shadow-2xs"
+                    onClick={() => handleQuickAnalyze(sample.url)}
+                    className="group inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 transition-all active:scale-95 shadow-2xs cursor-pointer hover:shadow-xs"
+                    title={`點擊立即以全站抽樣分析「${sample.name}」`}
                   >
-                    <span className="font-medium">{sample.name}</span>
+                    <span className="font-medium flex items-center gap-1.5">
+                      <span className="text-blue-600 group-hover:scale-110 transition-transform">⚡</span>
+                      {sample.name}
+                    </span>
                     <span className="text-[11px] font-mono text-slate-400 group-hover:text-blue-500">{sample.url}</span>
+                    <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 group-hover:bg-blue-100 group-hover:border-blue-300 transition-colors">
+                      立即全站抽樣分析
+                    </span>
                   </button>
                 ))}
               </div>

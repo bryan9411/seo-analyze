@@ -24,6 +24,61 @@ interface DiagnosticTabsProps {
 
 type TabType = 'seo' | 'geo' | 'aio' | 'improvements'
 
+/**
+ * 格式化診斷文字呈現元件：
+ * 1. 自動清除殘留或異常的 *** 與 * ** 符號
+ * 2. 結構化解析【項目標題】與說明內文，以條列式優雅卡片展示
+ * 3. 解決原生純文字排版不易閱讀與符號雜亂問題
+ */
+const FormattedAnalysisText: React.FC<{ content: string }> = ({ content }) => {
+  if (!content) return null
+
+  const rawLines = content.split('\n').map(l => l.trim()).filter(Boolean)
+
+  return (
+    <div className="space-y-2.5">
+      {rawLines.map((line, idx) => {
+        // 清理異常或殘留的 markdown 符號
+        let clean = line
+          .replace(/^\*\s*\*\*(.*?)\*\*\s*[:：]?\s*/, '• 【$1】：')
+          .replace(/^\*\*\*(.*?)\*\*\*\s*[:：]?\s*/, '• 【$1】：')
+          .replace(/^\*\s+/, '• ')
+
+        // 判斷是否符合條列項目格式
+        const itemMatch = clean.match(/^(?:•\s*)?(?:【(.*?)】|\*\*(.*?)\*\*)\s*[:：]?\s*(.*)$/)
+
+        if (itemMatch) {
+          const title = itemMatch[1] || itemMatch[2]
+          const body = (itemMatch[3] || '').replace(/\*\*(.*?)\*\*/g, '$1').trim()
+
+          return (
+            <div
+              key={idx}
+              className="flex items-start gap-2.5 rounded-lg border border-slate-200/90 bg-slate-50/70 p-3 text-xs leading-relaxed text-slate-700 shadow-2xs hover:bg-white hover:border-slate-300 transition-colors"
+            >
+              <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+              </div>
+              <div className="flex-1">
+                <span className="font-semibold text-slate-900 mr-1.5">【{title}】</span>
+                <span className="text-slate-700">{body}</span>
+              </div>
+            </div>
+          )
+        }
+
+        // 一般前言或段落文字
+        const regularBody = clean.replace(/\*\*(.*?)\*\*/g, '$1')
+        return (
+          <p key={idx} className="text-xs text-slate-600 leading-relaxed px-1">
+            {regularBody}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robotsTxt }) => {
   const [activeTab, setActiveTab] = useState<TabType>('seo')
   const [copiedSnippetId, setCopiedSnippetId] = useState<string | null>(null)
@@ -81,7 +136,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-medium transition-all whitespace-nowrap ${isActive
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${isActive
                   ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border border-transparent'
                 }`}
@@ -111,16 +166,12 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             >
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">標題與描述分析</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {seoSection.titleMetaAnalysis}
-                </div>
+                <FormattedAnalysisText content={seoSection.titleMetaAnalysis} />
               </div>
 
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">內容品質與 E-E-A-T 權威度分析</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {seoSection.eeatAnalysis}
-                </div>
+                <FormattedAnalysisText content={seoSection.eeatAnalysis} />
               </div>
 
               {/* 痛點 / 優勢列表 */}
@@ -233,16 +284,12 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
 
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">Schema 結構化實體圖譜</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {geoSection.schemaAnalysis}
-                </div>
+                <FormattedAnalysisText content={geoSection.schemaAnalysis} />
               </div>
 
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">生成式引擎優化指標：權威佐證、數據事實、直球解答</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {geoSection.geoEntityAnalysis}
-                </div>
+                <FormattedAnalysisText content={geoSection.geoEntityAnalysis} />
               </div>
 
               {/* 痛點 / 優勢列表 */}
@@ -282,16 +329,12 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             >
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">資訊密度與結構分析</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {aioSection.infoDensityAnalysis}
-                </div>
+                <FormattedAnalysisText content={aioSection.infoDensityAnalysis} />
               </div>
 
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-2">問答契合度與口語長尾問答</h3>
-                <div className="rounded-lg bg-slate-50/80 p-3.5 text-xs text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-line">
-                  {aioSection.qaRelevanceAnalysis}
-                </div>
+                <FormattedAnalysisText content={aioSection.qaRelevanceAnalysis} />
               </div>
 
               {/* 痛點 / 優勢列表 */}
@@ -408,7 +451,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                         <button
                           type="button"
                           onClick={() => handleCopyCode(item.codeSnippet!, `code-${item.order}`)}
-                          className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+                          className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                         >
                           {copiedSnippetId === `code-${item.order}` ? (
                             <>

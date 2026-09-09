@@ -91,8 +91,8 @@ export const generateMarkdownReport = (
   md += `## 🛠️ 4. 優先改善建議方案\n\n`
   sections.improvementSection.items.forEach(item => {
     md += `### 建議 ${item.order}: ${item.title}\n`
-    md += `* **預期 ROI**：${item.roi}\n`
-    md += `* **方案說明**：${item.description}\n\n`
+    md += `- **預期 ROI**：${item.roi}\n`
+    md += `- **方案說明**：${item.description}\n\n`
 
     if (item.comparison) {
       md += `| 維度 | 改善前現狀 | 建議改善後 |\n`

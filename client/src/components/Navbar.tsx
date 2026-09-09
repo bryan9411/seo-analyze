@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setIsSiteWide(!isSiteWide)}
             disabled={isLoading}
             title={isSiteWide ? '切換為單頁模式' : '切換為全站抽樣'}
-            className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${isSiteWide
+            className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${isSiteWide
                 ? 'border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100/60'
                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="submit"
             disabled={isLoading || !url.trim()}
-            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0 shadow-xs"
+            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0 shadow-xs cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onExportWord}
             disabled={!hasReport || isExportingWord}
             className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport && !isExportingWord
-                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs'
+                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
                 : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
               }`}
           >
@@ -122,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onExportMarkdown}
             disabled={!hasReport}
             className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport
-                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs'
+                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
                 : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
               }`}
           >
@@ -133,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenSettings}
-            className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
             title="平台設定"
           >
             <Settings className="h-4 w-4" />

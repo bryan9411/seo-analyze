@@ -13,7 +13,7 @@ interface NavbarProps {
   hasReport: boolean
   onExportWord: () => void
   onExportMarkdown: () => void
-  onOpenSettings: () => void
+  onOpenSettings?: () => void
   isExportingWord?: boolean
 }
 
@@ -69,8 +69,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             disabled={isLoading}
             title={isSiteWide ? '切換為單頁模式' : '切換為全站抽樣'}
             className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${isSiteWide
-                ? 'border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100/60'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+              ? 'border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100/60'
+              : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
           >
             {isSiteWide ? (
@@ -109,8 +109,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onExportWord}
             disabled={!hasReport || isExportingWord}
             className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport && !isExportingWord
-                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
-                : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
+              ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
+              : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
               }`}
           >
             <FileDown className="h-3.5 w-3.5 text-slate-500" />
@@ -122,14 +122,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onExportMarkdown}
             disabled={!hasReport}
             className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${hasReport
-                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
-                : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
+              ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs cursor-pointer'
+              : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
               }`}
           >
             <FileText className="h-3.5 w-3.5 text-slate-500" />
             <span>匯出 Markdown</span>
           </button>
 
+          {/* 暫時隱藏此設定按鈕 */}
+          {/*
           <button
             type="button"
             onClick={onOpenSettings}
@@ -138,6 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Settings className="h-4 w-4" />
           </button>
+          */}
         </div>
       </div>
     </header>

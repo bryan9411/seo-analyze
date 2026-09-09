@@ -59,7 +59,7 @@ export const PriorityCodeSnippet: React.FC<PriorityCodeSnippetProps> = ({ codeSn
       </div>
 
       <div className="mt-3 text-xs text-slate-400 shrink-0">
-        建議將上述 Schema.org JSON-LD 代碼直接植入網頁 &lt;head&gt; 區段
+        建議將上述 Schema.org JSON-LD 代碼直接嵌入網頁 &lt;head&gt; 區段
       </div>
     </div>
   )

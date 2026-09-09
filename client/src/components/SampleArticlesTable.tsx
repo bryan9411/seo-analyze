@@ -24,9 +24,9 @@ export const SampleArticlesTable: React.FC<SampleArticlesTableProps> = ({
         </span>
       </div>
 
-      <div className="flex-1 overflow-x-auto rounded-lg border border-slate-100">
+      <div className="overflow-x-auto overflow-y-auto max-h-[260px] rounded-lg border border-slate-100">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/90 text-slate-600 font-semibold border-b border-slate-200">
+          <thead className="sticky top-0 z-10 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
             <tr>
               <th className="py-2.5 px-3">URL</th>
               <th className="py-2.5 px-3 w-28 text-center">抽查檢驗</th>

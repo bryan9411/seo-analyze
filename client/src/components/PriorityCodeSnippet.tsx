@@ -30,13 +30,13 @@ export const PriorityCodeSnippet: React.FC<PriorityCodeSnippetProps> = ({ codeSn
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs flex flex-col justify-between h-full">
-      <div className="flex items-center justify-between mb-3">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs flex flex-col h-full">
+      <div className="flex items-center justify-between mb-3 shrink-0">
         <h3 className="text-sm font-bold text-slate-900 tracking-tight">優先改善建議</h3>
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+          className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
         >
           {copied ? (
             <>
@@ -52,13 +52,13 @@ export const PriorityCodeSnippet: React.FC<PriorityCodeSnippetProps> = ({ codeSn
         </button>
       </div>
 
-      <div className="relative flex-1 overflow-hidden rounded-lg bg-[#0F172A] border border-slate-800 p-4">
-        <pre className="h-64 overflow-y-auto overflow-x-auto text-[11px] font-mono leading-relaxed text-emerald-400">
+      <div className="relative rounded-lg bg-[#0F172A] border border-slate-800 overflow-hidden">
+        <pre className="h-[260px] overflow-y-auto overflow-x-auto p-4 text-[11px] font-mono leading-relaxed text-emerald-400">
           <code>{code}</code>
         </pre>
       </div>
 
-      <div className="mt-3 text-xs text-slate-400">
+      <div className="mt-3 text-xs text-slate-400 shrink-0">
         建議將上述 Schema.org JSON-LD 代碼直接植入網頁 &lt;head&gt; 區段
       </div>
     </div>

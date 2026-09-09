@@ -289,8 +289,7 @@ const DashboardPage = () => {
                     className="group inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 transition-all active:scale-95 shadow-2xs cursor-pointer hover:shadow-xs"
                     title={`點擊立即以全站抽樣分析「${sample.name}」`}
                   >
-                    <span className="font-medium flex items-center gap-1.5">
-                      <span className="text-blue-600 group-hover:scale-110 transition-transform">⚡</span>
+                    <span className="font-medium text-slate-800 group-hover:text-blue-600 transition-colors">
                       {sample.name}
                     </span>
                     <span className="text-[11px] font-mono text-slate-400 group-hover:text-blue-500">{sample.url}</span>

@@ -274,7 +274,7 @@ const calculateComplianceMetrics = (
   if (allAnalyses.some(a => a.authoritativeOutbound)) evidenceRate += 20
   if (primary.factualNumberCount >= 5) evidenceRate += 10
 
-  // AIO 問答達標率
+  // AEO 問答達標率
   let aioRate = 0
   const questionCount = allAnalyses.reduce((acc, a) => acc + a.matchedQuestionHeadings.length, 0)
   if (allAnalyses.some(a => a.hasFaqSchema)) aioRate += 40
@@ -287,7 +287,7 @@ const calculateComplianceMetrics = (
     { name: 'H1 唯一層級', rate: h1Rate, benchmark: 90, status: getStatus(h1Rate) },
     { name: 'Schema 實體圖譜', rate: schemaRate, benchmark: 85, status: getStatus(schemaRate) },
     { name: '權威佐證與數據', rate: evidenceRate, benchmark: 80, status: getStatus(evidenceRate) },
-    { name: 'AIO 問答解答', rate: aioRate, benchmark: 75, status: getStatus(aioRate) }
+    { name: 'AEO 問答解答', rate: aioRate, benchmark: 75, status: getStatus(aioRate) }
   ]
 }
 
@@ -369,7 +369,8 @@ export const evaluateDiagnostics = (
       overall,
       seo: seoEval.score,
       geo: geoEval.score,
-      aio: aioEval.score
+      aio: aioEval.score,
+      aeo: aioEval.score
     },
     seoIssues: seoEval.issues,
     seoStrengths: seoEval.strengths,

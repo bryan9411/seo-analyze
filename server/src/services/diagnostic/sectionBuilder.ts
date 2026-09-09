@@ -259,35 +259,35 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 }
 
 /**
- * Google AIO 診斷區塊
+ * 解答引擎 AEO 診斷區塊
  */
 const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   const aioParts: string[] = [
-    'Google AI Overviews (AIO) 是由 Gemini 在 Google SERP 最上方直接生成的綜合解答區塊，旨在解決用戶零點擊搜尋需求。'
+    '解答引擎優化 (AEO, Answer Engine Optimization) 旨在讓網頁內容直接被各主流 AI 解答引擎採納為直球解答，滿足用戶零點擊搜尋需求。'
   ]
 
   if (primary.tableCount > 0) {
     aioParts.push(
-      `• 【表格結構】：頁面包含 ${primary.tableCount} 組 <table> 表格。Google AIO 極度偏好直接自表格提取規格、價格與比較參數產生圖卡，本頁在此項目具備良好的結構化優勢。`
+      `• 【表格結構】：頁面包含 ${primary.tableCount} 組 <table> 表格。解答引擎 (AEO) 極度偏好直接自表格提取規格、價格與比較參數產生圖卡，本頁在此項目具備良好的結構化優勢。`
     )
   } else {
     aioParts.push(
-      `• 【表格結構】：目前頁面缺乏 <table> 結構。Google AIO 偏好直接從表格抓取價格比較、服務流程與規格參數，缺乏表格代表 AI 摘要生成器需要花費更多 Token 解析純文字，進而降低被選為圖卡來源的機率。`
+      `• 【表格結構】：目前頁面缺乏 <table> 結構。解答引擎 (AEO) 偏好直接從表格抓取價格比較、服務流程與規格參數，缺乏表格代表 AI 摘要生成器需要花費更多 Token 解析純文字，進而降低被選為圖卡來源的機率。`
     )
   }
 
   if (primary.listCount >= 2) {
     aioParts.push(
-      `• 【條列式清單】：頁面包含 ${primary.listCount} 組清單（共 ${primary.listItemCount} 個項目），結構清晰分明，符合 AIO 抓取步驟流程與要點整理的偏好。`
+      `• 【條列式清單】：頁面包含 ${primary.listCount} 組清單（共 ${primary.listItemCount} 個項目），結構清晰分明，符合解答引擎 (AEO) 抓取步驟流程與要點整理的偏好。`
     )
   } else {
     aioParts.push(
-      `• 【條列式清單】：清單結構僅有 ${primary.listCount} 組，文字多以密集長段落堆疊，不利於 AIO 快速完成語意切塊與摘要生成。`
+      `• 【條列式清單】：清單結構僅有 ${primary.listCount} 組，文字多以密集長段落堆疊，不利於解答引擎 (AEO) 快速完成語意切塊與摘要生成。`
     )
   }
 
   if (primary.fluffCount === 0) {
-    aioParts.push('• 【行銷形容詞與客觀度】：內文無無效商業浮誇形容詞，資訊表達客觀平實，契合 AIO 過濾主觀宣傳語的偏好。')
+    aioParts.push('• 【行銷形容詞與客觀度】：內文無無效商業浮誇形容詞，資訊表達客觀平實，契合 AEO 過濾主觀宣傳語的偏好。')
   } else if (primary.fluffCount <= 5) {
     aioParts.push(
       `• 【行銷形容詞與客觀度】：商業形容詞比例控制良好（發現 ${primary.fluffCount} 次），整體文字維持在客觀傳遞事實的適當水準。`
@@ -297,13 +297,13 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
     aioParts.push(
       `• 【行銷形容詞與客觀度】：內文充斥較多主觀宣傳話術（共發現 ${primary.fluffCount} 次${
         sampleFluff ? `，如：${sampleFluff}` : ''
-      }），而客觀數據比例偏低。Google AIO 在生成精煉答案時，會主動過濾掉無法被交叉驗證的主觀宣傳語。`
+      }），而客觀數據比例偏低。解答引擎 (AEO) 在生成精煉答案時，會主動過濾掉無法被交叉驗證的主觀宣傳語。`
     )
   }
 
   if (primary.factualNumberCount > 0) {
     aioParts.push(
-      `• 【事實數據密度】：檢測到 ${primary.factualNumberCount} 個具體客觀數值（如價格、規格、時程），為 AIO 答案生成提供高可信度依據。`
+      `• 【事實數據密度】：檢測到 ${primary.factualNumberCount} 個具體客觀數值（如價格、規格、時程），為解答引擎 (AEO) 答案生成提供高可信度依據。`
     )
   } else {
     aioParts.push('• 【事實數據密度】：客觀數字與度量衡數值較為稀缺，缺乏硬性數據支撐。')
@@ -315,7 +315,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   if (primary.hasFaqSchema) {
     const qCountDesc = primary.faqQuestionsCount ? `（共檢測到 ${primary.faqQuestionsCount} 組結構化問答）` : ''
     qaRelevanceAnalysis =
-      `• 【問答契合度】：頁面已成功部署 Schema.org FAQPage 結構化資料${qCountDesc}！這能讓 Google AIO 直接擷取標準問答對決模組，精準命中用戶在對話式搜尋中的口語發問意圖。\n` +
+      `• 【問答契合度】：頁面已成功部署 Schema.org FAQPage 結構化資料${qCountDesc}！這能讓解答引擎 (AEO) 直接擷取標準問答對決模組，精準命中用戶在對話式搜尋中的口語發問意圖。\n` +
       `• 【倒金字塔結構優勢】：${
         primary.matchedQuestionHeadings.length > 0
           ? `同時在內文標題中佈局了 ${primary.matchedQuestionHeadings.length} 個問答型標題（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），有效將用戶長尾疑慮前置。`
@@ -323,11 +323,11 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
       }`
   } else if (primary.matchedQuestionHeadings.length > 0) {
     qaRelevanceAnalysis =
-      `• 【問答契合度】：內文標題中發現 ${primary.matchedQuestionHeadings.length} 個長尾問答句（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），具備良好口語提問基礎。但尚未標記 Schema.org FAQPage 結構化資料，目前仍停留於純文本，Google AIO 無法以最高置信度快速解析。\n` +
-      `• 【建議行動】：立即為這 ${primary.matchedQuestionHeadings.length} 個現成問答補上 FAQPage JSON-LD 標記，直接將內文優勢轉化為 AIO 引用首選。`
+      `• 【問答契合度】：內文標題中發現 ${primary.matchedQuestionHeadings.length} 個長尾問答句（如：「${primary.matchedQuestionHeadings.slice(0, 2).join('」、「')}」），具備良好口語提問基礎。但尚未標記 Schema.org FAQPage 結構化資料，目前仍停留於純文本，解答引擎 (AEO) 無法以最高置信度快速解析。\n` +
+      `• 【建議行動】：立即為這 ${primary.matchedQuestionHeadings.length} 個現成問答補上 FAQPage JSON-LD 標記，直接將內文優勢轉化為 AEO 引用首選。`
   } else {
     qaRelevanceAnalysis =
-      `• 【問答契合度】：檢測發現頁面缺乏結構化的「問答對決模組」，亦未佈局問答型標題。現代使用者在 Google AIO 搜尋中多使用長尾口語問題（如「...怎麼辦？」、「...費用如何計算？」）。\n` +
+      `• 【問答契合度】：檢測發現頁面缺乏結構化的「問答對決模組」，亦未佈局問答型標題。現代使用者在解答引擎 (AEO) 搜尋中多使用長尾口語問題（如「...怎麼辦？」、「...費用如何計算？」）。\n` +
       `• 【自說自話陷阱】：內容架構多為自說自話的介紹與行銷陳述，未採用「倒金字塔結構」（即標題提出問題後，首段第一句直接給出具體原因與解決答案），導致 AI 答案生成模型判定本頁答案回應速度慢、直接度低。`
   }
 
@@ -335,31 +335,31 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
 
   if (primary.tableCount === 0) {
     painPoints.push(
-      '【AIO 攔截痛點 1：缺乏結構化表格，無法生成零點擊比對圖卡】\nGoogle AIO 會主動將表格提取為搜尋結果最頂端的比對圖卡。缺乏結構化 <table> 時，容易在精選摘要比對階段錯失曝光機會。'
+      '【AEO 攔截痛點 1：缺乏結構化表格，無法生成零點擊比對圖卡】\nAI 解答引擎 (AEO) 會主動將表格提取為搜尋結果最頂端的比對圖卡。缺乏結構化 <table> 時，容易在精選摘要比對階段錯失曝光機會。'
     )
   }
 
   if (!primary.hasFaqSchema) {
     painPoints.push(
-      '【AIO 攔截痛點 2：缺乏長尾 FAQPage 模組，喪失對話型搜尋入口】\n當用戶在 Google 發問求助時，Gemini AIO 傾向直接引用具備 FAQPage 結構化資料、且答案明確直接的權威網站。本頁未佈局 FAQ 結構化資料，錯失了成為 AIO 首選來源的機會。'
+      '【AEO 攔截痛點 2：缺乏長尾 FAQPage 模組，喪失對話型搜尋入口】\n當用戶向解答引擎發問求助時，AEO 系統傾向直接引用具備 FAQPage 結構化資料、且答案明確直接的權威網站。本頁未佈局 FAQ 結構化資料，錯失了成為 AEO 首選來源的機會。'
     )
   }
 
   if (primary.fluffCount > 5) {
     painPoints.push(
-      `【AIO 攔截痛點 3：浮誇形容詞過多 (${primary.fluffCount} 次)，事實資訊密度被稀釋】\n當文本多為模糊形容詞而缺乏客觀數據、百分比與規格時，Google AIO 在合成答案時會主動過濾主觀宣傳，導致本頁關鍵內容無法被採納為客觀事實。`
+      `【AEO 攔截痛點 3：浮誇形容詞過多 (${primary.fluffCount} 次)，事實資訊密度被稀釋】\n當文本多為模糊形容詞而缺乏客觀數據、百分比與規格時，解答引擎在合成答案時會主動過濾主觀宣傳，導致本頁關鍵內容無法被採納為客觀事實。`
     )
   }
 
   if (primary.factualNumberCount < 5) {
     painPoints.push(
-      `【事實密度痛點：客觀規格數據不足 (僅發現 ${primary.factualNumberCount} 處)】\n缺乏足夠的具體數字、工時、費用區間或規格參數，AIO 引擎難以將內文作為硬事實依據進行引用。`
+      `【事實密度痛點：客觀規格數據不足 (僅發現 ${primary.factualNumberCount} 處)】\n缺乏足夠的具體數字、工時、費用區間或規格參數，AEO 引擎難以將內文作為硬事實依據進行引用。`
     )
   }
 
   if (!primary.authoritativeOutbound) {
     painPoints.push(
-      '【AIO 查核痛點：缺乏外部權威規範或文獻引用】\n內文未引用政府機關 (.gov)、教育學術 (.edu) 或公認行業官方標準出站連結，AIO 在進行事實交叉查核時缺乏第三方佐證信號。'
+      '【AEO 查核痛點：缺乏外部權威規範或文獻引用】\n內文未引用政府機關 (.gov)、教育學術 (.edu) 或公認行業官方標準出站連結，解答引擎在進行事實交叉查核時缺乏第三方佐證信號。'
     )
   }
 
@@ -370,7 +370,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
   }
 
   return {
-    title: '3. Google AIO 診斷',
+    title: '3. 解答引擎 AEO 診斷',
     infoDensityAnalysis,
     qaRelevanceAnalysis,
     painPoints
@@ -522,8 +522,8 @@ const buildImprovementSection = (
       roi: '極高',
       description:
         'ChatGPT、Perplexity、Claude 與 Gemini 極度偏好直接自 HTML 表格中提取指標。在內文增設條理分明的比對表格，大幅提升被 AI 引用為圖卡與解答來源的機率。',
-      codeSnippet: `<!-- 範例：AIO / GEO 友善規格與重點比對表格 -->
-<section class="aio-optimized-section">
+      codeSnippet: `<!-- 範例：AEO / GEO 友善規格與重點比對表格 -->
+<section class="aeo-optimized-section">
   <h2>常見模式與核心指標快速比對</h2>
   <table border="1" cellpadding="8" style="width:100%; border-collapse: collapse; margin: 16px 0;">
     <thead>
@@ -573,8 +573,8 @@ const buildImprovementSection = (
       title: '【內容級】強化事實數據密度與倒金字塔解答',
       roi: '高',
       description: '本頁已具備良好的表格與引用基礎！後續關鍵在於：確保問答首句採用「結論先行」直球回答，並在內文中增補具體客觀數據（如作業時程、量化成效、費用區間），進一步鞏固 AI 引用首選地位。',
-      codeSnippet: `<!-- 範例：GEO / AIO 友善的高資訊密度事實速查卡 (可置於重點段落前) -->
-<div class="aio-fact-highlights" style="border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; padding: 16px; margin: 20px 0;">
+      codeSnippet: `<!-- 範例：GEO / AEO 友善的高資訊密度事實速查卡 (可置於重點段落前) -->
+<div class="aeo-fact-highlights" style="border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px; padding: 16px; margin: 20px 0;">
   <h3 style="margin-top: 0; font-size: 16px; color: #1e293b;">⚡ ${mainTopic}：核心數據與重點速查</h3>
   <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px; color: #334155;">
     <li><strong>作業時程指標</strong>：標準作業通常於 1 ~ 2 小時內完成</li>

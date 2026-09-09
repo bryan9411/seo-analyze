@@ -206,9 +206,9 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           labelColor="text-amber-800"
         />
 
-        {/* Google AIO */}
+        {/* 解答引擎 AEO */}
         <CircularGauge
-          label="Google AIO"
+          label="解答引擎AEO"
           score={animatedAio}
           targetScore={scores.aio}
           strokeColor="text-violet-500"

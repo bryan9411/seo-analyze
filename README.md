@@ -1,6 +1,6 @@
-# SEO · GEO · AIO 網頁健檢診斷平台
+# SEO · GEO · AEO 網頁健檢診斷平台
 
-專門針對**傳統搜尋引擎 SEO**、**生成式 AI 引擎 GEO** 與 **AI 答案引擎 AIO** 的自動化網頁健檢診斷平台。提供單頁深入分析與全站抽樣探索，並能自動產出客觀評分矩陣、問題診斷、Before/After 標題對照表、Schema 範本以及匯出 Word / Markdown 健檢報告。
+專門針對**傳統搜尋引擎 SEO**、**生成式 AI 引擎 GEO** 與 **解答引擎 AEO** 的自動化網頁健檢診斷平台。提供單頁深入分析與全站抽樣探索，並能自動產出客觀評分矩陣、問題診斷、Before/After 標題對照表、Schema 範本以及匯出 Word / Markdown 健檢報告。
 
 ---
 
@@ -35,7 +35,7 @@ seo-analyze/
 │   │   ├── routes/             # 健檢路由 (/diagnose)、Word 匯出路由 (/export-word)
 │   │   ├── services/
 │   │   │   ├── crawler/        # 網頁爬取、同網域連結探索、robots.txt 解析
-│   │   │   ├── diagnostic/     # SEO/GEO/AIO 規則運算、評分模型、建議生成
+│   │   │   ├── diagnostic/     # SEO/GEO/AEO 規則運算、評分模型、建議生成
 │   │   │   └── reports/        # Word (.docx) 與 Markdown (.md) 報告生成器
 │   │   └── types/              # 診斷報告資料結構定義
 │   └── tsconfig.json
@@ -87,8 +87,8 @@ seo-analyze/
    - 檢核量化客觀數據指標（Statistics Addition 原則，降低 AI 生成幻覺）。
    - 檢測開頭 1~3 段是否具備結論先行的「直球首段解答」。
 
-3. **答案引擎 AIO 診斷**
-   - 檢核表格結構（`<table>`）與清單階層（`<ul>`、`<ol>`），利於答案引擎抽取為精選摘要與比較圖卡。
+3. **解答引擎 AEO 診斷 (Answer Engine Optimization)**
+   - 檢核表格結構（`<table>`）與清單階層（`<ul>`、`<ol>`），利於解答引擎抽取為精選摘要與比較圖卡。
    - 檢測問答契合度：是否部署 `Schema.org/FAQPage`，以及標題是否命中口語長尾問答詞彙（如「如何」、「費用」、「差別」）。
    - 內容事實密度檢測：比對客觀數值比例 vs 商業誇飾形容詞出現頻率。
 
@@ -168,7 +168,7 @@ pnpm start
   }
   ```
   - `isSiteWide`：`false` 為單頁分析；`true` 為全站模式（自動抽樣探索最多 10 篇內部文章）。
-  - `mode`：診斷範圍，可為 `"ALL"`、`"SEO"`、`"GEO"`、`"AIO"`。
+  - `mode`：診斷範圍，可為 `"ALL"`、`"SEO"`、`"GEO"`、`"AEO"`（亦相容 `"AIO"`）。
 - **Response**：回傳完整診斷資料結構，包含綜合評分、各維度問題與優勢清單、圖表指標數值與改善建議區塊。
 
 ### 2. 匯出 Word 診斷報告

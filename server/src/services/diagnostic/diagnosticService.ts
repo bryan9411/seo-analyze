@@ -9,7 +9,7 @@ import { evaluateDiagnostics } from './scoreCalculator.js'
 import { buildStructuredSections } from './sectionBuilder.js'
 
 /**
- * 執行 SEO / GEO / AIO 診斷服務
+ * 執行 SEO / GEO / AEO 診斷服務
  */
 export const runDiagnostics = (
   crawlData: CrawlResult,

@@ -30,7 +30,7 @@ const METRIC_COLORS = [
   '#6366F1', // H1
   '#D97706', // Schema
   '#E11D48', // 佐證與數據
-  '#7C3AED'  // AIO 問答
+  '#7C3AED'  // AEO 問答
 ]
 
 export const ChartsSection: React.FC<ChartsSectionProps> = ({

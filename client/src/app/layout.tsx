@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'SEO · GEO · AIO 網頁健檢診斷平台 | 現代化演算法儀表板',
-  description: '全方位檢核 Google SERP 傳統排名、生成式引擎 GEO 與 Google AIO 摘要結構'
+  title: 'SEO · GEO · AEO 網頁健檢診斷平台 | 現代化演算法儀表板',
+  description: '全方位檢核 Google SERP 傳統排名、生成式引擎 GEO 與解答引擎 AEO 摘要結構'
 }
 
 const RootLayout = ({

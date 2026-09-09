@@ -12,7 +12,7 @@ const DEFAULT_SNIPPET = `{
   "@graph": [
     {
       "@type": "Article",
-      "headline": "2026 SEO / GEO / AIO 現代化結構化實體標籤",
+      "headline": "2026 SEO / GEO / AEO 現代化結構化實體標籤",
       "description": "提供完整實體圖譜、專家作者認證與常見問題解答以利 ChatGPT、Perplexity、Claude、Gemini 主動引述",
       "inLanguage": "zh-TW"
     }

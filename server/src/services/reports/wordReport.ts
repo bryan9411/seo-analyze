@@ -34,7 +34,7 @@ export const generateDiagnosticWordReport = async (
     new Paragraph({
       children: [
         new TextRun({
-          text: '🔍 SEO · GEO · AIO 網頁健檢診斷報告',
+          text: '🔍 SEO · GEO · AEO 網頁健檢診斷報告',
           bold: true,
           size: 36,
           color: '1F4E78'
@@ -186,12 +186,12 @@ export const generateDiagnosticWordReport = async (
     )
   }
 
-  // Google AIO 診斷
-  if (mode === 'ALL' || mode === 'AIO') {
+  // 解答引擎 AEO 診斷
+  if (mode === 'ALL' || mode === 'AIO' || (mode as string) === 'AEO') {
     docChildren.push(
       new Paragraph({
         children: [
-          new TextRun({ text: '🤖 3. Google AIO 診斷', bold: true, size: 32, color: '1F4E78' })
+          new TextRun({ text: '🤖 3. 解答引擎 AEO 診斷', bold: true, size: 32, color: '1F4E78' })
         ],
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 200, after: 160 }
@@ -213,8 +213,8 @@ export const generateDiagnosticWordReport = async (
       // 痛點 / 優勢提示框
       createCalloutBox(
         sections.aioSection.painPoints.length > 0
-          ? '⚠️ 痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因'
-          : '✅ 優勢診斷：Google AIO 結構體質良好',
+          ? '⚠️ 痛點診斷：解答引擎 AEO 難以提取為頂部答案的核心原因'
+          : '✅ 優勢診斷：解答引擎 AEO 結構體質良好',
         sections.aioSection.painPoints.length > 0
           ? sections.aioSection.painPoints.join('\n\n')
           : '本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。',

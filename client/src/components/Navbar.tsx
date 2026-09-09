@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* 系統名稱 */}
         <div className="flex items-center shrink-0">
           <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">
-            SEO · GEO · AIO 網頁健檢診斷平台
+            SEO · GEO · AEO 網頁健檢診斷平台
           </span>
         </div>
 

@@ -110,7 +110,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
     },
     {
       id: 'aio' as TabType,
-      label: '🤖 Google AIO 診斷',
+      label: '🤖 解答引擎 AEO 診斷',
       icon: Bot,
       badge: `${aioSection.painPoints.length} 項忽視痛點`,
       badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
@@ -137,8 +137,8 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${isActive
-                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border border-transparent'
+                ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 border border-transparent'
                 }`}
             >
               <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -247,8 +247,8 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                         <div
                           key={crawler.crawlerId}
                           className={`rounded-lg p-3 border text-xs transition-all ${isBlocked
-                              ? 'bg-rose-50/60 border-rose-200 text-rose-950'
-                              : 'bg-white border-slate-200/80 text-slate-800 shadow-2xs'
+                            ? 'bg-rose-50/60 border-rose-200 text-rose-950'
+                            : 'bg-white border-slate-200/80 text-slate-800 shadow-2xs'
                             }`}
                         >
                           <div className="flex items-center justify-between mb-1.5">
@@ -257,8 +257,8 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                             </span>
                             <span
                               className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${isBlocked
-                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 }`}
                             >
                               {isBlocked ? '🚫 阻擋禁行' : '🟢 允許存取'}
@@ -317,7 +317,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
             </motion.div>
           )}
 
-          {/* Google AIO */}
+          {/* 解答引擎 AEO */}
           {activeTab === 'aio' && (
             <motion.div
               key="aio"
@@ -342,7 +342,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-purple-900 flex items-center gap-1.5">
                     <AlertTriangle className="h-4 w-4 text-purple-600" />
-                    痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因
+                    痛點診斷：解答引擎難以提取為頂部答案的核心原因
                   </h3>
                   {aioSection.painPoints.map((point, index) => (
                     <div
@@ -356,7 +356,7 @@ export const DiagnosticTabs: React.FC<DiagnosticTabsProps> = ({ sections, robots
               ) : (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs text-emerald-950 leading-relaxed flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span><strong>優勢診斷：</strong>Google AIO 結構良好，具備高引用潛力，未檢測到阻礙 AI 擷取之重大結構痛點。</span>
+                  <span><strong>優勢診斷：</strong>解答引擎 AEO 結構良好，具備高引用潛力，未檢測到阻礙 AI 擷取之重大結構痛點。</span>
                 </div>
               )}
             </motion.div>

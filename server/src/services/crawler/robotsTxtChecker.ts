@@ -4,7 +4,7 @@ import { fetchHtml } from './httpFetcher.js'
 interface BotTargetDef {
   crawlerId: string
   name: string
-  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AIO)'
+  engine: AiCrawlerPermission['engine']
   userAgent: string
   isCritical: boolean
   descriptionIfAllowed: string
@@ -51,20 +51,20 @@ const TARGET_BOTS: BotTargetDef[] = [
   {
     crawlerId: 'google-extended',
     name: 'Google-Extended',
-    engine: 'Google (Gemini/AIO)',
+    engine: 'Google (Gemini/AEO)',
     userAgent: 'Google-Extended',
     isCritical: false,
     descriptionIfAllowed: '允許 Google 將本站內容用於訓練未來的 Gemini 系列模型',
-    descriptionIfBlocked: '僅限制 Gemini 模型離線訓練，不影響 Google 搜尋與 AIO 摘要顯示'
+    descriptionIfBlocked: '僅限制 Gemini 模型離線訓練，不影響 Google 搜尋與 AEO 摘要顯示'
   },
   {
     crawlerId: 'googlebot',
     name: 'Googlebot',
-    engine: 'Google (Gemini/AIO)',
+    engine: 'Google (Gemini/AEO)',
     userAgent: 'Googlebot',
     isCritical: true,
-    descriptionIfAllowed: 'Google 核心爬蟲正常通行，確保傳統排名與 AIO 即時摘要資格',
-    descriptionIfBlocked: '嚴重警報：Googlebot 被阻擋，傳統自然搜尋排名與 AIO 將同時歸零'
+    descriptionIfAllowed: 'Google 核心爬蟲正常通行，確保傳統排名與 AEO 即時摘要資格',
+    descriptionIfBlocked: '嚴重警報：Googlebot 被阻擋，傳統自然搜尋排名與 AEO 將同時歸零'
   }
 ]
 

@@ -9,7 +9,7 @@ export const generateMarkdownReport = (
 ): string => {
   const { scores, sections, targetUrl, pageTitle, isSiteWide, analyzedPageCount, allPages } = report
 
-  let md = `# 🔍 SEO · GEO · AIO 網頁健檢診斷報告\n\n`
+  let md = `# 🔍 SEO · GEO · AEO 網頁健檢診斷報告\n\n`
   md += `> **評估時間**：${new Date(report.timestamp).toLocaleString('zh-TW')}  \n`
   md += `> **受測網址**：${targetUrl}  \n`
   md += `> **網頁標題**：${pageTitle}  \n`
@@ -20,7 +20,7 @@ export const generateMarkdownReport = (
   md += `| :--- | :---: | :--- |\n`
   md += `| **傳統 SEO** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '🟢 良好' : '🔴 需深度優化'} |\n`
   md += `| **生成式 GEO** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '🟢 良好' : '🔴 缺乏引述優化'} |\n`
-  md += `| **Google AIO** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '🟢 良好' : '🔴 容易被忽略'} |\n`
+  md += `| **解答引擎 AEO** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '🟢 良好' : '🔴 容易被忽略'} |\n`
   md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **${scores.overall >= 70 ? '綜合表現良好' : '急需全面改善'}** |\n\n`
   md += `---\n\n`
 
@@ -71,18 +71,18 @@ export const generateMarkdownReport = (
     md += `\n---\n\n`
   }
 
-  // Google AIO 診斷
-  if (mode === 'ALL' || mode === 'AIO') {
-    md += `## 🤖 3. Google AIO 診斷\n\n`
+  // 解答引擎 AEO 診斷
+  if (mode === 'ALL' || mode === 'AIO' || (mode as string) === 'AEO') {
+    md += `## 🤖 3. 解答引擎 AEO 診斷\n\n`
     md += `### 資訊密度與結構分析\n${sections.aioSection.infoDensityAnalysis}\n\n`
     md += `### 問答契合度與口語長尾問答\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
     if (sections.aioSection.painPoints.length > 0) {
-      md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷：Google AI Overviews 難以提取為頂部答案的核心原因\n>\n`
+      md += `> [!IMPORTANT]\n> ### ⚠️ 痛點診斷：解答引擎 AEO 難以提取為頂部答案的核心原因\n>\n`
       sections.aioSection.painPoints.forEach(p => {
         md += `> * ${p.replace(/\n/g, '\n>   ')}\n>\n`
       })
     } else {
-      md += `> [!NOTE]\n> ### ✅ 優勢診斷：AIO 結構體質良好\n>\n> * 本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。\n>\n`
+      md += `> [!NOTE]\n> ### ✅ 優勢診斷：AEO 結構體質良好\n>\n> * 本頁在表格與清單結構、問答契合度上表現優良，未檢測到阻礙 AI 引用之重大結構痛點。\n>\n`
     }
     md += `\n---\n\n`
   }

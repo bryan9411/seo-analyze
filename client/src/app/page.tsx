@@ -128,7 +128,7 @@ const DashboardPage = () => {
 
     try {
       const { scores, sections, targetUrl, pageTitle, isSiteWide: siteWide, analyzedPageCount, allPages } = report
-      let md = `# SEO · GEO · AIO 網頁健檢診斷報告\n\n`
+      let md = `# SEO · GEO · AEO 網頁健檢診斷報告\n\n`
       md += `> **評估時間**：${new Date(report.timestamp).toLocaleString('zh-TW')}  \n`
       md += `> **受測網址**：${targetUrl}  \n`
       md += `> **網頁標題**：${pageTitle}  \n`
@@ -139,7 +139,7 @@ const DashboardPage = () => {
       md += `| :--- | :---: | :--- |\n`
       md += `| **傳統 SEO** | **${scores.seo}** / 100 | ${scores.seo >= 70 ? '良好' : '需深度優化'} |\n`
       md += `| **生成式 GEO** | **${scores.geo}** / 100 | ${scores.geo >= 70 ? '良好' : '缺乏引述優化'} |\n`
-      md += `| **Google AIO** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '良好' : '容易被忽略'} |\n`
+      md += `| **解答引擎 AEO** | **${scores.aio}** / 100 | ${scores.aio >= 70 ? '良好' : '容易被忽略'} |\n`
       md += `| **全站綜合搜尋能見度** | **${scores.overall}** / 100 | **綜合評級** |\n\n`
       md += `---\n\n`
 
@@ -155,7 +155,7 @@ const DashboardPage = () => {
 
       md += `## 1. 傳統 SEO 診斷\n\n${sections.seoSection.titleMetaAnalysis}\n\n${sections.seoSection.eeatAnalysis}\n\n`
       md += `## 2. 生成式 GEO 診斷\n\n${sections.geoSection.schemaAnalysis}\n\n${sections.geoSection.geoEntityAnalysis}\n\n`
-      md += `## 3. Google AIO 診斷\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
+      md += `## 3. 解答引擎 AEO 診斷\n\n${sections.aioSection.infoDensityAnalysis}\n\n${sections.aioSection.qaRelevanceAnalysis}\n\n`
 
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
       const downloadUrl = window.URL.createObjectURL(blob)
@@ -317,7 +317,7 @@ const DashboardPage = () => {
 
       {/* 頁尾 */}
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
-        SEO · GEO · AIO 網頁健檢診斷平台
+        SEO · GEO · AEO 網頁健檢診斷平台
       </footer>
     </div>
   )

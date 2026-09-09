@@ -180,7 +180,7 @@ export const createScorecardTable = (scores: DiagnosticScores): Table => {
             shading: { fill: '2F5597' }
           }),
           new TableCell({
-            children: [new Paragraph({ children: [new TextRun({ text: 'Google AIO 評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
+            children: [new Paragraph({ children: [new TextRun({ text: '解答引擎 AEO 評分', bold: true, color: 'FFFFFF' })], alignment: AlignmentType.CENTER })],
             shading: { fill: '2F5597' }
           }),
           new TableCell({

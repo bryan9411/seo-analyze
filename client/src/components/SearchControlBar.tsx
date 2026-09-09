@@ -16,7 +16,7 @@ interface SearchControlBarProps {
 const STEPS = [
   { id: 1, label: '開始健檢', desc: '校驗網址與安全防禦' },
   { id: 2, label: '網頁探索', desc: '爬取首頁與代表文章' },
-  { id: 3, label: '演算法診斷', desc: 'SEO/GEO/AIO 深度運算' },
+  { id: 3, label: '演算法診斷', desc: 'SEO/GEO/AEO 深度運算' },
   { id: 4, label: '完成管理', desc: '產出結構化健康報表' }
 ]
 

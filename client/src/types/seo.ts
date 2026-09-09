@@ -2,7 +2,7 @@
 export interface AiCrawlerPermission {
   crawlerId: string
   name: string
-  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AIO)'
+  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AEO)' | 'Google (Gemini/AIO)'
   userAgent: string
   status: 'allowed' | 'blocked'
   description: string
@@ -75,6 +75,7 @@ export interface DiagnosticScores {
   seo: number
   geo: number
   aio: number
+  aeo?: number
 }
 
 export interface AuditSampleItem {
@@ -174,4 +175,4 @@ export interface DiagnosticReport {
   robotsTxt?: RobotsTxtReport
 }
 
-export type DiagnosticMode = 'ALL' | 'SEO' | 'GEO' | 'AIO'
+export type DiagnosticMode = 'ALL' | 'SEO' | 'GEO' | 'AIO' | 'AEO'

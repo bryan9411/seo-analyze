@@ -1,12 +1,12 @@
 /**
- * SEO / GEO / AIO 分析與診斷型別定義
+ * SEO / GEO / AEO 分析與診斷型別定義
  */
 
 /** 主流 AI 爬蟲存取授權項目 */
 export interface AiCrawlerPermission {
   crawlerId: string
   name: string
-  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AIO)'
+  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AEO)' | 'Google (Gemini/AIO)'
   userAgent: string
   status: 'allowed' | 'blocked'
   description: string
@@ -96,6 +96,7 @@ export interface DiagnosticScores {
   seo: number
   geo: number
   aio: number
+  aeo?: number
 }
 
 /** 抽查檢驗之頁面清單項目 */
@@ -203,4 +204,4 @@ export interface DiagnosticReport {
 }
 
 /** 診斷模式列舉 */
-export type DiagnosticMode = 'ALL' | 'SEO' | 'GEO' | 'AIO'
+export type DiagnosticMode = 'ALL' | 'SEO' | 'GEO' | 'AIO' | 'AEO'

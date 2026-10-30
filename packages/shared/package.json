@@ -1,0 +1,12 @@
+{
+  "name": "@seo-analyze/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "前後端共用的診斷報告型別 (僅型別宣告)",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  }
+}

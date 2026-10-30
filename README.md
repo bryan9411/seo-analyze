@@ -27,9 +27,10 @@ seo-analyze/
 ├── client/                     # 前端 Web 應用 (Next.js 16 + React 19)
 │   ├── src/
 │   │   ├── app/                # App Router 頁面與全域樣式
-│   │   ├── components/         # 儀表板、圖表、頁籤與各診斷元件 (insights/ 為頁面明細工具)
-│   │   ├── lib/                # 本機歷史紀錄、網址類型判斷
-│   │   └── types/              # 前端 TypeScript 介面定義 (server/src/types/seo.ts 的副本)
+│   │   ├── app/r/[id]/         # 分享連結的唯讀報告頁
+│   │   ├── components/         # report/ 報告區塊、insights/ 頁面明細工具、pk/ 競品比較、側欄導覽
+│   │   ├── lib/                # 診斷 API、匯出、分數卡圖片、歷史紀錄、報告比較
+│   │   └── types/              # 轉出 @seo-analyze/shared 的報告型別
 │   └── next.config.ts          # API 反向代理設定 (/api/* -> :3001)
 ├── server/                     # 後端分析 API 服務 (Express + TypeScript)
 │   ├── rules/rules.json        # 診斷規則檔：門檻、配分、文案、字詞庫、AI 爬蟲清單
@@ -40,11 +41,13 @@ seo-analyze/
 │   │   ├── rules/              # 規則載入 / 驗證 / 熱重載、規則引擎、指標表
 │   │   ├── services/
 │   │   │   ├── cache/          # 診斷報告快取與同網址請求合併
+│   │   │   ├── share/          # 分享報告快照 (存成 JSON 檔，預設 7 天過期)
 │   │   │   ├── crawler/        # 網頁爬取、同網域連結探索、robots.txt / sitemap / llms.txt 探測
 │   │   │   ├── diagnostic/     # SEO/GEO/AEO 規則運算、評分模型、建議生成
 │   │   │   └── reports/        # Word (.docx) 與 Markdown (.md) 報告生成器
 │   │   └── types/              # 診斷報告資料結構定義
 │   └── tsconfig.json
+├── packages/shared/            # 前後端共用的報告型別 (index.d.ts，修改報告結構只需改這裡)
 ├── package.json                # Monorepo 根目錄腳本
 └── pnpm-workspace.yaml         # Workspace 定義
 ```
@@ -103,6 +106,10 @@ seo-analyze/
    - AI 純文字視角：移除導覽列與頁尾後的主內容前 300 字，並偵測 JavaScript 渲染 (CSR) 空殼頁。
    - 標題大綱樹 (跳階、多重 H1、空白標題)、缺 alt 圖片清單、HTML 體積 / TTFB / 內嵌 Base64 圖片。
    - 自動產生 llms.txt、從內文問句標題擷取的 FAQPage JSON-LD、依台灣電話與地址產生的 LocalBusiness JSON-LD。
+
+5. **競品 PK 與分享**
+   - 輸入自家與競品網址，各做單頁診斷後並排比較分數、Schema、表格等項目，並列出差距摘要與預估可追上的分數。
+   - 產生 7 天有效的唯讀分享連結 (`/r/<id>`)，可下載 1200×630 分數卡圖片，並匯出 Word、Markdown 或列印成 PDF。
 
 所有門檻與配分皆以 `server/rules/rules.json` 為準，上方數字為預設值。
 
@@ -243,7 +250,15 @@ pnpm start
 - **路徑**：`GET /api/health`
 - **Response**：`{ "status": "ok", "service": "seo-diagnostic-server", "rulesVersion": "..." }`
 
-### 4. 診斷規則管理
+### 4. 報告分享
+| 方法與路徑 | 說明 |
+| :--- | :--- |
+| `POST /api/share` | 以 `{ "reportId": "..." }` 建立分享連結；只接受伺服器 10 分鐘內產生的報告，無法上傳自訂內容 |
+| `GET /api/share/:id` | 取得分享的報告快照 |
+
+相關環境變數：`SHARE_DIR` (快照存放位置，預設 `server/data/shares`)、`SHARE_TTL_DAYS` (預設 7)、`SHARE_MAX_FILES` (預設 5000)。
+
+### 5. 診斷規則管理
 | 方法與路徑 | 說明 |
 | :--- | :--- |
 | `GET /api/rules` | 取得目前生效的規則與載入狀態 |

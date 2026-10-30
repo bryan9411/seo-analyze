@@ -6,6 +6,8 @@ import compression from 'compression'
 import { diagnoseRouter } from './routes/diagnose.js'
 import { exportWordRouter } from './routes/exportWord.js'
 import { rulesRouter } from './routes/rules.js'
+import { shareRouter } from './routes/share.js'
+import { scheduleSharePruning } from './services/share/shareStore.js'
 import { getRulesStatus, watchRules } from './rules/rulesStore.js'
 
 const app = express()
@@ -38,7 +40,11 @@ app.use('/api/export-word', exportWordRouter)
 // 註冊診斷規則管理路由
 app.use('/api/rules', rulesRouter)
 
+// 註冊報告分享路由
+app.use('/api/share', shareRouter)
+
 watchRules()
+scheduleSharePruning()
 
 app.listen(PORT, () => {
   console.log(`🚀 Express server running on http://localhost:${PORT}`)

@@ -42,6 +42,9 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
     devDependencies:
+      '@seo-analyze/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
@@ -67,6 +70,8 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/shared: {}
+
   server:
     dependencies:
       cheerio:
@@ -88,6 +93,9 @@ importers:
         specifier: ^4.21.2
         version: 4.22.2
     devDependencies:
+      '@seo-analyze/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1

@@ -29,3 +29,6 @@ Thumbs.db
 
 # 診斷規則線上編輯的自動備份
 server/rules/history/
+
+# 分享報告快照
+server/data/

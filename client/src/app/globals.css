@@ -32,3 +32,18 @@ body {
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
 }
+
+/* 列印 / 存成 PDF：隱藏導覽與操作按鈕 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  section {
+    break-inside: avoid-page;
+  }
+}

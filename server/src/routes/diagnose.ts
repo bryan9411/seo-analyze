@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { randomBytes } from 'node:crypto'
 import type { Request, Response } from 'express'
 import { consumeRateLimit } from '../middleware/rateLimiter.js'
 import { validateTargetUrl } from '../middleware/ssrfGuard.js'
@@ -12,6 +13,13 @@ export const diagnoseRouter = Router()
 
 type CachedReport = Omit<DiagnosticReport, 'cached'>
 const reportCache = new ReportCache<CachedReport>()
+/** 依 reportId 保留近期報告，供建立分享連結使用 */
+const recentReports = new ReportCache<CachedReport>()
+
+export const getRecentReport = (reportId: string): DiagnosticReport | undefined => {
+  const report = recentReports.get(reportId)
+  return report ? { ...report, cached: false } : undefined
+}
 
 /** 串流回應：每行一個 JSON 物件 { type: 'progress' | 'result' | 'error', ... } */
 const NDJSON = 'application/x-ndjson'
@@ -59,6 +67,7 @@ diagnoseRouter.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
     let report: DiagnosticReport
     if (cached) {
+      recentReports.set(cached.reportId, cached)
       report = { ...cached, cached: true }
     } else {
       const startedAt = Date.now()
@@ -71,10 +80,13 @@ diagnoseRouter.post('/', async (req: Request, res: Response): Promise<void> => {
           onProgress: sendProgress
         })
         sendProgress('正在計算 SEO / GEO / AEO 評分')
-        return {
+        const result: CachedReport = {
           ...runDiagnostics(crawlResult, rules, mode as DiagnosticMode),
+          reportId: randomBytes(9).toString('base64url'),
           durationMs: Date.now() - startedAt
         }
+        recentReports.set(result.reportId, result)
+        return result
       })
       if (inflight) sendProgress('相同網址正在檢測中，等待結果')
       report = { ...(await task), cached: false }

@@ -8,24 +8,45 @@ export interface HistoryEntry {
   scores: DiagnosticScores
   issueCount: number
   issueKeys: string[]
+  /** 問題文案，用於顯示「已修正」的項目 (舊紀錄可能沒有) */
+  issues?: Array<{ key: string, message: string }>
   rulesVersion: string
 }
 
 const STORAGE_KEY = 'seo-diagnose-history-v1'
 const MAX_ENTRIES = 20
 
-/** 同一網址以「去掉結尾斜線」比對 */
-export const normalizeUrlKey = (url: string) => url.trim().replace(/\/+$/, '').toLowerCase()
+/** 同一網址比對：解碼中文路徑、去掉結尾斜線與大小寫差異 */
+export const normalizeUrlKey = (url: string) => {
+  let value = url.trim()
+  try {
+    value = decodeURI(value)
+  } catch {
+    // 保留原字串
+  }
+  return value.replace(/\/+$/, '').toLowerCase()
+}
 
 const EMPTY: HistoryEntry[] = []
 let cache: HistoryEntry[] | null = null
 const listeners = new Set<() => void>()
 
+/** 同一網址只保留最新一筆 (清單已依時間由新到舊排列) */
+const dedupe = (list: HistoryEntry[]) => {
+  const seen = new Set<string>()
+  return list.filter(e => {
+    const key = normalizeUrlKey(e.url)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 const readStorage = (): HistoryEntry[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     const list = raw ? JSON.parse(raw) : []
-    return Array.isArray(list) ? list : []
+    return Array.isArray(list) ? dedupe(list) : []
   } catch {
     return []
   }
@@ -65,6 +86,7 @@ export const toHistoryEntry = (report: DiagnosticReport): HistoryEntry => {
     scores: report.scores,
     issueCount: issues.length,
     issueKeys: issues.map(f => f.checkId),
+    issues: issues.map(f => ({ key: f.checkId, message: f.message })),
     rulesVersion: report.rulesVersion
   }
 }
@@ -75,14 +97,18 @@ export const findPrevious = (list: HistoryEntry[], report: DiagnosticReport): Hi
   return list.find(e => normalizeUrlKey(e.url) === key && e.timestamp !== report.timestamp)
 }
 
-/** 新增紀錄並回傳更新後清單；快取命中的同一份報告不重複寫入 */
+/**
+ * 新增紀錄：同一網址會取代舊的那筆並移到最前面
+ * (改善前後對比只需要上一次的結果，呼叫前先用 findPrevious 取得)
+ */
 export const pushHistory = (report: DiagnosticReport): HistoryEntry[] => {
-  const list = loadHistory()
-  if (list.some(e => e.timestamp === report.timestamp && normalizeUrlKey(e.url) === normalizeUrlKey(report.targetUrl))) {
-    return list
-  }
-  saveHistory([toHistoryEntry(report), ...list])
+  saveHistory(dedupe([toHistoryEntry(report), ...loadHistory()]))
   return loadHistory()
+}
+
+export const removeHistory = (url: string) => {
+  const key = normalizeUrlKey(url)
+  saveHistory(loadHistory().filter(e => normalizeUrlKey(e.url) !== key))
 }
 
 export const clearHistory = () => saveHistory([])

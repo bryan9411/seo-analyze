@@ -18,7 +18,7 @@ export const runDiagnostics = (
   crawlData: CrawlResult,
   rules: CompiledRules,
   _mode: DiagnosticMode = 'ALL'
-): Omit<DiagnosticReport, 'durationMs' | 'cached'> => {
+): Omit<DiagnosticReport, 'durationMs' | 'cached' | 'reportId'> => {
   // 主頁面分析
   const primaryAnalysis = analyzeSinglePage(crawlData.primaryHtml, crawlData.primaryUrl, rules, crawlData.primaryMeta)
 

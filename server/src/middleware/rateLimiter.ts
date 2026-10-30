@@ -34,9 +34,10 @@ const getClientIp = (req: Request): string => {
 }
 
 /**
- * Express 記憶體滑動窗口頻率限制中介軟體
+ * 嘗試消耗一次額度；超過限制時直接回應 429 並回傳 false
+ * (診斷路由在快取命中時不會呼叫，重複查看同一份報告不佔額度)
  */
-export const rateLimiter = (req: Request, res: Response, next: NextFunction): void => {
+export const consumeRateLimit = (req: Request, res: Response): boolean => {
   const ip = getClientIp(req)
   const now = Date.now()
 
@@ -63,9 +64,16 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction): vo
       message: `為保障伺服器運作效能，單一 IP 每分鐘最多執行 ${maxRequests} 次健檢分析，請於 ${resetTimeSec} 秒後再試。`,
       retryAfterSeconds: resetTimeSec
     })
-    return
+    return false
   }
 
   entry.timestamps.push(now)
-  next()
+  return true
+}
+
+/**
+ * Express 記憶體滑動窗口頻率限制中介軟體
+ */
+export const rateLimiter = (req: Request, res: Response, next: NextFunction): void => {
+  if (consumeRateLimit(req, res)) next()
 }

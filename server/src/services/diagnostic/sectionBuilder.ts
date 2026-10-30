@@ -9,19 +9,29 @@ import type {
   RobotsTxtReport
 } from '../../types/seo.js'
 import type { EvaluationResult } from './scoreCalculator.js'
+import type { RulesConfig } from '../../rules/types.js'
+
+/** 將文字安全地放進 JSON-LD 範本 (處理引號與換行) */
+const json = (value: string) => JSON.stringify(value)
 
 export interface SectionContext {
   totalAddresses: string[]
   totalPhones: string[]
-  evalResult?: EvaluationResult
+  evalResult: EvaluationResult
   allAnalyses?: SinglePageAnalysis[]
   robotsTxt?: RobotsTxtReport
+  rules: RulesConfig
 }
 
 /**
  * 傳統 SEO 診斷區塊
  */
-const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
+const buildSeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): SeoSection => {
+  const t = ctx.rules.thresholds
+  const titleMin = t['title.minLength']
+  const titleMax = t['title.maxLength']
+  const metaMin = t['meta.minLength']
+  const metaMax = t['meta.maxLength']
   const titleLen = primary.title.length
   const metaLen = primary.metaDescription.length
 
@@ -29,12 +39,12 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   let titleAnalysis = ''
   if (!primary.title) {
     titleAnalysis = '【網頁標題缺失】：目前網頁完全未定義 `<title>` 標籤，搜尋引擎檢索器無法識別頁面核心主旨，在 SERP 中將無從展示。'
-  } else if (titleLen < 15) {
-    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題長度偏短】：長度低於 15 字建議門檻，未充分布局高價值長尾關鍵字或痛點修飾詞，浪費了 SERP 的高曝光展示空間。`
-  } else if (titleLen > 65) {
-    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題過長截斷風險】：長度超過 Google 最佳展示長度 (約 55-60 字)，在搜尋結果頁中尾段將被截斷省略 (...)，建議將核心關鍵詞前提。`
+  } else if (titleLen < titleMin) {
+    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題長度偏短】：長度低於 ${titleMin} 字建議門檻，未充分布局高價值長尾關鍵字或痛點修飾詞，浪費了 SERP 的高曝光展示空間。`
+  } else if (titleLen > titleMax) {
+    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題過長截斷風險】：長度超過建議上限 ${titleMax} 字，在搜尋結果頁中尾段將被截斷省略 (...)，建議將核心關鍵詞前提。`
   } else {
-    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題長度良好】：長度落於最佳展示區間 (15-65 字)，在桌機與行動端 SERP 皆能完整呈現。`
+    titleAnalysis = `目前網頁 Title 為「${primary.title}」（長度 ${titleLen} 字）。【標題長度良好】：長度落於最佳展示區間 (${titleMin}-${titleMax} 字)，在桌機與行動端 SERP 皆能完整呈現。`
   }
 
   // 結合 H1 關聯評估
@@ -50,12 +60,12 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
   let metaAnalysis = ''
   if (!primary.metaDescription) {
     metaAnalysis = '【Meta Description 缺失】：完全未配置 Meta Description，Google 只能由內文隨機擷取不連貫文字作為摘要，大幅削弱搜尋點擊吸引力。'
-  } else if (metaLen < 50) {
+  } else if (metaLen < metaMin) {
     metaAnalysis = `【Meta 描述過短】：目前長度僅 ${metaLen} 字（「${primary.metaDescription}」），資訊量偏少，缺乏足夠的痛點描述、差異化賣點與行動號召。`
-  } else if (metaLen > 160) {
-    metaAnalysis = `【Meta 描述過長】：目前長度達 ${metaLen} 字，超過 160 字建議上限，在行動端或桌面端搜尋結果可能遭到截斷。`
+  } else if (metaLen > metaMax) {
+    metaAnalysis = `【Meta 描述過長】：目前長度達 ${metaLen} 字，超過 ${metaMax} 字建議上限，在行動端或桌面端搜尋結果可能遭到截斷。`
   } else {
-    metaAnalysis = `【Meta 描述良好】：長度為 ${metaLen} 字（符合 80-160 字黃金區間），能完整傳遞頁面核心摘要與預期內容。`
+    metaAnalysis = `【Meta 描述良好】：長度為 ${metaLen} 字（建議區間 ${t['meta.idealMinLength'] ?? metaMin}-${metaMax} 字），能完整傳遞頁面核心摘要與預期內容。`
   }
 
   const titleMetaAnalysis = `${titleAnalysis}\n${metaAnalysis}`
@@ -99,52 +109,11 @@ const buildSeoSection = (primary: SinglePageAnalysis): SeoSection => {
 
   const eeatAnalysis = eeatParts.join('\n')
 
-  // 痛點彙整
-  const painPoints: string[] = []
-
-  if (primary.h1List.length === 0) {
-    painPoints.push(
-      '【標題階層缺陷：缺失 <h1> 主題核心標籤】\n全頁無唯一 <h1> 標記，搜尋引擎檢索爬蟲無法第一時間鎖定本頁核心主旨，大幅削弱主題權重。'
-    )
-  } else if (primary.h1List.length > 1) {
-    painPoints.push(
-      `【標題階層衝突：存在多個 <h1> 標籤 (${primary.h1List.length} 個)】\n頁面同時有多個主標題，分散了首要關鍵字的權重集中度，建議保留單一最高層級 <h1>。`
-    )
-  }
-
-  if (!primary.metaDescription) {
-    painPoints.push(
-      '【搜尋展示致命傷：完全缺失 Meta Description 摘要】\nSERP 點閱率將受到嚴重衝擊，搜尋引擎將隨機抓取頁首或頁尾文字，無法向搜尋者傳達核心吸引力。'
-    )
-  } else if (primary.metaDescription.length < 50) {
-    painPoints.push(
-      `【搜尋展示弱點：Meta Description 過短 (${primary.metaDescription.length} 字)】\n摘要文字過短，缺乏行動呼籲與關鍵賣點，點擊轉化潛力未充分釋放。`
-    )
-  }
-
-  if (!primary.authorTags && !primary.authoritativeOutbound) {
-    painPoints.push(
-      '【E-E-A-T 權威空白：缺乏作者資格背書與權威引用】\n頁面無具名專家責任署名，亦無第三方權威資料佐證，難以在競爭度較高的行業核心大字中通過 Google 實用內容系統檢驗。'
-    )
-  }
-
-  if (!primary.publishDate) {
-    painPoints.push(
-      '【時效性訊號缺失：缺乏明確日期標記】\n搜尋引擎在抓取解答型內容時重視時效性，缺乏更新日期將降低最新搜尋排名加權。'
-    )
-  }
-
-  if (primary.imageCount > 0 && primary.missingAltCount > 0) {
-    painPoints.push(
-      `【圖片 SEO 缺失：${primary.missingAltCount} 張圖片缺少 alt 替代文字】\n全頁共有 ${primary.imageCount} 張圖片，其中 ${primary.missingAltCount} 張未設定 alt 屬性。這會直接損害在 Google 圖片搜尋的收錄曝光，且無法通過現代網頁無障礙標準檢驗。`
-    )
-  }
-
   return {
     title: '1. 傳統 SEO 診斷',
     titleMetaAnalysis,
     eeatAnalysis,
-    painPoints
+    painPoints: ctx.evalResult.painPoints.seo
   }
 }
 
@@ -213,55 +182,19 @@ const buildGeoSection = (primary: SinglePageAnalysis, ctx: SectionContext): GeoS
 
   const geoEntityAnalysis = geoParts.join('\n')
 
-  const painPoints: string[] = []
-
-  // 檢查 robots.txt 是否阻擋 AI 爬蟲
-  if (ctx.robotsTxt && !ctx.robotsTxt.allAiAllowed) {
-    const blockedCritical = ctx.robotsTxt.crawlers.filter(c => c.isCritical && c.status === 'blocked')
-    if (blockedCritical.length > 0) {
-      const blockedNames = blockedCritical.map(b => `${b.engine}（${b.userAgent}）`).join('、')
-      painPoints.push(
-        `【生成式 GEO 致命痛點：robots.txt 封鎖 AI 爬蟲存取】\n檢測到目標網站的 robots.txt 阻擋了 ${blockedNames}。AI 引擎被防火牆或爬蟲規則拒於門外，此狀態下無論頁面內容或結構多優異，AI 皆 100% 無法讀取或引用本頁！請優先聯繫工程團隊或調整 CDN/Cloudflare 設定以開放存取。`
-      )
-    }
-  }
-
-  if (!primary.hasArticleSchema) {
-    painPoints.push(
-      '【生成式 GEO 痛點 1：缺失 Article 實體結構化標記，LLM 難以進行實體對齊】\n生成式引擎（ChatGPT Search、Perplexity、Claude、Gemini）依賴 Schema.org 進行語意實體解析。因為沒有在原始碼中植入標準 Article JSON-LD，AI 爬蟲無法將內容視為權威出版文章，降低被選入生成式答案引用卡片的機會。'
-    )
-  }
-
-  if (primary.citationCount === 0) {
-    painPoints.push(
-      '【生成式 GEO 痛點 2：缺乏第三方權威文獻引述】\n根據 Princeton 大學 GEO 權威基準研究，「引述權威出處」可提升 30%~40% 的 AI 引用率。本頁未引用任何外部權威研究或行業標準，AI 模型在進行抗幻覺交叉查核時，難以將本頁列為優先推薦來源。'
-    )
-  }
-
-  if (!primary.hasStatsOrData) {
-    painPoints.push(
-      '【生成式 GEO 痛點 3：客觀數據事實密度不足】\n內容多為定性敘述與推論，缺乏明確的數字、百分比或量化比對參數。AI 生成引擎在回答使用者「具體需要多少？」、「差異比例為何？」等精準問題時，無法由本頁獲取硬數據。'
-    )
-  }
-
-  if (!primary.directAnswerSnippetFound) {
-    painPoints.push(
-      '【生成式 GEO 痛點 4：缺乏首段直球解答】\n頁面開頭缺乏「結論先行」的精煉定義或直接解答，AI 引擎在切分語意區塊時無法在首段提取到直接答案，大幅降低被選為首句 AI 摘要的置信度。'
-    )
-  }
-
   return {
     title: '2. 生成式 GEO 診斷',
     schemaAnalysis,
     geoEntityAnalysis,
-    painPoints
+    painPoints: ctx.evalResult.painPoints.geo
   }
 }
 
 /**
  * 解答引擎 AEO 診斷區塊
  */
-const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
+const buildAioSection = (primary: SinglePageAnalysis, ctx: SectionContext): AioSection => {
+  const fluffMax = ctx.rules.thresholds['fluff.maxCount'] ?? 5
   const aioParts: string[] = [
     '解答引擎優化 (AEO, Answer Engine Optimization) 旨在讓網頁內容直接被各主流 AI 解答引擎採納為直球解答，滿足用戶零點擊搜尋需求。'
   ]
@@ -276,7 +209,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
     )
   }
 
-  if (primary.listCount >= 2) {
+  if (primary.listCount >= (ctx.rules.thresholds['lists.minAvg'] ?? 2)) {
     aioParts.push(
       `• 【條列式清單】：頁面包含 ${primary.listCount} 組清單（共 ${primary.listItemCount} 個項目），結構清晰分明，符合解答引擎 (AEO) 抓取步驟流程與要點整理的偏好。`
     )
@@ -288,7 +221,7 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
 
   if (primary.fluffCount === 0) {
     aioParts.push('• 【行銷形容詞與客觀度】：內文無無效商業浮誇形容詞，資訊表達客觀平實，契合 AEO 過濾主觀宣傳語的偏好。')
-  } else if (primary.fluffCount <= 5) {
+  } else if (primary.fluffCount <= fluffMax) {
     aioParts.push(
       `• 【行銷形容詞與客觀度】：商業形容詞比例控制良好（發現 ${primary.fluffCount} 次），整體文字維持在客觀傳遞事實的適當水準。`
     )
@@ -331,49 +264,11 @@ const buildAioSection = (primary: SinglePageAnalysis): AioSection => {
       `• 【自說自話陷阱】：內容架構多為自說自話的介紹與行銷陳述，未採用「倒金字塔結構」（即標題提出問題後，首段第一句直接給出具體原因與解決答案），導致 AI 答案生成模型判定本頁答案回應速度慢、直接度低。`
   }
 
-  const painPoints: string[] = []
-
-  if (primary.tableCount === 0) {
-    painPoints.push(
-      '【AEO 攔截痛點 1：缺乏結構化表格，無法生成零點擊比對圖卡】\nAI 解答引擎 (AEO) 會主動將表格提取為搜尋結果最頂端的比對圖卡。缺乏結構化 <table> 時，容易在精選摘要比對階段錯失曝光機會。'
-    )
-  }
-
-  if (!primary.hasFaqSchema) {
-    painPoints.push(
-      '【AEO 攔截痛點 2：缺乏長尾 FAQPage 模組，喪失對話型搜尋入口】\n當用戶向解答引擎發問求助時，AEO 系統傾向直接引用具備 FAQPage 結構化資料、且答案明確直接的權威網站。本頁未佈局 FAQ 結構化資料，錯失了成為 AEO 首選來源的機會。'
-    )
-  }
-
-  if (primary.fluffCount > 5) {
-    painPoints.push(
-      `【AEO 攔截痛點 3：浮誇形容詞過多 (${primary.fluffCount} 次)，事實資訊密度被稀釋】\n當文本多為模糊形容詞而缺乏客觀數據、百分比與規格時，解答引擎在合成答案時會主動過濾主觀宣傳，導致本頁關鍵內容無法被採納為客觀事實。`
-    )
-  }
-
-  if (primary.factualNumberCount < 5) {
-    painPoints.push(
-      `【事實密度痛點：客觀規格數據不足 (僅發現 ${primary.factualNumberCount} 處)】\n缺乏足夠的具體數字、工時、費用區間或規格參數，AEO 引擎難以將內文作為硬事實依據進行引用。`
-    )
-  }
-
-  if (!primary.authoritativeOutbound) {
-    painPoints.push(
-      '【AEO 查核痛點：缺乏外部權威規範或文獻引用】\n內文未引用政府機關 (.gov)、教育學術 (.edu) 或公認行業官方標準出站連結，解答引擎在進行事實交叉查核時缺乏第三方佐證信號。'
-    )
-  }
-
-  if (!primary.publishDate) {
-    painPoints.push(
-      '【時效性痛點：缺乏內容發布與更新修訂時間戳】\n答案引擎在抓取解答與價格時高度重視時效性。未標記明確更新日期容易被判定為可能過時的資訊，降低即時對話推薦權重。'
-    )
-  }
-
   return {
     title: '3. 解答引擎 AEO 診斷',
     infoDensityAnalysis,
     qaRelevanceAnalysis,
-    painPoints
+    painPoints: ctx.evalResult.painPoints.aio
   }
 }
 
@@ -385,7 +280,8 @@ const buildImprovementSection = (
   brandName: string,
   mainTopic: string,
   cleanTitle: string,
-  primary: SinglePageAnalysis
+  primary: SinglePageAnalysis,
+  thresholds: Record<string, number>
 ): ImprovementSection => {
   const items: ImprovementItem[] = []
 
@@ -402,34 +298,34 @@ const buildImprovementSection = (
   "@graph": [
     {
       "@type": "Article",
-      "@id": "${targetUrl}#article",
+      "@id": ${json(`${targetUrl}#article`)},
       "isPartOf": {
         "@type": "WebPage",
-        "@id": "${targetUrl}"
+        "@id": ${json(`${targetUrl}`)}
       },
-      "headline": "${cleanTitle}",
-      "description": "${primary.metaDescription || `${mainTopic}深度完整解析指南`}",
+      "headline": ${json(`${cleanTitle}`)},
+      "description": ${json(`${primary.metaDescription || `${mainTopic}深度完整解析指南`}`)},
       "inLanguage": "zh-TW",
-      "mainEntityOfPage": "${targetUrl}",
+      "mainEntityOfPage": ${json(`${targetUrl}`)},
       "author": {
         "@type": "Person",
-        "name": "${primary.authorTags || `${brandName} 專家團隊`}",
+        "name": ${json(`${primary.authorTags || `${brandName} 專家團隊`}`)},
         "jobTitle": "資深行業專家"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "${brandName}",
-        "url": "${targetUrl}"
+        "name": ${json(`${brandName}`)},
+        "url": ${json(`${targetUrl}`)}
       },
-      "datePublished": "${primary.publishDate || new Date().toISOString().split('T')[0]}"
+      "datePublished": ${json(`${primary.publishDate || new Date().toISOString().split('T')[0]}`)}
     },
     {
       "@type": "FAQPage",
-      "@id": "${targetUrl}#faq",
+      "@id": ${json(`${targetUrl}#faq`)},
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "${mainTopic}的核心重點與主要優勢為何？",
+          "name": ${json(`${mainTopic}的核心重點與主要優勢為何？`)},
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "核心在於提供標準化作業流程與客觀數據佐證，能有效降低決策門檻並提升整體執行成效。"
@@ -437,7 +333,7 @@ const buildImprovementSection = (
         },
         {
           "@type": "Question",
-          "name": "${mainTopic}常見的迷思與注意事項有哪些？",
+          "name": ${json(`${mainTopic}常見的迷思與注意事項有哪些？`)},
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "常見迷思在於過度依賴主觀經驗；建議參照專業標準指引，並定期檢視最新數據指標。"
@@ -459,16 +355,16 @@ const buildImprovementSection = (
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "@id": "${targetUrl}#article",
-  "headline": "${cleanTitle}",
+  "@id": ${json(`${targetUrl}#article`)},
+  "headline": ${json(`${cleanTitle}`)},
   "author": {
     "@type": "Person",
-    "name": "${primary.authorTags || `${brandName} 專家團隊`}",
-    "knowsAbout": ["${mainTopic}", "專業技術檢定", "產業標準規範"]
+    "name": ${json(`${primary.authorTags || `${brandName} 專家團隊`}`)},
+    "knowsAbout": [${json(mainTopic)}, "專業技術檢定", "產業標準規範"]
   },
   "publisher": {
     "@type": "Organization",
-    "name": "${brandName}"
+    "name": ${json(`${brandName}`)}
   }
 }
 <\/script>`
@@ -476,8 +372,8 @@ const buildImprovementSection = (
   }
 
   // 標題與搜尋結構
-  const titleNeedsFix = primary.title.length < 15 || primary.title.length > 65
-  const metaNeedsFix = !primary.metaDescription || primary.metaDescription.length < 50
+  const titleNeedsFix = primary.title.length < thresholds['title.minLength'] || primary.title.length > thresholds['title.maxLength']
+  const metaNeedsFix = !primary.metaDescription || primary.metaDescription.length < thresholds['meta.minLength']
   const h1NeedsFix = primary.h1List.length !== 1
   const missingAlt = primary.missingAltCount > 0
 
@@ -493,7 +389,7 @@ const buildImprovementSection = (
         beforeMeta: primary.metaDescription || '（未設置 Meta Description）',
         afterMeta: `尋找專業可靠的${mainTopic}資訊？提供完整重點整理、標準作業指引與常見疑問解答。客觀數據無多餘宣傳，值得信賴，立即查看完整指南！`,
         beforeH1: primary.h1List[0] || '（缺失 H1 標籤）',
-        afterH1: `${mainTopic} 完整深度解析指南與核心評估（2026 最新推薦）`
+        afterH1: `${mainTopic} 完整深度解析指南與核心評估（${new Date().getFullYear()} 最新推薦）`
       }
     })
   } else {
@@ -610,15 +506,16 @@ export const buildStructuredSections = (
   const mainTopic = topicParts[0] || primary.h1List[0] || '專業主題'
 
   return {
-    seoSection: buildSeoSection(primary),
+    seoSection: buildSeoSection(primary, ctx),
     geoSection: buildGeoSection(primary, ctx),
-    aioSection: buildAioSection(primary),
+    aioSection: buildAioSection(primary, ctx),
     improvementSection: buildImprovementSection(
       targetUrl,
       brandName,
       mainTopic,
       cleanTitle,
-      primary
+      primary,
+      ctx.rules.thresholds
     )
   }
 }

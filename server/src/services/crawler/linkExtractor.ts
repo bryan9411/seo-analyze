@@ -1,16 +1,16 @@
 import * as cheerio from 'cheerio'
 
 const EXCLUDED_EXTENSIONS_REGEX = /\.(css|js|png|jpg|jpeg|gif|svg|pdf|zip|ico|woff|woff2|ttf|mp4|webp|json|xml)$/i
-const ARTICLE_PATH_KEYWORDS = ['article', 'post', 'blog', 'news', 'story', 'detail', 'view', 'item']
+const DEFAULT_ARTICLE_PATH_KEYWORDS = ['article', 'post', 'blog', 'news', 'story', 'detail', 'view', 'item']
 
 /**
  * 計算連結優先級分數
  */
-const getLinkPriorityScore = (urlStr: string): number => {
+const getLinkPriorityScore = (urlStr: string, keywords: string[]): number => {
   let score = 0
   const lower = urlStr.toLowerCase()
 
-  for (const kw of ARTICLE_PATH_KEYWORDS) {
+  for (const kw of keywords) {
     if (lower.includes(kw)) score += 5
   }
   // 包含數字 ID 通常為特定文章頁
@@ -37,7 +37,11 @@ export const isHomepageOrRoot = (rawUrl: string): boolean => {
 /**
  * 從 HTML 頁面中萃取同網域且高相關性的內部文章連結
  */
-export const extractInternalArticleLinks = (html: string, baseUrl: string): string[] => {
+export const extractInternalArticleLinks = (
+  html: string,
+  baseUrl: string,
+  keywords: string[] = DEFAULT_ARTICLE_PATH_KEYWORDS
+): string[] => {
   try {
     const $ = cheerio.load(html)
     const baseObj = new URL(baseUrl)
@@ -71,14 +75,11 @@ export const extractInternalArticleLinks = (html: string, baseUrl: string): stri
       }
     })
 
-    const links = Array.from(candidateSet)
-
-    // 依文章特徵排序：包含文章相關路徑或帶數字 ID 的排前面
-    return links.sort((a, b) => {
-      const scoreA = getLinkPriorityScore(a)
-      const scoreB = getLinkPriorityScore(b)
-      return scoreB - scoreA
-    })
+    // 依文章特徵排序：包含文章相關路徑或帶數字 ID 的排前面 (分數先算好，避免排序時重複計算)
+    return Array.from(candidateSet)
+      .map(link => ({ link, score: getLinkPriorityScore(link, keywords) }))
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.link)
   } catch {
     return []
   }

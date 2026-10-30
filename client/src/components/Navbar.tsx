@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { FileDown, FileText, Settings, Search, Loader2, Globe, FileSpreadsheet } from 'lucide-react'
+import { FileDown, FileText, Search, Loader2, Globe, FileSpreadsheet } from 'lucide-react'
 
 interface NavbarProps {
   url: string
@@ -13,7 +13,6 @@ interface NavbarProps {
   hasReport: boolean
   onExportWord: () => void
   onExportMarkdown: () => void
-  onOpenSettings?: () => void
   isExportingWord?: boolean
 }
 
@@ -27,7 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasReport,
   onExportWord,
   onExportMarkdown,
-  onOpenSettings,
   isExportingWord = false
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,16 +36,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6 lg:h-16 lg:flex-nowrap lg:py-0 lg:px-8">
         {/* 系統名稱 */}
         <div className="flex items-center shrink-0">
-          <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">
-            SEO · GEO · AEO 網頁健檢診斷平台
+          <span className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
+            SEO · GEO · AEO <span className="hidden sm:inline">網頁健檢診斷平台</span>
           </span>
         </div>
 
         {/* 搜尋與操作列 */}
-        <form onSubmit={handleSubmit} className="flex flex-1 max-w-xl items-center gap-2">
+        <form onSubmit={handleSubmit} className="order-3 flex w-full items-center gap-2 lg:order-none lg:w-auto lg:max-w-xl lg:flex-1">
           <div className="relative flex-1">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
               <Search className="h-4 w-4" />
@@ -68,7 +66,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setIsSiteWide(!isSiteWide)}
             disabled={isLoading}
             title={isSiteWide ? '切換為單頁模式' : '切換為全站抽樣'}
-            className={`hidden sm:inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${isSiteWide
+            aria-label={isSiteWide ? '目前為全站抽樣，點擊切換為單頁診斷' : '目前為單頁診斷，點擊切換為全站抽樣'}
+            className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${isSiteWide
               ? 'border-blue-200 bg-blue-50/60 text-blue-700 hover:bg-blue-100/60'
               : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
@@ -76,12 +75,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isSiteWide ? (
               <>
                 <Globe className="h-3.5 w-3.5 text-blue-600" />
-                <span>全站抽樣</span>
+                <span className="hidden sm:inline">全站抽樣</span>
               </>
             ) : (
               <>
                 <FileSpreadsheet className="h-3.5 w-3.5 text-slate-500" />
-                <span>單頁診斷</span>
+                <span className="hidden sm:inline">單頁診斷</span>
               </>
             )}
           </button>
@@ -114,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
           >
             <FileDown className="h-3.5 w-3.5 text-slate-500" />
-            <span>匯出 Word 報告</span>
+            <span className="hidden sm:inline">匯出 </span><span>Word</span>
           </button>
 
           <button
@@ -127,19 +126,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
           >
             <FileText className="h-3.5 w-3.5 text-slate-500" />
-            <span>匯出 Markdown</span>
+            <span className="hidden sm:inline">匯出 </span><span>Markdown</span>
           </button>
 
-          {/* 暫時隱藏此設定按鈕 */}
+          {/* 暫時隱藏規則設定入口 (避免一般使用者進入)；恢復時需重新 import Link 與 SlidersHorizontal */}
           {/*
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
-            title="平台設定"
+          <Link
+            href="/admin/rules"
+            className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            title="診斷規則設定"
+            aria-label="診斷規則設定"
           >
-            <Settings className="h-4 w-4" />
-          </button>
+            <SlidersHorizontal className="h-4 w-4" />
+          </Link>
           */}
         </div>
       </div>

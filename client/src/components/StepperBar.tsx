@@ -6,6 +6,8 @@ import { Check } from 'lucide-react'
 interface StepperBarProps {
   currentStep: number
   isLoading: boolean
+  /** 後端回報的即時進度訊息 */
+  progressMessage?: string
 }
 
 const STEPS = [
@@ -15,7 +17,7 @@ const STEPS = [
   { id: 4, label: '完成健檢' }
 ]
 
-export const StepperBar: React.FC<StepperBarProps> = ({ currentStep, isLoading }) => {
+export const StepperBar: React.FC<StepperBarProps> = ({ currentStep, isLoading, progressMessage }) => {
   return (
     <div className="w-full max-w-4xl mx-auto py-2 px-4">
       <div className="flex items-center justify-between relative">
@@ -62,6 +64,9 @@ export const StepperBar: React.FC<StepperBarProps> = ({ currentStep, isLoading }
           )
         })}
       </div>
+      {isLoading && progressMessage && (
+        <p className="mt-4 text-center text-sm text-blue-700" aria-live="polite">{progressMessage}…</p>
+      )}
     </div>
   )
 }

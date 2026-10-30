@@ -6,13 +6,24 @@ export const USER_AGENT =
 const BASE64_DATA_URI_REGEX = /data:[^;,"'\s\]\\]+;base64,[A-Za-z0-9+/=\\]{200,}/g
 const NEXT_FLIGHT_SCRIPT_REGEX = /<script[^>]*>self\.__next_f\.push\([\s\S]*?<\/script>/gi
 
+/** 單頁 HTML 讀取上限，超過即截斷以避免記憶體暴增 */
+const DEFAULT_MAX_BYTES = 5 * 1024 * 1024
+
 /**
  * 清理 HTML 中巨型內嵌 Base64 圖片資料與無關的 hydration 腳本，防止記憶體暴增 (OOM)
+ * 清理前先統計 Base64 數量與體積，供「網頁肥胖度」檢測使用
  */
-const sanitizeHtmlPayload = (rawHtml: string): string => {
-  return rawHtml
-    .replace(BASE64_DATA_URI_REGEX, 'data:image/gif;base64,R0lGODlhAQABAAAAACw=')
+const sanitizeHtmlPayload = (rawHtml: string) => {
+  let base64ImageCount = 0
+  let base64Bytes = 0
+  const html = rawHtml
+    .replace(BASE64_DATA_URI_REGEX, (m) => {
+      base64ImageCount++
+      base64Bytes += m.length
+      return 'data:image/gif;base64,R0lGODlhAQABAAAAACw='
+    })
     .replace(NEXT_FLIGHT_SCRIPT_REGEX, '')
+  return { html, base64ImageCount, base64Bytes }
 }
 
 export interface FetchResult {
@@ -21,21 +32,67 @@ export interface FetchResult {
   url: string
   html: string | null
   error: string | null
+  htmlBytes: number
+  ttfbMs: number
+  base64ImageCount: number
+  base64Bytes: number
+  xRobotsTag: string
+  truncated: boolean
+}
+
+export interface FetchOptions {
+  maxBytes?: number
+  /** 僅接受 HTML / XML 回應 (網頁本體使用；robots.txt 等純文字檔不需要) */
+  expectHtml?: boolean
+}
+
+const failure = (status: number, url: string, error: string): FetchResult => ({
+  ok: false,
+  status,
+  url,
+  html: null,
+  error,
+  htmlBytes: 0,
+  ttfbMs: 0,
+  base64ImageCount: 0,
+  base64Bytes: 0,
+  xRobotsTag: '',
+  truncated: false
+})
+
+/** 以串流讀取回應本體，超過上限即停止 */
+const readBodyCapped = async (response: Response, maxBytes: number) => {
+  if (!response.body) return { text: '', bytes: 0, truncated: false }
+  const reader = response.body.getReader()
+  const chunks: Uint8Array[] = []
+  let bytes = 0
+  let truncated = false
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    chunks.push(value)
+    bytes += value.byteLength
+    if (bytes >= maxBytes) {
+      truncated = true
+      await reader.cancel().catch(() => {})
+      break
+    }
+  }
+  return { text: Buffer.concat(chunks).toString('utf8'), bytes, truncated }
 }
 
 /**
  * 安全的 HTTP 網頁抓取函式 (含 Cookie 追蹤轉址控制、超時控制與 SSRF 防禦)
  */
-export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<FetchResult> => {
+export const fetchHtml = async (
+  targetUrl: string,
+  timeoutMs = 30000,
+  options: FetchOptions = {}
+): Promise<FetchResult> => {
+  const { maxBytes = DEFAULT_MAX_BYTES, expectHtml = false } = options
   const ssrfCheck = await validateTargetUrl(targetUrl)
   if (!ssrfCheck.ok || !ssrfCheck.normalizedUrl) {
-    return {
-      ok: false,
-      status: 400,
-      url: targetUrl,
-      html: null,
-      error: ssrfCheck.error || '網址未通過安全性檢驗'
-    }
+    return failure(400, targetUrl, ssrfCheck.error || '網址未通過安全性檢驗')
   }
 
   let currentUrl = ssrfCheck.normalizedUrl
@@ -43,6 +100,7 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<F
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   const cookieJar = new Map<string, string>()
   const maxRedirects = 10
+  const startedAt = Date.now()
 
   try {
     for (let i = 0; i < maxRedirects; i++) {
@@ -80,29 +138,18 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<F
 
       // 處理 301, 302, 303, 307, 308 轉址
       if (response.status >= 300 && response.status < 400) {
+        response.body?.cancel().catch(() => {})
         const location = response.headers.get('location')
         if (!location) {
           clearTimeout(timer)
-          return {
-            ok: false,
-            status: response.status,
-            url: currentUrl,
-            html: null,
-            error: `轉址異常 (HTTP ${response.status}) 未提供 Location 標頭`
-          }
+          return failure(response.status, currentUrl, `轉址異常 (HTTP ${response.status}) 未提供 Location 標頭`)
         }
 
         const nextUrl = new URL(location, currentUrl).href
         const redirectSsrf = await validateTargetUrl(nextUrl)
         if (!redirectSsrf.ok || !redirectSsrf.normalizedUrl) {
           clearTimeout(timer)
-          return {
-            ok: false,
-            status: 400,
-            url: nextUrl,
-            html: null,
-            error: `轉址目標安全性阻擋: ${redirectSsrf.error || '未通過 SSRF 檢驗'}`
-          }
+          return failure(400, nextUrl, `轉址目標安全性阻擋: ${redirectSsrf.error || '未通過 SSRF 檢驗'}`)
         }
 
         currentUrl = redirectSsrf.normalizedUrl
@@ -111,36 +158,39 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<F
 
       if (!response.ok) {
         clearTimeout(timer)
-        return {
-          ok: false,
-          status: response.status,
-          url: currentUrl,
-          html: null,
-          error: `HTTP 狀態碼錯誤: ${response.status} ${response.statusText}`
-        }
+        response.body?.cancel().catch(() => {})
+        return failure(response.status, currentUrl, `HTTP 狀態碼錯誤: ${response.status} ${response.statusText}`)
       }
 
-      const rawHtml = await response.text()
+      const ttfbMs = Date.now() - startedAt
+      const contentType = response.headers.get('content-type') || ''
+      if (expectHtml && contentType && !/html|xml/i.test(contentType)) {
+        clearTimeout(timer)
+        response.body?.cancel().catch(() => {})
+        return failure(415, currentUrl, `目標網址不是 HTML 網頁 (Content-Type: ${contentType})`)
+      }
+
+      const { text, bytes, truncated } = await readBodyCapped(response, maxBytes)
       clearTimeout(timer)
-      const html = sanitizeHtmlPayload(rawHtml)
+      const { html, base64ImageCount, base64Bytes } = sanitizeHtmlPayload(text)
 
       return {
         ok: true,
         status: response.status,
         url: currentUrl,
         html,
-        error: null
+        error: null,
+        htmlBytes: bytes,
+        ttfbMs,
+        base64ImageCount,
+        base64Bytes,
+        xRobotsTag: response.headers.get('x-robots-tag') || '',
+        truncated
       }
     }
 
     clearTimeout(timer)
-    return {
-      ok: false,
-      status: 310,
-      url: currentUrl,
-      html: null,
-      error: '轉址次數過多 (超過 10 次轉址上限)'
-    }
+    return failure(310, currentUrl, '轉址次數過多 (超過 10 次轉址上限)')
   } catch (err: unknown) {
     clearTimeout(timer)
     const isTimeout = err instanceof Error && err.name === 'AbortError'
@@ -150,12 +200,6 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<F
       ? err.message
       : '網路請求失敗'
 
-    return {
-      ok: false,
-      status: 0,
-      url: currentUrl,
-      html: null,
-      error: message
-    }
+    return failure(0, currentUrl, message)
   }
 }

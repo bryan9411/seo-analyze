@@ -6,6 +6,19 @@ import type { DiagnosticScores } from '@/types/seo'
 
 interface ScoreOverviewProps {
   scores: DiagnosticScores
+  /** 同網址上一次的分數，用於顯示進步幅度 */
+  previous?: DiagnosticScores
+}
+
+const DeltaBadge: React.FC<{ delta?: number }> = ({ delta }) => {
+  if (delta === undefined) return null
+  if (delta === 0) return <span className="mt-1.5 text-xs font-medium text-slate-400">與上次相同</span>
+  const up = delta > 0
+  return (
+    <span className={`mt-1.5 text-xs font-semibold tabular-nums ${up ? 'text-emerald-600' : 'text-rose-600'}`}>
+      {up ? '▲' : '▼'} {Math.abs(delta)} 分 (較上次)
+    </span>
+  )
 }
 
 /**
@@ -46,6 +59,7 @@ interface CircularGaugeProps {
   labelColor?: string
   tagText?: string
   tagColor?: string
+  delta?: number
 }
 
 const CircularGauge: React.FC<CircularGaugeProps> = ({
@@ -57,7 +71,8 @@ const CircularGauge: React.FC<CircularGaugeProps> = ({
   bgTrackColor = 'text-slate-100',
   labelColor = 'text-slate-500',
   tagText,
-  tagColor = 'text-amber-400'
+  tagColor = 'text-amber-400',
+  delta
 }) => {
   const size = 120
   const strokeWidth = 8
@@ -105,6 +120,7 @@ const CircularGauge: React.FC<CircularGaugeProps> = ({
             )}
           </div>
         </div>
+        <DeltaBadge delta={delta} />
       </div>
     )
   }
@@ -150,11 +166,13 @@ const CircularGauge: React.FC<CircularGaugeProps> = ({
           )}
         </div>
       </div>
+      <DeltaBadge delta={delta} />
     </div>
   )
 }
 
-export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
+export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores, previous }) => {
+  const diff = (key: 'overall' | 'seo' | 'geo' | 'aio') => (previous ? scores[key] - previous[key] : undefined)
   const animatedOverall = useCountUp(scores.overall)
   const animatedSeo = useCountUp(scores.seo)
   const animatedGeo = useCountUp(scores.geo)
@@ -171,7 +189,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
       <div className="mb-4">
-        <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">KPI</h2>
+        <h2 className="text-sm font-bold text-slate-900 tracking-wider">綜合評分</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 items-center justify-around">
@@ -184,6 +202,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           strokeColor="text-blue-500"
           tagText={overallTag.text}
           tagColor={overallTag.color}
+          delta={diff('overall')}
         />
 
         {/* 傳統 SEO */}
@@ -191,6 +210,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           label="傳統SEO"
           score={animatedSeo}
           targetScore={scores.seo}
+          delta={diff('seo')}
           strokeColor="text-emerald-500"
           bgTrackColor="text-emerald-50"
           labelColor="text-emerald-800"
@@ -201,6 +221,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           label="生成式GEO"
           score={animatedGeo}
           targetScore={scores.geo}
+          delta={diff('geo')}
           strokeColor="text-amber-500"
           bgTrackColor="text-amber-50"
           labelColor="text-amber-800"
@@ -211,6 +232,7 @@ export const ScoreOverview: React.FC<ScoreOverviewProps> = ({ scores }) => {
           label="解答引擎AEO"
           score={animatedAio}
           targetScore={scores.aio}
+          delta={diff('aio')}
           strokeColor="text-violet-500"
           bgTrackColor="text-violet-50"
           labelColor="text-violet-800"

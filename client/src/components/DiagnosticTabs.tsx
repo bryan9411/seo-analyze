@@ -12,7 +12,6 @@ import {
   Check,
   Code2,
   TableProperties,
-  ArrowRight,
   CheckCircle2
 } from 'lucide-react'
 import type { StructuredSections, RobotsTxtReport } from '@/types/seo'
@@ -39,7 +38,7 @@ const FormattedAnalysisText: React.FC<{ content: string }> = ({ content }) => {
     <div className="space-y-2.5">
       {rawLines.map((line, idx) => {
         // 清理異常或殘留的 markdown 符號
-        let clean = line
+        const clean = line
           .replace(/^\*\s*\*\*(.*?)\*\*\s*[:：]?\s*/, '• 【$1】：')
           .replace(/^\*\*\*(.*?)\*\*\*\s*[:：]?\s*/, '• 【$1】：')
           .replace(/^\*\s+/, '• ')

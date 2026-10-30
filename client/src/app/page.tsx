@@ -1,17 +1,55 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useCallback, useRef, useState, useSyncExternalStore } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, SearchCheck } from 'lucide-react'
+import { AlertCircle, SearchCheck, History, RefreshCw, TrendingUp } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { StepperBar } from '@/components/StepperBar'
 import { ScoreOverview } from '@/components/ScoreOverview'
-import { ChartsSection } from '@/components/ChartsSection'
-import { SampleArticlesTable } from '@/components/SampleArticlesTable'
-import { PriorityCodeSnippet } from '@/components/PriorityCodeSnippet'
-import { DiagnosticTabs } from '@/components/DiagnosticTabs'
-import { SettingsModal } from '@/components/SettingsModal'
 import type { DiagnosticReport } from '@/types/seo'
+import { findPrevious, loadHistory, pushHistory, clearHistory, subscribeHistory, getServerHistory, type HistoryEntry } from '@/lib/history'
+import { suggestSiteWide } from '@/lib/urlType'
+
+// 報告區塊在有結果後才需要，拆成獨立 bundle 延後載入 (recharts 體積較大)
+const SectionSkeleton = () => <div className="h-64 animate-pulse rounded-xl border border-slate-200 bg-white" />
+const ChartsSection = dynamic(() => import('@/components/ChartsSection').then(m => m.ChartsSection), { ssr: false, loading: SectionSkeleton })
+const SampleArticlesTable = dynamic(() => import('@/components/SampleArticlesTable').then(m => m.SampleArticlesTable), { loading: SectionSkeleton })
+const PriorityCodeSnippet = dynamic(() => import('@/components/PriorityCodeSnippet').then(m => m.PriorityCodeSnippet), { loading: SectionSkeleton })
+const DiagnosticTabs = dynamic(() => import('@/components/DiagnosticTabs').then(m => m.DiagnosticTabs), { loading: SectionSkeleton })
+const InsightsPanel = dynamic(() => import('@/components/insights/InsightsPanel').then(m => m.InsightsPanel), { ssr: false, loading: SectionSkeleton })
+
+type StreamEvent =
+  | { type: 'progress', message: string }
+  | { type: 'result', report: DiagnosticReport }
+  | { type: 'error', error: string, message?: string }
+
+const stepFromMessage = (message: string) => (message.includes('計算') ? 3 : message.includes('抽樣') ? 2 : 1)
+
+/** 讀取 NDJSON 串流，逐行回呼；伺服器若回傳一般 JSON 也能處理 */
+const readDiagnoseStream = async (res: Response, onEvent: (e: StreamEvent) => void) => {
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('ndjson') || !res.body) {
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.message || data.error || `診斷失敗 (HTTP ${res.status})`)
+    onEvent({ type: 'result', report: data })
+    return
+  }
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    buffer += decoder.decode(value, { stream: !done })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() || ''
+    for (const line of lines) {
+      if (line.trim()) onEvent(JSON.parse(line))
+    }
+    if (done) break
+  }
+  if (buffer.trim()) onEvent(JSON.parse(buffer))
+}
 
 const DashboardPage = () => {
   const [url, setUrl] = useState('')
@@ -21,14 +59,32 @@ const DashboardPage = () => {
   const [report, setReport] = useState<DiagnosticReport | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isExportingWord, setIsExportingWord] = useState(false)
+  const [progressMessage, setProgressMessage] = useState('')
+  const history = useSyncExternalStore(subscribeHistory, loadHistory, getServerHistory)
+  const [previous, setPrevious] = useState<HistoryEntry | undefined>()
+  // 使用者手動切換過範疇後，不再依網址自動切換
+  const [scopeTouched, setScopeTouched] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
 
-  // API Key 設定狀態
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [geminiKey, setGeminiKey] = useState('')
-  const [openaiKey, setOpenaiKey] = useState('')
+  const handleUrlChange = useCallback((value: string) => {
+    setUrl(value)
+    if (!value.trim()) {
+      setScopeTouched(false)
+      return
+    }
+    if (!scopeTouched) {
+      const suggestion = suggestSiteWide(value)
+      if (suggestion !== null) setIsSiteWide(suggestion)
+    }
+  }, [scopeTouched])
 
-  // 執行健檢診斷
-  const handleStartDiagnose = async (overrideUrl?: string, overrideSiteWide?: boolean) => {
+  const handleToggleScope = useCallback((value: boolean) => {
+    setScopeTouched(true)
+    setIsSiteWide(value)
+  }, [])
+
+  // 執行健檢診斷 (串流接收後端真實進度)
+  const handleStartDiagnose = async (overrideUrl?: string, overrideSiteWide?: boolean, force = false) => {
     const activeUrl = (overrideUrl !== undefined ? overrideUrl : url).trim()
     const activeSiteWide = overrideSiteWide !== undefined ? overrideSiteWide : isSiteWide
 
@@ -37,55 +93,61 @@ const DashboardPage = () => {
     if (overrideUrl !== undefined) setUrl(overrideUrl)
     if (overrideSiteWide !== undefined) setIsSiteWide(overrideSiteWide)
 
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setIsLoading(true)
     setError(null)
     setCurrentStep(1)
-
-    // 步驟進度模擬
-    const stepTimer1 = setTimeout(() => setCurrentStep(2), 600)
-    const stepTimer2 = setTimeout(() => setCurrentStep(3), 1600)
+    setProgressMessage('正在驗證網址安全性')
 
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      }
-      if (geminiKey) headers['x-gemini-key'] = geminiKey
-      if (openaiKey) headers['x-openai-key'] = openaiKey
-
       const res = await fetch('/api/diagnose', {
         method: 'POST',
-        headers,
-        body: JSON.stringify({
-          url: activeUrl,
-          isSiteWide: activeSiteWide,
-          mode: 'ALL'
-        })
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/x-ndjson'
+        },
+        body: JSON.stringify({ url: activeUrl, isSiteWide: activeSiteWide, mode: 'ALL', force })
       })
 
-      clearTimeout(stepTimer1)
-      clearTimeout(stepTimer2)
+      let result: DiagnosticReport | null = null
+      await readDiagnoseStream(res, (event) => {
+        if (event.type === 'progress') {
+          setProgressMessage(event.message)
+          setCurrentStep(stepFromMessage(event.message))
+        } else if (event.type === 'result') {
+          result = event.report
+        } else {
+          throw new Error(event.message || event.error)
+        }
+      })
+
+      if (!result) throw new Error('伺服器未回傳診斷結果')
+      const data: DiagnosticReport = result
       setCurrentStep(4)
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
-        throw new Error(errData.message || errData.error || `診斷失敗 (HTTP ${res.status})`)
-      }
-
-      const data: DiagnosticReport = await res.json()
+      setPrevious(findPrevious(loadHistory(), data))
+      pushHistory(data)
       setReport(data)
     } catch (err: unknown) {
+      if (controller.signal.aborted) return
       const msg = err instanceof Error ? err.message : '連線異常，請確認後端服務是否已正常啟動'
       setError(msg)
     } finally {
-      setIsLoading(false)
+      if (abortRef.current === controller) {
+        setIsLoading(false)
+        setProgressMessage('')
+      }
     }
   }
 
   // 快速體驗：點選後立即將網址帶入並直接執行全站抽樣分析
-  const handleQuickAnalyze = (sampleUrl: string) => {
+  const handleQuickAnalyze = (sampleUrl: string, siteWide = true) => {
     setUrl(sampleUrl)
-    setIsSiteWide(true)
-    handleStartDiagnose(sampleUrl, true)
+    setIsSiteWide(siteWide)
+    handleStartDiagnose(sampleUrl, siteWide)
   }
 
   // 匯出 Word 報告
@@ -181,21 +243,20 @@ const DashboardPage = () => {
       {/* 頂部導航 */}
       <Navbar
         url={url}
-        setUrl={setUrl}
+        setUrl={handleUrlChange}
         isSiteWide={isSiteWide}
-        setIsSiteWide={setIsSiteWide}
+        setIsSiteWide={handleToggleScope}
         onStartDiagnose={() => handleStartDiagnose()}
         isLoading={isLoading}
         hasReport={Boolean(report)}
         onExportWord={handleExportWord}
         onExportMarkdown={handleExportMarkdown}
-        onOpenSettings={() => setIsSettingsOpen(true)}
         isExportingWord={isExportingWord}
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         {/* 步驟進度條 */}
-        <StepperBar currentStep={currentStep} isLoading={isLoading} />
+        <StepperBar currentStep={currentStep} isLoading={isLoading} progressMessage={progressMessage} />
 
         {/* 錯誤提示 */}
         <AnimatePresence>
@@ -233,8 +294,50 @@ const DashboardPage = () => {
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
+            {/* 報告資訊列：快取狀態、規則版本、重新檢測 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+              <span>
+                {new Date(report.timestamp).toLocaleString('zh-TW')} · 分析 {report.analyzedPageCount} 頁 · 耗時 {(report.durationMs / 1000).toFixed(1)} 秒 · 規則 v{report.rulesVersion}
+                {report.cached && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-slate-600">快取結果</span>}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleStartDiagnose(report.targetUrl, report.isSiteWide, true)}
+                disabled={isLoading}
+                className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                重新檢測 (修改網頁後)
+              </button>
+            </div>
+
+            {/* 改善前後對比 */}
+            {previous && (
+              <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-900">
+                <TrendingUp className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                <div>
+                  <p className="font-semibold">
+                    與 {new Date(previous.timestamp).toLocaleString('zh-TW')} 的檢測相比：綜合評分 {previous.scores.overall} → {report.scores.overall}
+                    （{report.scores.overall - previous.scores.overall >= 0 ? '+' : ''}{report.scores.overall - previous.scores.overall}）
+                  </p>
+                  <p className="mt-0.5 text-blue-800">
+                    SEO {report.scores.seo - previous.scores.seo >= 0 ? '+' : ''}{report.scores.seo - previous.scores.seo}、
+                    GEO {report.scores.geo - previous.scores.geo >= 0 ? '+' : ''}{report.scores.geo - previous.scores.geo}、
+                    AEO {report.scores.aio - previous.scores.aio >= 0 ? '+' : ''}{report.scores.aio - previous.scores.aio}
+                    {(() => {
+                      const now = new Set(report.findings.filter(f => f.kind === 'issue').map(f => f.checkId))
+                      const fixed = previous.issueKeys.filter(k => !now.has(k)).length
+                      const added = [...now].filter(k => !previous.issueKeys.includes(k)).length
+                      return `；已修正 ${fixed} 項、新出現 ${added} 項`
+                    })()}
+                    {previous.rulesVersion !== report.rulesVersion && '（期間規則已更新，分數可能不完全可比）'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* KPI 卡片 */}
-            <ScoreOverview scores={report.scores} />
+            <ScoreOverview scores={report.scores} previous={previous?.scores} />
 
             {/* 圖表區 */}
             <ChartsSection
@@ -255,12 +358,18 @@ const DashboardPage = () => {
               </div>
             </div>
 
+            {/* 頁面明細與工具 */}
+            <div className="pt-2">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-slate-500">頁面明細與工具</h3>
+              </div>
+              <InsightsPanel report={report} />
+            </div>
+
             {/* 詳細診斷頁籤 */}
             <div className="pt-2">
               <div className="mb-3">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  深度分析與維度診斷細項
-                </h3>
+                <h3 className="text-sm font-semibold text-slate-500">深度分析與維度診斷細項</h3>
               </div>
               <DiagnosticTabs sections={report.sections} robotsTxt={report.robotsTxt} />
             </div>
@@ -272,9 +381,10 @@ const DashboardPage = () => {
               <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 mb-3">
                 <SearchCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-800">尚未開始網頁健檢診斷</h3>
-              <p className="mx-auto mt-1 max-w-md text-xs text-slate-500 leading-relaxed">
-                請在上方導覽列輸入欲檢驗的公開網址，或點選下方範例網址快速體驗：
+              <h3 className="text-base font-semibold text-slate-800">輸入網址，檢查網站在 Google 與 AI 搜尋中的表現</h3>
+              <p className="mx-auto mt-2 max-w-lg text-sm text-slate-500 leading-relaxed">
+                免 API Key、純規則運算：檢查 Title / Meta、結構化資料、AI 爬蟲權限與內容結構，並直接產生 FAQ、LocalBusiness JSON-LD 與 llms.txt。
+                首頁會自動抽樣全站，文章網址會自動切換為單頁診斷。
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
                 {[
@@ -289,30 +399,55 @@ const DashboardPage = () => {
                     className="group inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 transition-all active:scale-95 shadow-2xs cursor-pointer hover:shadow-xs"
                     title={`點擊立即以全站抽樣分析「${sample.name}」`}
                   >
-                    <span className="font-medium text-slate-800 group-hover:text-blue-600 transition-colors">
+                    <span className="whitespace-nowrap font-medium text-slate-800 group-hover:text-blue-600 transition-colors">
                       {sample.name}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-400 group-hover:text-blue-500">{sample.url}</span>
-                    <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 group-hover:bg-blue-100 group-hover:border-blue-300 transition-colors">
+                    <span className="hidden text-[11px] font-mono text-slate-400 group-hover:text-blue-500 sm:inline">{sample.url}</span>
+                    <span className="whitespace-nowrap text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 group-hover:bg-blue-100 group-hover:border-blue-300 transition-colors">
                       立即全站抽樣分析
                     </span>
                   </button>
                 ))}
               </div>
+
+              {history.length > 0 && (
+                <div className="mx-auto mt-8 max-w-2xl text-left">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h4 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                      <History className="h-4 w-4 text-slate-400" />
+                      最近檢測 (僅保存在此瀏覽器)
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={clearHistory}
+                      className="text-xs text-slate-400 hover:text-rose-600 cursor-pointer"
+                    >
+                      清除紀錄
+                    </button>
+                  </div>
+                  <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
+                    {history.slice(0, 8).map(entry => (
+                      <li key={`${entry.url}-${entry.timestamp}`}>
+                        <button
+                          type="button"
+                          onClick={() => handleQuickAnalyze(entry.url, entry.isSiteWide)}
+                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-slate-50 cursor-pointer"
+                        >
+                          <span className="min-w-0 truncate font-mono text-xs text-slate-700">{entry.url}</span>
+                          <span className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
+                            <span>{new Date(entry.timestamp).toLocaleDateString('zh-TW')}</span>
+                            <span className="rounded bg-slate-900 px-1.5 py-0.5 font-semibold tabular-nums text-white">{entry.scores.overall}</span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )
         )}
       </main>
-
-      {/* API Key 設定彈窗 */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        geminiKey={geminiKey}
-        setGeminiKey={setGeminiKey}
-        openaiKey={openaiKey}
-        setOpenaiKey={setOpenaiKey}
-      />
 
       {/* 頁尾 */}
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">

@@ -1,0 +1,823 @@
+{
+  "version": "2026.10.30",
+  "updatedAt": "2026-10-30",
+  "description": "SEO / GEO / AEO 診斷規則。修改後伺服器會自動重新載入，不需重新啟動或重新部署。",
+  "thresholds": {
+    "title.minLength": 15,
+    "title.maxLength": 65,
+    "meta.minLength": 50,
+    "meta.idealMinLength": 80,
+    "meta.maxLength": 160,
+    "fluff.maxCount": 5,
+    "facts.minCount": 5,
+    "stats.minMatches": 3,
+    "lists.minAvg": 2,
+    "directAnswer.minLength": 30,
+    "directAnswer.maxLength": 250,
+    "directAnswer.paragraphs": 3,
+    "csr.maxTextLength": 200,
+    "html.warnBytes": 1500000,
+    "base64.warnBytes": 100000,
+    "ttfb.slowMs": 800,
+    "serp.titlePixels": 580,
+    "serp.descPixelsDesktop": 920,
+    "serp.descPixelsMobile": 680,
+    "aiView.chars": 300,
+    "sample.limit": 10
+  },
+  "score": { "min": 10, "max": 100 },
+  "statusBands": { "good": 70, "warning": 40 },
+  "lexicons": {
+    "fluffWords": [
+      "最頂級", "全台第一", "第一首選", "尊榮享受", "極致體驗", "獨家保證", "領先業界",
+      "無與倫比", "品質保證", "用心服務", "專業保證", "尊爵不凡", "無懈可擊", "超值首選",
+      "絕美體驗", "無可挑剔", "業界權威", "口碑相傳", "首屈一指", "深獲好評", "絕對信賴"
+    ],
+    "questionKeywords": [
+      "如何", "為什麼", "怎麼辦", "推薦", "費用", "價格", "流程", "多久", "注意事項", "懶人包", "指南", "差別", "迷思", "教學"
+    ],
+    "faqQuestionPatterns": [
+      "[?？]\\s*$",
+      "(如何|怎麼|怎樣|為什麼|為何|是什麼|什麼是|多少|多久|哪些|哪裡|哪個|能不能|可不可以|是否|要不要)",
+      "嗎\\s*$"
+    ],
+    "directAnswerPatterns": [
+      "是指", "定義", "代表", "主要提供", "包含以下", "總結來說", "解答如下", "核心重點", "快速結論", "根據"
+    ],
+    "statsUnits": ["%", "倍", "項", "篇", "名", "家", "元", "歲", "天", "小時", "分鐘", "公分", "kg", "km", "坪", "折"],
+    "factUnits": ["%", "元", "歲", "天", "小時", "分鐘", "公分", "kg", "km", "坪", "折", "月", "日", "年", "次"],
+    "authoritativeDomainPatterns": [
+      "\\.(gov|edu|org)(\\.tw)?$",
+      "wikipedia\\.org$",
+      "cdc\\.gov$"
+    ],
+    "articlePathKeywords": ["article", "post", "blog", "news", "story", "detail", "view", "item"]
+  },
+  "selectors": {
+    "author": ["meta[name=\"author\" i]@content", "[rel=\"author\"]", ".author, .post-author, .article-author, .author-name"],
+    "publishDate": ["meta[property=\"article:published_time\" i]@content", "time[datetime]@datetime", "time", ".publish-date, .post-date, .date, .time"],
+    "mainContent": ["article", "main", "[role=\"main\"]", ".post-content, .entry-content, .article-content, .content"],
+    "boilerplate": ["nav", "header", "footer", "aside", "form", "[role=\"navigation\"]", "[role=\"banner\"]", "[role=\"contentinfo\"]", ".breadcrumb, .breadcrumbs, .menu, .sidebar, .ads, .advertisement, .cookie"]
+  },
+  "aiCrawlers": [
+    {
+      "crawlerId": "gptbot",
+      "name": "GPTBot",
+      "engine": "ChatGPT (OpenAI)",
+      "userAgent": "GPTBot",
+      "isCritical": true,
+      "descriptionIfAllowed": "允許 ChatGPT 抓取頁面內容以納入模型理解與答案生成",
+      "descriptionIfBlocked": "ChatGPT 無法讀取內容，失去被 ChatGPT 引用的資格"
+    },
+    {
+      "crawlerId": "oai-searchbot",
+      "name": "OAI-SearchBot",
+      "engine": "ChatGPT (OpenAI)",
+      "userAgent": "OAI-SearchBot",
+      "isCritical": true,
+      "descriptionIfAllowed": "允許 ChatGPT Search 即時搜尋並引用頁面",
+      "descriptionIfBlocked": "ChatGPT Search 無法即時檢索本站，無法在搜尋對話中引述"
+    },
+    {
+      "crawlerId": "perplexitybot",
+      "name": "PerplexityBot",
+      "engine": "Perplexity AI",
+      "userAgent": "PerplexityBot",
+      "isCritical": true,
+      "descriptionIfAllowed": "允許 Perplexity 即時檢索並標註為 Sources 來源",
+      "descriptionIfBlocked": "Perplexity 爬蟲受阻，無法生成來源卡片與即時解答"
+    },
+    {
+      "crawlerId": "claudebot",
+      "name": "ClaudeBot",
+      "engine": "Claude (Anthropic)",
+      "userAgent": "ClaudeBot",
+      "isCritical": true,
+      "descriptionIfAllowed": "允許 Claude 讀取頁面文本並提供引用",
+      "descriptionIfBlocked": "Claude 爬蟲受阻，無法造訪本站進行檢索與引用"
+    },
+    {
+      "crawlerId": "google-extended",
+      "name": "Google-Extended",
+      "engine": "Google (Gemini/AEO)",
+      "userAgent": "Google-Extended",
+      "isCritical": false,
+      "descriptionIfAllowed": "允許 Google 將本站內容用於訓練 Gemini 系列模型",
+      "descriptionIfBlocked": "僅限制 Gemini 模型訓練，不影響 Google 搜尋與 AI 摘要顯示"
+    },
+    {
+      "crawlerId": "googlebot",
+      "name": "Googlebot",
+      "engine": "Google (Gemini/AEO)",
+      "userAgent": "Googlebot",
+      "isCritical": true,
+      "descriptionIfAllowed": "Google 核心爬蟲正常通行，具備自然排名與 AI 摘要資格",
+      "descriptionIfBlocked": "Googlebot 被阻擋，自然搜尋排名與 AI 摘要將同時消失"
+    }
+  ],
+  "dimensions": {
+    "seo": { "label": "傳統 SEO", "baseScore": 70, "weight": 1 },
+    "geo": { "label": "生成式 GEO", "baseScore": 60, "weight": 1 },
+    "aio": { "label": "解答引擎 AEO", "baseScore": 65, "weight": 1 }
+  },
+  "checks": [
+    {
+      "id": "seo.noindex",
+      "dimension": "seo",
+      "description": "頁面是否被 meta robots 或 X-Robots-Tag 設為 noindex",
+      "cases": [
+        {
+          "when": { "metric": "primary.isNoindex", "op": "truthy" },
+          "delta": -30,
+          "severity": "high",
+          "issue": "頁面設定了 noindex（{primary.robots}），搜尋引擎不會收錄本頁",
+          "painPoint": {
+            "title": "收錄阻擋：頁面設定 noindex",
+            "detail": "meta robots 或 X-Robots-Tag 含有 noindex，本頁不會出現在 Google 搜尋結果。若非刻意設定，請立即移除。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "seo.title",
+      "dimension": "seo",
+      "description": "Title 是否存在且長度適中",
+      "cases": [
+        {
+          "when": { "metric": "primary.titleLength", "op": "eq", "value": 0 },
+          "delta": -25,
+          "severity": "high",
+          "issue": "缺乏 `<title>` 標籤，嚴重損害搜尋引擎檢索與點擊率"
+        },
+        {
+          "when": { "metric": "primary.titleLength", "op": "lt", "value": "$thresholds.title.minLength" },
+          "delta": -10,
+          "severity": "medium",
+          "issue": "標題長度過短 ({primary.titleLength} 字)，未充分布局核心關鍵字"
+        },
+        {
+          "when": { "metric": "primary.titleLength", "op": "gt", "value": "$thresholds.title.maxLength" },
+          "delta": -8,
+          "severity": "medium",
+          "issue": "標題長度過長 ({primary.titleLength} 字)，在 Google 搜尋結果中會被截斷"
+        },
+        { "strength": "標題長度適中 ({primary.titleLength} 字)，在搜尋結果中展現良好" }
+      ]
+    },
+    {
+      "id": "seo.meta",
+      "dimension": "seo",
+      "description": "Meta Description 是否存在且長度適中",
+      "cases": [
+        {
+          "when": { "metric": "primary.metaLength", "op": "eq", "value": 0 },
+          "delta": -18,
+          "severity": "high",
+          "issue": "缺少 Meta Description，搜尋引擎將隨機抓取內文，點閱率容易偏低",
+          "painPoint": {
+            "title": "搜尋展示弱點：缺少 Meta Description",
+            "detail": "搜尋引擎會隨機抓取頁首或頁尾文字當摘要，無法向搜尋者傳達頁面重點。"
+          }
+        },
+        {
+          "when": { "metric": "primary.metaLength", "op": "lt", "value": "$thresholds.meta.minLength" },
+          "delta": -8,
+          "severity": "medium",
+          "issue": "Meta Description 過短 ({primary.metaLength} 字)，缺乏足夠行動號召與關鍵字",
+          "painPoint": {
+            "title": "搜尋展示弱點：Meta Description 過短 ({primary.metaLength} 字)",
+            "detail": "摘要文字過短，缺乏行動呼籲與關鍵賣點，點擊潛力沒有充分發揮。"
+          }
+        },
+        {
+          "when": { "metric": "primary.metaLength", "op": "gt", "value": "$thresholds.meta.maxLength" },
+          "delta": -4,
+          "severity": "low",
+          "issue": "Meta Description 過長 ({primary.metaLength} 字)，在搜尋結果中可能被截斷"
+        },
+        { "strength": "已配置 Meta Description，有助於吸引搜尋結果點擊" }
+      ]
+    },
+    {
+      "id": "seo.h1",
+      "dimension": "seo",
+      "description": "是否有唯一 H1",
+      "cases": [
+        {
+          "when": { "metric": "primary.h1Count", "op": "eq", "value": 0 },
+          "delta": -15,
+          "severity": "high",
+          "issue": "頁面缺少 `<h1>` 主標題，Google 無法明確辨識本頁核心主題",
+          "painPoint": {
+            "title": "標題階層缺陷：缺少 <h1> 主標題",
+            "detail": "全頁沒有 <h1>，搜尋引擎無法第一時間鎖定本頁核心主旨。"
+          }
+        },
+        {
+          "when": { "metric": "primary.h1Count", "op": "gt", "value": 1 },
+          "delta": -8,
+          "severity": "medium",
+          "issue": "頁面存在多個 H1 標籤 ({primary.h1Count} 個)，主題焦點被分散",
+          "painPoint": {
+            "title": "標題階層衝突：存在多個 <h1> ({primary.h1Count} 個)",
+            "detail": "頁面同時有多個主標題，建議保留單一 <h1>，其餘改為 <h2>。"
+          }
+        },
+        { "strength": "具有唯一的 `<h1>` 標題，架構符合語意規範" }
+      ]
+    },
+    {
+      "id": "seo.headingOrder",
+      "dimension": "seo",
+      "description": "標題是否跳階或空白",
+      "cases": [
+        {
+          "when": { "any": [
+            { "metric": "primary.headingSkipCount", "op": "gt", "value": 0 },
+            { "metric": "primary.emptyHeadingCount", "op": "gt", "value": 0 }
+          ] },
+          "delta": -3,
+          "severity": "low",
+          "issue": "標題階層有 {primary.headingSkipCount} 處跳階、{primary.emptyHeadingCount} 個空白標題，文章大綱不易被解析"
+        }
+      ]
+    },
+    {
+      "id": "seo.author",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.authorTags", "op": "falsy" },
+          "delta": -12,
+          "severity": "medium",
+          "issue": "缺乏明確的作者標記與資格說明，E-E-A-T 信賴度低"
+        },
+        { "strength": "具備作者資訊標註 ({primary.authorTags})，利於建立作者權威實體" }
+      ]
+    },
+    {
+      "id": "seo.publishDate",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.publishDate", "op": "falsy" },
+          "delta": -8,
+          "severity": "medium",
+          "issue": "缺乏發布或更新時間標記，搜尋引擎無法判定內容時效性",
+          "painPoint": {
+            "title": "時效性訊號缺失：缺乏明確日期標記",
+            "detail": "搜尋引擎在抓取解答型內容時重視時效性，缺乏更新日期會降低時效相關排名。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "seo.authoritativeOutbound",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.authoritativeOutbound", "op": "falsy" },
+          "severity": "low",
+          "issue": "缺乏引用官方或權威第三方文獻的外部連結，內容權威背書偏弱"
+        }
+      ]
+    },
+    {
+      "id": "seo.eeatVoid",
+      "dimension": "seo",
+      "description": "同時缺少作者與權威引用 (僅列入痛點，不另外扣分)",
+      "cases": [
+        {
+          "when": { "all": [
+            { "metric": "primary.authorTags", "op": "falsy" },
+            { "metric": "primary.authoritativeOutbound", "op": "falsy" }
+          ] },
+          "painPoint": {
+            "title": "E-E-A-T 空白：缺乏作者背書與權威引用",
+            "detail": "頁面沒有具名作者，也沒有第三方權威資料佐證，在競爭激烈的關鍵字中難以通過 Google 實用內容系統檢驗。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "seo.imageAlt",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.imageCount", "op": "eq", "value": 0 }
+        },
+        {
+          "when": { "metric": "primary.missingAltCount", "op": "gt", "value": 0 },
+          "delta": { "per": -2, "metric": "primary.missingAltCount", "cap": -10 },
+          "severity": "medium",
+          "issue": "頁面共 {primary.imageCount} 張圖片，其中 {primary.missingAltCount} 張缺乏 `alt` 替代文字",
+          "painPoint": {
+            "title": "圖片 SEO 缺失：{primary.missingAltCount} 張圖片缺少 alt",
+            "detail": "全頁共 {primary.imageCount} 張圖片，其中 {primary.missingAltCount} 張未設定 alt，會損害 Google 圖片搜尋收錄與無障礙體驗。完整清單請見「頁面明細」。"
+          }
+        },
+        { "strength": "全頁 {primary.imageCount} 張圖片皆配置了 `alt` 替代文字" }
+      ]
+    },
+    {
+      "id": "seo.canonical",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.canonical", "op": "falsy" },
+          "delta": -3,
+          "severity": "low",
+          "issue": "未設定 canonical 標準網址，可能產生重複內容問題"
+        }
+      ]
+    },
+    {
+      "id": "seo.viewport",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.hasViewport", "op": "falsy" },
+          "delta": -5,
+          "severity": "medium",
+          "issue": "缺少 viewport meta 標籤，行動裝置版面不友善 (Google 以行動版為主要索引)"
+        }
+      ]
+    },
+    {
+      "id": "seo.lang",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.lang", "op": "falsy" },
+          "delta": -2,
+          "severity": "low",
+          "issue": "`<html>` 未宣告 lang 語系屬性"
+        }
+      ]
+    },
+    {
+      "id": "seo.ogImage",
+      "dimension": "seo",
+      "cases": [
+        {
+          "when": { "metric": "primary.ogImage", "op": "falsy" },
+          "delta": -3,
+          "severity": "low",
+          "issue": "未設定 og:image，分享到 LINE / Facebook 時不會顯示縮圖"
+        }
+      ]
+    },
+    {
+      "id": "seo.sitemap",
+      "dimension": "seo",
+      "cases": [
+        { "when": { "metric": "discovery.checked", "op": "falsy" } },
+        {
+          "when": { "metric": "discovery.hasSitemap", "op": "falsy" },
+          "delta": -3,
+          "severity": "low",
+          "issue": "找不到 sitemap.xml (robots.txt 也未宣告 Sitemap)，新頁面被發現的速度較慢"
+        },
+        { "strength": "已提供 sitemap.xml，有助搜尋引擎發現全站頁面" }
+      ]
+    },
+    {
+      "id": "seo.payload",
+      "dimension": "seo",
+      "description": "HTML 體積、內嵌 Base64 圖片與伺服器回應時間",
+      "cases": [
+        {
+          "when": { "metric": "primary.base64Bytes", "op": "gt", "value": "$thresholds.base64.warnBytes" },
+          "delta": -5,
+          "severity": "medium",
+          "issue": "HTML 內嵌了 {primary.base64ImageCount} 張 Base64 圖片 (約 {primary.base64KB} KB)，拖慢載入速度與爬蟲抓取",
+          "painPoint": {
+            "title": "網頁肥胖：內嵌 Base64 圖片約 {primary.base64KB} KB",
+            "detail": "圖片直接塞在 HTML 裡會讓每次抓取都下載整包資料，建議改為外部 WebP 圖檔並加上 loading=\"lazy\"。"
+          }
+        },
+        {
+          "when": { "metric": "primary.htmlBytes", "op": "gt", "value": "$thresholds.html.warnBytes" },
+          "delta": -3,
+          "severity": "low",
+          "issue": "HTML 原始體積過大 ({primary.htmlKB} KB)，影響載入速度與爬蟲抓取預算"
+        },
+        {
+          "when": { "metric": "primary.ttfbMs", "op": "gt", "value": "$thresholds.ttfb.slowMs" },
+          "delta": -3,
+          "severity": "low",
+          "issue": "伺服器回應時間偏慢 (TTFB {primary.ttfbMs} ms)"
+        }
+      ]
+    },
+    {
+      "id": "geo.csr",
+      "dimension": "geo",
+      "description": "內容是否依賴 JavaScript 渲染 (多數 AI 爬蟲不執行 JS)",
+      "cases": [
+        {
+          "when": { "metric": "primary.isLikelyCsr", "op": "truthy" },
+          "delta": -20,
+          "severity": "high",
+          "issue": "頁面原始 HTML 幾乎沒有文字內容 ({primary.mainTextLength} 字)，疑似由 JavaScript 產生，多數 AI 爬蟲看不到內容",
+          "painPoint": {
+            "title": "AI 爬蟲看不到內容：頁面依賴 JavaScript 渲染",
+            "detail": "ChatGPT、Perplexity、Claude 等 AI 爬蟲大多不執行 JavaScript，只讀原始 HTML。建議改用伺服器端渲染 (SSR) 或靜態產生 (SSG)。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "geo.robots",
+      "dimension": "geo",
+      "cases": [
+        { "when": { "metric": "robots.available", "op": "falsy" } },
+        {
+          "when": { "metric": "robots.blockedCriticalCount", "op": "gt", "value": 0 },
+          "delta": { "per": -15, "metric": "robots.blockedCriticalCount", "cap": -30 },
+          "severity": "high",
+          "issue": "robots.txt 阻擋了 {robots.blockedCriticalNames}，該 AI 引擎無法造訪網頁，失去被引用的資格",
+          "painPoint": {
+            "title": "robots.txt 封鎖 AI 爬蟲",
+            "detail": "robots.txt 阻擋了 {robots.blockedCriticalNames}。在此狀態下無論內容多好，該 AI 都無法讀取或引用本頁。請調整 robots.txt 或 CDN / Cloudflare 的 bot 設定。"
+          }
+        },
+        {
+          "delta": 10,
+          "strength": "robots.txt 開放 ChatGPT、Perplexity、Claude 與 Google 抓取，具備被生成式引擎引用的資格"
+        }
+      ]
+    },
+    {
+      "id": "geo.entitySchema",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "any": [
+            { "metric": "site.anyArticleSchema", "op": "truthy" },
+            { "metric": "site.anyOrganizationSchema", "op": "truthy" }
+          ] },
+          "delta": 15,
+          "strength": "已配置語意實體結構 ({site.schemaTypesSample})，利於生成式引擎建立知識圖譜關聯"
+        },
+        {
+          "delta": -20,
+          "severity": "high",
+          "issue": "缺乏 Article 或 Organization 結構化標記，AI 爬蟲無法將內容與發布者實體明確連結"
+        }
+      ]
+    },
+    {
+      "id": "geo.articleSchemaPrimary",
+      "dimension": "geo",
+      "description": "主頁本身缺少 Article (僅列入痛點)",
+      "cases": [
+        {
+          "when": { "metric": "primary.hasArticleSchema", "op": "falsy" },
+          "painPoint": {
+            "title": "缺少 Article 結構化標記",
+            "detail": "生成式引擎依賴 Schema.org 解析頁面實體。沒有 Article JSON-LD 時，AI 不容易把內容視為正式出版文章。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "geo.person",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "site.anyPersonSchema", "op": "truthy" },
+          "delta": 8,
+          "strength": "具備 Person / Author 實體標記，提供明確的作者責任歸屬"
+        },
+        {
+          "severity": "low",
+          "issue": "未配置 Person / Author 實體結構，降低 AI 對作者權威度的判斷"
+        }
+      ]
+    },
+    {
+      "id": "geo.citations",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "site.totalCitations", "op": "gt", "value": 0 },
+          "delta": 15,
+          "strength": "具備出處引述與文獻佐證 (共 {site.totalCitations} 處引用)"
+        },
+        {
+          "delta": -15,
+          "severity": "high",
+          "issue": "內文缺乏外部權威佐證或出處引用，生成式模型難以將本頁列為可信來源"
+        }
+      ]
+    },
+    {
+      "id": "geo.citationsPrimary",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "primary.citationCount", "op": "eq", "value": 0 },
+          "painPoint": {
+            "title": "缺乏第三方權威文獻引述",
+            "detail": "Princeton GEO 研究指出引述權威出處可明顯提升 AI 引用率。本頁未引用任何外部研究或標準，AI 在交叉查核時難以優先推薦。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "geo.stats",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "site.anyStatsOrData", "op": "truthy" },
+          "delta": 12,
+          "strength": "內文具備客觀統計數據與量化指標，提升資訊增益"
+        },
+        {
+          "delta": -12,
+          "severity": "medium",
+          "issue": "缺乏具體量化數據，內容多屬定性敘述，容易被生成式引擎忽略"
+        }
+      ]
+    },
+    {
+      "id": "geo.statsPrimary",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "primary.hasStatsOrData", "op": "falsy" },
+          "painPoint": {
+            "title": "客觀數據密度不足",
+            "detail": "內容缺乏明確的數字、百分比或規格參數，AI 回答「需要多少」「差多少」這類問題時無法從本頁取得數據。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "geo.directAnswer",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "site.anyDirectAnswer", "op": "truthy" },
+          "delta": 10,
+          "strength": "首段具備直接定義或解答，容易被 AI 擷取為摘要"
+        },
+        {
+          "severity": "medium",
+          "issue": "首段缺乏直接解答或核心摘要，前言鋪陳過長，不利 AI 第一時間擷取答案"
+        }
+      ]
+    },
+    {
+      "id": "geo.directAnswerPrimary",
+      "dimension": "geo",
+      "cases": [
+        {
+          "when": { "metric": "primary.directAnswerSnippetFound", "op": "falsy" },
+          "painPoint": {
+            "title": "缺乏首段直接解答",
+            "detail": "頁面開頭沒有「結論先行」的定義或答案，AI 在切分內容時無法在首段取得答案。可參考「AI 純文字視角」調整第一段。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "geo.localBusiness",
+      "dimension": "geo",
+      "description": "偵測到台灣電話或地址，但未配置 LocalBusiness",
+      "cases": [
+        {
+          "when": { "all": [
+            { "any": [
+              { "metric": "site.phoneCount", "op": "gt", "value": 0 },
+              { "metric": "site.addressCount", "op": "gt", "value": 0 }
+            ] },
+            { "metric": "site.anyLocalBusinessSchema", "op": "falsy" }
+          ] },
+          "delta": -5,
+          "severity": "medium",
+          "issue": "偵測到 {site.phoneCount} 組電話、{site.addressCount} 組地址，但未配置 LocalBusiness 結構化資料，錯失在地推薦機會",
+          "painPoint": {
+            "title": "在地商家資訊未結構化",
+            "detail": "頁面有電話或地址，但沒有 LocalBusiness JSON-LD。系統已依抓到的資料產生範本，請見「產生器」區塊。"
+          }
+        },
+        {
+          "when": { "metric": "site.anyLocalBusinessSchema", "op": "truthy" },
+          "strength": "已配置 LocalBusiness 結構化資料，有助在地搜尋與 AI 在地推薦"
+        }
+      ]
+    },
+    {
+      "id": "geo.llmsTxt",
+      "dimension": "geo",
+      "description": "llms.txt 為新興提案格式，僅提示不扣分",
+      "cases": [
+        { "when": { "metric": "discovery.checked", "op": "falsy" } },
+        {
+          "when": { "metric": "discovery.hasLlmsTxt", "op": "truthy" },
+          "strength": "已提供 /llms.txt，方便 AI 工具快速理解網站結構"
+        },
+        {
+          "severity": "low",
+          "issue": "尚未提供 /llms.txt (新興提案格式，非強制)，可用下方產生器一鍵建立"
+        }
+      ]
+    },
+    {
+      "id": "aio.tables",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "site.avgTables", "op": "eq", "value": 0 },
+          "delta": -15,
+          "severity": "medium",
+          "issue": "內容沒有任何 `<table>` 表格，AI 缺乏可直接擷取的比較資訊"
+        },
+        { "strength": "具備表格結構 (平均 {site.avgTablesRounded} 組)，有助 AI 引用結構化比較資訊" }
+      ]
+    },
+    {
+      "id": "aio.tablesPrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.tableCount", "op": "eq", "value": 0 },
+          "painPoint": {
+            "title": "缺乏結構化表格",
+            "detail": "AI 解答引擎會把表格提取為比較圖卡。沒有 <table> 時，容易錯失精選摘要的曝光機會。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aio.lists",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "site.avgLists", "op": "lt", "value": "$thresholds.lists.minAvg" },
+          "delta": -10,
+          "severity": "medium",
+          "issue": "清單結構 (`<ul>`, `<ol>`) 不足，內容多為長段落，不利 AI 擷取步驟與要點"
+        },
+        { "strength": "具有條列式清單結構，符合 AI 擷取步驟與要點的偏好" }
+      ]
+    },
+    {
+      "id": "aio.fluff",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "site.totalFluff", "op": "gt", "value": "$thresholds.fluff.maxCount" },
+          "delta": -15,
+          "severity": "medium",
+          "issue": "行銷浮誇形容詞出現過多 (共 {site.totalFluff} 次{primary.fluffSampleNote})，稀釋事實密度"
+        },
+        { "strength": "商業浮誇詞比例控制良好，資訊表達客觀" }
+      ]
+    },
+    {
+      "id": "aio.fluffPrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.fluffCount", "op": "gt", "value": "$thresholds.fluff.maxCount" },
+          "painPoint": {
+            "title": "浮誇形容詞過多 ({primary.fluffCount} 次)",
+            "detail": "文本多為模糊形容詞而缺乏客觀數據時，AI 在合成答案時會主動略過主觀宣傳內容。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aio.qa",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "all": [
+            { "metric": "site.totalQuestionHeadings", "op": "eq", "value": 0 },
+            { "metric": "primary.hasFaqSchema", "op": "falsy" }
+          ] },
+          "delta": -20,
+          "severity": "high",
+          "issue": "缺乏 FAQ 問答結構與問答型標題，無法對應使用者在 AI 搜尋中的口語提問"
+        },
+        { "strength": "發現 {site.totalQuestionHeadings} 個問答或流程主題標題，契合 AI 提問語意" }
+      ]
+    },
+    {
+      "id": "aio.faqPrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.hasFaqSchema", "op": "falsy" },
+          "painPoint": {
+            "title": "缺乏 FAQPage 結構化資料",
+            "detail": "AI 解答引擎傾向引用問答明確的頁面。若內文已有問句標題，系統會自動產生 FAQ JSON-LD，請見「產生器」區塊。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aio.factsPrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.factualNumberCount", "op": "lt", "value": "$thresholds.facts.minCount" },
+          "painPoint": {
+            "title": "客觀規格數據不足 (僅 {primary.factualNumberCount} 處)",
+            "detail": "缺乏具體數字、工時、費用區間或規格參數，AI 難以把內文當成事實依據引用。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aio.authoritativePrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.authoritativeOutbound", "op": "falsy" },
+          "painPoint": {
+            "title": "缺乏外部權威規範或文獻引用",
+            "detail": "內文未連結政府 (.gov)、學術 (.edu) 或公認的官方標準，AI 交叉查核時缺乏第三方佐證。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aio.freshnessPrimary",
+      "dimension": "aio",
+      "cases": [
+        {
+          "when": { "metric": "primary.publishDate", "op": "falsy" },
+          "painPoint": {
+            "title": "缺乏發布與更新時間",
+            "detail": "AI 在回答價格、規定等時效性問題時重視更新日期，沒有日期容易被判定為可能過時。"
+          }
+        }
+      ]
+    }
+  ],
+  "compliance": [
+    {
+      "id": "title",
+      "name": "Title 標題佈局",
+      "benchmark": 90,
+      "parts": [
+        { "when": { "metric": "primary.titleLength", "op": "gt", "value": 0 }, "points": 50 },
+        { "when": { "metric": "primary.titleLength", "op": "between", "value": ["$thresholds.title.minLength", "$thresholds.title.maxLength"] }, "points": 35 }
+      ]
+    },
+    {
+      "id": "meta",
+      "name": "Meta 摘要描述",
+      "benchmark": 85,
+      "parts": [
+        { "when": { "metric": "primary.metaLength", "op": "gt", "value": 0 }, "points": 40 },
+        { "when": { "metric": "primary.metaLength", "op": "gte", "value": "$thresholds.meta.minLength" }, "points": 20 }
+      ]
+    },
+    {
+      "id": "h1",
+      "name": "H1 唯一層級",
+      "benchmark": 90,
+      "parts": [
+        { "when": { "metric": "primary.h1Count", "op": "eq", "value": 1 }, "points": 80 },
+        { "when": { "metric": "primary.h1Count", "op": "gt", "value": 1 }, "points": 40 }
+      ]
+    },
+    {
+      "id": "schema",
+      "name": "Schema 實體圖譜",
+      "benchmark": 85,
+      "parts": [
+        { "when": { "metric": "site.anyArticleSchema", "op": "truthy" }, "points": 35 },
+        { "when": { "metric": "site.anyOrganizationSchema", "op": "truthy" }, "points": 25 },
+        { "when": { "metric": "site.anyPersonSchema", "op": "truthy" }, "points": 15 },
+        { "when": { "metric": "site.anyFaqSchema", "op": "truthy" }, "points": 25 }
+      ]
+    },
+    {
+      "id": "evidence",
+      "name": "權威佐證與數據",
+      "benchmark": 80,
+      "parts": [
+        { "when": { "metric": "site.totalCitations", "op": "gt", "value": 0 }, "points": 35 },
+        { "when": { "metric": "site.anyStatsOrData", "op": "truthy" }, "points": 35 },
+        { "when": { "metric": "site.anyAuthoritativeOutbound", "op": "truthy" }, "points": 20 },
+        { "when": { "metric": "primary.factualNumberCount", "op": "gte", "value": "$thresholds.facts.minCount" }, "points": 10 }
+      ]
+    },
+    {
+      "id": "aeo",
+      "name": "AEO 問答解答",
+      "benchmark": 75,
+      "parts": [
+        { "when": { "metric": "site.anyFaqSchema", "op": "truthy" }, "points": 40 },
+        { "when": { "metric": "site.anyDirectAnswer", "op": "truthy" }, "points": 30 },
+        { "points": { "per": 10, "metric": "site.totalQuestionHeadings", "cap": 30 } }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,14 @@
 /**
+ * 程式內建的正規表示式 (台灣在地格式，較少隨搜尋引擎規則變動)
+ * 會隨搜尋引擎調整的字詞庫與門檻值請改 server/rules/rules.json
+ */
+
+/**
  * 台灣電話格式正規表示式 (支援市話 02/04/07、手機 09xx、免付費電話 0800)
+ * 前後不可緊接數字，避免把商品編號、訂單號誤判為電話
  */
 export const TAIWAN_PHONE_REGEX =
-  /(?:0\d{1,2}[-–\s]?\d{7,8})|(?:09\d{2}[-–\s]?\d{3}[-–\s]?\d{3})|(?:0800[-–\s]?\d{3}[-–\s]?\d{3})/g
+  /(?<!\d)(?:(?:0800[-–\s]?\d{3}[-–\s]?\d{3})|(?:09\d{2}[-–\s]?\d{3}[-–\s]?\d{3})|(?:\(?0\d{1,2}\)?[-–\s]?\d{3,4}[-–\s]?\d{4}))(?!\d)/g
 
 /**
  * 台灣縣市名稱清單 (含標準與台/臺字元)
@@ -15,25 +21,16 @@ export const TAIWAN_COUNTIES = [
 ]
 
 /**
- * 台灣實體地址正規表示式
+ * 台灣實體地址正規表示式 (縣市開頭、號結尾)
  */
 export const TAIWAN_ADDRESS_REGEX = new RegExp(
-  `(?:${TAIWAN_COUNTIES.join('|')})[^\\n<]{2,25}(?:路|街|巷|弄|號|大道|段|村|里)`,
+  `(?:${TAIWAN_COUNTIES.join('|')})[^\\s<>，。、；|]{2,30}?\\d+(?:之\\d+)?號`,
   'g'
 )
 
-/**
- * 誇飾宣傳形容詞清單
- */
-export const FLUFF_WORDS = [
-  '最頂級', '全台第一', '第一首選', '尊榮享受', '極致體驗', '獨家保證', '領先業界',
-  '無與倫比', '品質保證', '用心服務', '專業保證', '尊爵不凡', '無懈可擊', '超值首選',
-  '絕美體驗', '無可挑剔', '業界權威', '口碑相傳', '首屈一指', '深獲好評', '絕對信賴'
-]
+/** Schema.org LocalBusiness 及常見子類型 */
+export const LOCAL_BUSINESS_TYPE_REGEX =
+  /LocalBusiness|Restaurant|Store|Dentist|Physician|MedicalClinic|MedicalBusiness|AutoRepair|AutomotiveBusiness|HomeAndConstructionBusiness|LegalService|FinancialService|LodgingBusiness|Hotel|BeautySalon|HealthAndBeautyBusiness|FoodEstablishment|ProfessionalService|RealEstateAgent|TravelAgency/i
 
-/**
- * 問答型標題關鍵詞
- */
-export const QUESTION_KEYWORDS = [
-  '如何', '為什麼', '怎麼辦', '推薦', '費用', '價格', '流程', '多久', '注意事項', '懶人包', '指南', '差別', '迷思', '教學'
-]
+/** SPA 常見的掛載根節點 */
+export const APP_ROOT_SELECTOR = '#root, #app, #__next, #__nuxt, [data-reactroot], [ng-version], app-root'

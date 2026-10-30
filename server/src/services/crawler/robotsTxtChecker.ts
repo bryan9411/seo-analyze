@@ -1,72 +1,6 @@
 import type { AiCrawlerPermission, RobotsTxtReport } from '../../types/seo.js'
+import { getRules } from '../../rules/rulesStore.js'
 import { fetchHtml } from './httpFetcher.js'
-
-interface BotTargetDef {
-  crawlerId: string
-  name: string
-  engine: AiCrawlerPermission['engine']
-  userAgent: string
-  isCritical: boolean
-  descriptionIfAllowed: string
-  descriptionIfBlocked: string
-}
-
-const TARGET_BOTS: BotTargetDef[] = [
-  {
-    crawlerId: 'gptbot',
-    name: 'GPTBot',
-    engine: 'ChatGPT (OpenAI)',
-    userAgent: 'GPTBot',
-    isCritical: true,
-    descriptionIfAllowed: '允許 ChatGPT 抓取頁面內容以納入模型理解與答案生成',
-    descriptionIfBlocked: '致命阻擋：ChatGPT 無法讀取內容，100% 失去被 ChatGPT 引用的資格'
-  },
-  {
-    crawlerId: 'oai-searchbot',
-    name: 'OAI-SearchBot',
-    engine: 'ChatGPT (OpenAI)',
-    userAgent: 'OAI-SearchBot',
-    isCritical: true,
-    descriptionIfAllowed: '允許 SearchGPT 即時搜尋並引用頁面為搜尋結果圖卡',
-    descriptionIfBlocked: '致命阻擋：SearchGPT 無法即時檢索本站，無法在搜尋對話中引述'
-  },
-  {
-    crawlerId: 'perplexitybot',
-    name: 'PerplexityBot',
-    engine: 'Perplexity AI',
-    userAgent: 'PerplexityBot',
-    isCritical: true,
-    descriptionIfAllowed: '允許 Perplexity 即時檢索、深度解答並標註為權威 Sources 來源',
-    descriptionIfBlocked: '致命阻擋：Perplexity 爬蟲受阻，無法生成來源卡片與即時解答'
-  },
-  {
-    crawlerId: 'claudebot',
-    name: 'ClaudeBot',
-    engine: 'Claude (Anthropic)',
-    userAgent: 'ClaudeBot',
-    isCritical: true,
-    descriptionIfAllowed: '允許 Anthropic Claude 讀取頁面文本並提供即時精準引用',
-    descriptionIfBlocked: '致命阻擋：Claude 爬蟲受阻，無法造訪本站進行知識檢索與引用'
-  },
-  {
-    crawlerId: 'google-extended',
-    name: 'Google-Extended',
-    engine: 'Google (Gemini/AEO)',
-    userAgent: 'Google-Extended',
-    isCritical: false,
-    descriptionIfAllowed: '允許 Google 將本站內容用於訓練未來的 Gemini 系列模型',
-    descriptionIfBlocked: '僅限制 Gemini 模型離線訓練，不影響 Google 搜尋與 AEO 摘要顯示'
-  },
-  {
-    crawlerId: 'googlebot',
-    name: 'Googlebot',
-    engine: 'Google (Gemini/AEO)',
-    userAgent: 'Googlebot',
-    isCritical: true,
-    descriptionIfAllowed: 'Google 核心爬蟲正常通行，確保傳統排名與 AEO 即時摘要資格',
-    descriptionIfBlocked: '嚴重警報：Googlebot 被阻擋，傳統自然搜尋排名與 AEO 將同時歸零'
-  }
-]
 
 interface UserAgentRules {
   disallows: string[]
@@ -78,6 +12,7 @@ interface UserAgentRules {
  */
 const parseRobotsTxt = (content: string) => {
   const rulesMap = new Map<string, UserAgentRules>()
+  const sitemaps: string[] = []
   const lines = content.split(/\r?\n/)
 
   let currentAgents: string[] = []
@@ -92,6 +27,11 @@ const parseRobotsTxt = (content: string) => {
 
     const directive = trimmed.slice(0, colonIndex).trim().toLowerCase()
     const value = trimmed.slice(colonIndex + 1).trim()
+
+    if (directive === 'sitemap') {
+      if (/^https?:\/\//i.test(value)) sitemaps.push(value)
+      continue
+    }
 
     if (directive === 'user-agent') {
       const agent = value.toLowerCase()
@@ -120,7 +60,7 @@ const parseRobotsTxt = (content: string) => {
     }
   }
 
-  return rulesMap
+  return { rulesMap, sitemaps }
 }
 
 /**
@@ -163,11 +103,12 @@ const evaluateAgentStatus = (
  * 檢核目標網域的 robots.txt 與 AI 爬蟲授權狀態
  */
 export const checkRobotsTxt = async (targetUrl: string): Promise<RobotsTxtReport> => {
+  const TARGET_BOTS = getRules().config.aiCrawlers
   try {
     const parsed = new URL(targetUrl)
     const robotsUrl = `${parsed.origin}/robots.txt`
 
-    const res = await fetchHtml(robotsUrl, 8000)
+    const res = await fetchHtml(robotsUrl, 8000, { maxBytes: 512 * 1024 })
 
     // 若 404 或未設定 robots.txt，依 RFC 9309 規範視為完全公開允許
     if (!res.ok || res.status === 404 || !res.html) {
@@ -188,12 +129,13 @@ export const checkRobotsTxt = async (targetUrl: string): Promise<RobotsTxtReport
         crawlers,
         allAiAllowed: true,
         blockedBotsCount: 0,
-        hasCustomRules: false
+        hasCustomRules: false,
+        sitemaps: []
       }
     }
 
     const content = res.html
-    const rulesMap = parseRobotsTxt(content)
+    const { rulesMap, sitemaps } = parseRobotsTxt(content)
     const hasCustomRules = rulesMap.size > 0
 
     let blockedBotsCount = 0
@@ -223,7 +165,8 @@ export const checkRobotsTxt = async (targetUrl: string): Promise<RobotsTxtReport
       crawlers,
       allAiAllowed,
       blockedBotsCount,
-      hasCustomRules
+      hasCustomRules,
+      sitemaps
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '檢測失敗'
@@ -245,7 +188,8 @@ export const checkRobotsTxt = async (targetUrl: string): Promise<RobotsTxtReport
       crawlers,
       allAiAllowed: true,
       blockedBotsCount: 0,
-      hasCustomRules: false
+      hasCustomRules: false,
+      sitemaps: []
     }
   }
 }

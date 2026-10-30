@@ -1,13 +1,20 @@
 'use client'
 
 import React from 'react'
-import { ExternalLink, Check } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import type { AuditSampleItem } from '@/types/seo'
 
 interface SampleArticlesTableProps {
   allPages: AuditSampleItem[]
   isSiteWide: boolean
 }
+
+const scoreStyle = (score: number) =>
+  score >= 70
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : score >= 40
+      ? 'bg-amber-50 text-amber-700 border-amber-200'
+      : 'bg-rose-50 text-rose-700 border-rose-200'
 
 export const SampleArticlesTable: React.FC<SampleArticlesTableProps> = ({
   allPages,
@@ -29,7 +36,7 @@ export const SampleArticlesTable: React.FC<SampleArticlesTableProps> = ({
           <thead className="sticky top-0 z-10 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
             <tr>
               <th className="py-2.5 px-3">URL</th>
-              <th className="py-2.5 px-3 w-28 text-center">抽查檢驗</th>
+              <th className="py-2.5 px-3 w-28 text-center">單頁分數</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -46,7 +53,7 @@ export const SampleArticlesTable: React.FC<SampleArticlesTableProps> = ({
                       href={page.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-slate-700 hover:text-blue-600 max-w-sm truncate font-mono text-[11px]"
+                      className="inline-flex items-center gap-1 text-slate-700 hover:text-blue-600 max-w-sm truncate font-mono text-xs"
                       title={decodedUrl}
                     >
                       <span className="truncate">{decodedUrl}</span>
@@ -54,9 +61,12 @@ export const SampleArticlesTable: React.FC<SampleArticlesTableProps> = ({
                     </a>
                   </td>
                   <td className="py-2.5 px-3 text-center">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200/60">
-                      <Check className="h-3 w-3 text-emerald-600 stroke-[2.5]" />
-                      <span>需優化</span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold tabular-nums ${scoreStyle(page.score)}`}
+                      title={`${page.issueCount} 個中高優先問題`}
+                    >
+                      {page.score}
+                      <span className="font-normal opacity-70">· {page.issueCount} 項</span>
                     </span>
                   </td>
                 </tr>

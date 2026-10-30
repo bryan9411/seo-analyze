@@ -214,7 +214,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
                 <LabelList
                   dataKey="rate"
                   position="top"
-                  formatter={(val: any) => `${val ?? 0}%`}
+                  formatter={(val: unknown) => `${val ?? 0}%`}
                   style={{ fill: '#334155', fontSize: '11px', fontWeight: 600 }}
                 />
               </Bar>

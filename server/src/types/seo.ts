@@ -1,12 +1,13 @@
 /**
  * SEO / GEO / AEO 分析與診斷型別定義
+ * 注意：client/src/types/seo.ts 為前端副本，修改報告結構時請同步更新
  */
 
 /** 主流 AI 爬蟲存取授權項目 */
 export interface AiCrawlerPermission {
   crawlerId: string
   name: string
-  engine: 'ChatGPT (OpenAI)' | 'Perplexity AI' | 'Claude (Anthropic)' | 'Google (Gemini/AEO)' | 'Google (Gemini/AIO)'
+  engine: string
   userAgent: string
   status: 'allowed' | 'blocked'
   description: string
@@ -22,6 +23,36 @@ export interface RobotsTxtReport {
   allAiAllowed: boolean
   blockedBotsCount: number
   hasCustomRules: boolean
+  /** robots.txt 中宣告的 Sitemap 網址 */
+  sitemaps: string[]
+}
+
+/** llms.txt 與 sitemap.xml 探測結果 */
+export interface DiscoveryReport {
+  checked: boolean
+  llmsTxt: { exists: boolean, url: string, snippet?: string }
+  sitemap: { exists: boolean, url: string, source: 'robots' | 'default' }
+}
+
+/** 抓取單頁時量測的傳輸資訊 */
+export interface PageFetchMeta {
+  status: number
+  htmlBytes: number
+  ttfbMs: number
+  base64ImageCount: number
+  base64Bytes: number
+  xRobotsTag: string
+  truncated: boolean
+}
+
+export interface HeadingNode {
+  level: number
+  text: string
+}
+
+export interface FaqCandidate {
+  question: string
+  answer: string
 }
 
 /** 單一頁面爬取後的語意特徵 */
@@ -32,14 +63,29 @@ export interface SinglePageAnalysis {
   metaKeywords: string
   canonical: string
   robots: string
+  isNoindex: boolean
+  lang: string
+  hasViewport: boolean
   h1List: string[]
   h2List: string[]
   h3List: string[]
+  /** 依出現順序排列的 H1 ~ H6 */
+  headings: HeadingNode[]
+  headingSkipCount: number
+  emptyHeadingCount: number
   ogTitle: string
+  ogDescription: string
   ogImage: string
+  twitterCard: string
   // 圖片與 Alt 標籤
   imageCount: number
   missingAltCount: number
+  missingAltImages: string[]
+  // 傳輸與體積
+  htmlBytes: number
+  ttfbMs: number
+  base64ImageCount: number
+  base64Bytes: number
   // E-E-A-T 訊號
   authorTags: string
   publishDate: string
@@ -53,14 +99,16 @@ export interface SinglePageAnalysis {
   hasOrganizationSchema: boolean
   hasPersonSchema: boolean
   hasFaqSchema: boolean
-  faqQuestionsCount?: number
+  hasLocalBusinessSchema: boolean
+  faqQuestionsCount: number
   citationCount: number
   hasStatsOrData: boolean
   directAnswerSnippetFound: boolean
-  matchedPhones?: string[]
-  matchedAddresses?: string[]
-  hasMapEmbed?: boolean
-  hasServiceAreaDesc?: boolean
+  directAnswerText: string
+  // 在地商家 NAP
+  matchedPhones: string[]
+  matchedAddresses: string[]
+  hasMapEmbed: boolean
   // AIO 訊號
   tableCount: number
   listCount: number
@@ -68,26 +116,33 @@ export interface SinglePageAnalysis {
   fluffCount: number
   foundFluffWords: Array<{ word: string, count: number }>
   matchedQuestionHeadings: string[]
+  faqCandidates: FaqCandidate[]
   factualNumberCount: number
-  sampleFacts?: string[]
+  sampleFacts: string[]
+  // AI 爬蟲純文字視角
+  aiViewText: string
+  mainTextLength: number
+  contentSource: string
+  isLikelyCsr: boolean
   bodyTextSnippet: string
 }
 
 /** 抽樣文章頁面 */
 export interface SampledPage {
   url: string
-  title: string
   html: string
+  meta: PageFetchMeta
 }
 
 /** 爬蟲輸出結果 */
 export interface CrawlResult {
   isSiteWide: boolean
   primaryUrl: string
-  primaryTitle: string
   primaryHtml: string
+  primaryMeta: PageFetchMeta
   sampledPages: SampledPage[]
   robotsTxt?: RobotsTxtReport
+  discovery: DiscoveryReport
 }
 
 /** 健檢評分矩陣 */
@@ -105,6 +160,8 @@ export interface AuditSampleItem {
   type: string
   title: string
   url: string
+  score: number
+  issueCount: number
 }
 
 /** 改造前後對照表 */
@@ -179,6 +236,30 @@ export interface FactDensityMetrics {
   sampleFluff?: Array<{ word: string, count: number }>
 }
 
+/** 規則引擎逐條檢核結果 */
+export interface DiagnosticFinding {
+  checkId: string
+  dimension: 'seo' | 'geo' | 'aio'
+  kind: 'issue' | 'strength'
+  severity?: 'high' | 'medium' | 'low'
+  delta: number
+  message: string
+}
+
+/** 依頁面內容自動產生的可複製檔案 */
+export interface GeneratedAssets {
+  llmsTxt: string
+  faqJsonLd?: string
+  localBusinessJsonLd?: string
+}
+
+/** 前端 SERP 預覽使用的像素寬度上限 (來自規則檔) */
+export interface SerpLimits {
+  titlePixels: number
+  descPixelsDesktop: number
+  descPixelsMobile: number
+}
+
 /** 診斷報告主體完整資料結構 */
 export interface DiagnosticReport {
   targetUrl: string
@@ -186,9 +267,13 @@ export interface DiagnosticReport {
   isSiteWide: boolean
   analyzedPageCount: number
   timestamp: string
+  durationMs: number
+  cached: boolean
+  rulesVersion: string
   scores: DiagnosticScores
   complianceMetrics: ComplianceMetric[]
   factDensity: FactDensityMetrics
+  findings: DiagnosticFinding[]
   seoIssues: string[]
   seoStrengths: string[]
   geoIssues: string[]
@@ -201,6 +286,9 @@ export interface DiagnosticReport {
   sections: StructuredSections
   primaryAnalysis: SinglePageAnalysis
   robotsTxt?: RobotsTxtReport
+  discovery: DiscoveryReport
+  generated: GeneratedAssets
+  serpLimits: SerpLimits
 }
 
 /** 診斷模式列舉 */

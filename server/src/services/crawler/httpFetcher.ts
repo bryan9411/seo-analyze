@@ -3,6 +3,18 @@ import { validateTargetUrl } from '../../middleware/ssrfGuard.js'
 export const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (SEO Diagnostic Engine Bot)'
 
+const BASE64_DATA_URI_REGEX = /data:[^;,"'\s\]\\]+;base64,[A-Za-z0-9+/=\\]{200,}/g
+const NEXT_FLIGHT_SCRIPT_REGEX = /<script[^>]*>self\.__next_f\.push\([\s\S]*?<\/script>/gi
+
+/**
+ * 清理 HTML 中巨型內嵌 Base64 圖片資料與無關的 hydration 腳本，防止記憶體暴增 (OOM)
+ */
+const sanitizeHtmlPayload = (rawHtml: string): string => {
+  return rawHtml
+    .replace(BASE64_DATA_URI_REGEX, 'data:image/gif;base64,R0lGODlhAQABAAAAACw=')
+    .replace(NEXT_FLIGHT_SCRIPT_REGEX, '')
+}
+
 export interface FetchResult {
   ok: boolean
   status: number
@@ -14,7 +26,7 @@ export interface FetchResult {
 /**
  * 安全的 HTTP 網頁抓取函式 (含 Cookie 追蹤轉址控制、超時控制與 SSRF 防禦)
  */
-export const fetchHtml = async (targetUrl: string, timeoutMs = 20000): Promise<FetchResult> => {
+export const fetchHtml = async (targetUrl: string, timeoutMs = 30000): Promise<FetchResult> => {
   const ssrfCheck = await validateTargetUrl(targetUrl)
   if (!ssrfCheck.ok || !ssrfCheck.normalizedUrl) {
     return {
@@ -97,9 +109,8 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 20000): Promise<F
         continue
       }
 
-      clearTimeout(timer)
-
       if (!response.ok) {
+        clearTimeout(timer)
         return {
           ok: false,
           status: response.status,
@@ -109,7 +120,10 @@ export const fetchHtml = async (targetUrl: string, timeoutMs = 20000): Promise<F
         }
       }
 
-      const html = await response.text()
+      const rawHtml = await response.text()
+      clearTimeout(timer)
+      const html = sanitizeHtmlPayload(rawHtml)
+
       return {
         ok: true,
         status: response.status,

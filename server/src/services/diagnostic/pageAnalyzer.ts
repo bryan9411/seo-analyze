@@ -252,13 +252,20 @@ const extractAioSignals = ($: CheerioAPI, bodyText: string, headings: string[]) 
  */
 export const analyzeSinglePage = (html: string, url: string): SinglePageAnalysis => {
   const $ = cheerio.load(html)
-  const bodyText = $('body').text().replace(/\s+/g, ' ').trim()
+
+  // 先移除非 JSON-LD 的腳本與非可見標籤，減少 DOM 樹體積並避免污染內文統計
+  $('script:not([type="application/ld+json"]), style, noscript, svg, iframe, template').remove()
 
   // SEO 元數據萃取
   const seoData = extractSeoMetadata($)
 
   // E-E-A-T 訊號萃取
   const eeatData = extractEeatSignals($, url)
+
+  // 擷取純文字內容 (排除 JSON-LD 腳本內容)
+  const bodyClone = $('body').clone()
+  bodyClone.find('script').remove()
+  const bodyText = bodyClone.text().replace(/\s+/g, ' ').trim()
 
   // GEO 訊號萃取
   const geoData = extractGeoSignals(

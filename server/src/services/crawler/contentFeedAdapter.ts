@@ -18,11 +18,15 @@ const GET_RECENT_ARTICLES_QUERY = `
 export const fetchContentFeedArticles = async (
   endpointUrl: string,
   baseUrl: string,
-  limit = 12
+  limit = 12,
+  timeoutMs = 8000
 ): Promise<string[]> => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
     const res = await fetch(endpointUrl, {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': USER_AGENT
@@ -40,8 +44,10 @@ export const fetchContentFeedArticles = async (
     const cleanBase = baseUrl.replace(/\/$/, '')
     return articles
       .filter((a: { articleLink?: string }) => Boolean(a.articleLink))
-      .map((a: { articleLink: string }) => `${cleanBase}/article/${a.articleLink}`)
+      .map((a: { articleLink: string }) => `${cleanBase}/article/${encodeURI(decodeURI(a.articleLink))}`)
   } catch {
     return []
+  } finally {
+    clearTimeout(timer)
   }
 }

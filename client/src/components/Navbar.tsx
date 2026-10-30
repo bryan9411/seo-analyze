@@ -129,17 +129,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">匯出 </span><span>Markdown</span>
           </button>
 
-          {/* 暫時隱藏規則設定入口 (避免一般使用者進入)；恢復時需重新 import Link 與 SlidersHorizontal */}
-          {/*
-          <Link
-            href="/admin/rules"
-            className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            title="診斷規則設定"
-            aria-label="診斷規則設定"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-          </Link>
-          */}
         </div>
       </div>
     </header>

@@ -27,7 +27,6 @@ seo-analyze/
 ├── client/                     # 前端 Web 應用 (Next.js 16 + React 19)
 │   ├── src/
 │   │   ├── app/                # App Router 頁面與全域樣式
-│   │   ├── app/admin/rules/    # 診斷規則線上編輯頁
 │   │   ├── components/         # 儀表板、圖表、頁籤與各診斷元件 (insights/ 為頁面明細工具)
 │   │   ├── lib/                # 本機歷史紀錄、網址類型判斷
 │   │   └── types/              # 前端 TypeScript 介面定義 (server/src/types/seo.ts 的副本)
@@ -143,7 +142,7 @@ seo-analyze/
 **更新方式 (都不需要重新啟動或部署)：**
 
 1. 直接編輯 `rules.json` 存檔，伺服器會自動重新載入；格式錯誤時沿用舊規則並在 `GET /api/rules` 顯示錯誤。
-2. 設定環境變數 `RULES_ADMIN_TOKEN` 後，可在前端 `/admin/rules` 頁面線上修改、驗證與還原歷史版本 (自動備份至 `server/rules/history/`)。
+2. 設定環境變數 `RULES_ADMIN_TOKEN` 後，可透過下方「診斷規則管理」API 線上修改、驗證與還原歷史版本 (自動備份至 `server/rules/history/`)。前端不提供規則編輯頁。
 3. 以 `RULES_PATH` 指向外部檔案 (例如掛載的 volume)，部署環境更新規則不必重新建置映像檔。
 
 規則版本 (`version`) 會記錄在每份報告中，快取也會隨規則更新自動失效。新增「全新的偵測方式」(例如要量測頁面上新的 HTML 特徵) 仍需修改 `pageAnalyzer.ts`。
